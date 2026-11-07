@@ -45,3 +45,25 @@ differences are the added fields below. A live refresh on 2026-11-07 22:28 UTC a
 6. **Default snapshot date** is today's date in America/New_York, not the runner's timezone.
 7. Pinned `requirements.txt`, tests in `tests/` (a real-HTML excerpt cut by `tests/make_fixture.py`
    plus synthetic edge cases).
+
+## Freshness validation (upstream, unchanged)
+
+`scripts/validate_freshness.py` and `tests/test_freshness.py` are copied unchanged from upstream
+`379641d`. `tests/conftest.py` only puts `scripts/` on the import path so they run as-is.
+`scripts/freshness_gate.py` adapts our envelope to the validator's input:
+
+- The freshness clock starts at the **oldest real hall fetch time** from the `.fetch.json` sidecars,
+  never at parse time. Re-parsing old HTML offline cannot look fresh, and an unknown fetch time is invalid.
+- `validation_status` is `passed` only when all three halls passed, keeping upstream's all-or-nothing rule.
+- `tests/fixtures/freshness-cases.json` is run by both `tests/test_freshness_gate.py` and the browser
+  copy in `src/lib/freshness.ts`, so the two age calculations stay identical.
+
+## Not adopted from upstream (and why)
+
+- **Rewritten `scrape_bu_menus.py` (7b28eb4 and later).** It drops per-item IDs, allergen status,
+  descriptions, meal hours, fetch-time provenance (its `generated_at_utc` is parse time) and HTTP retries,
+  and it requires exactly seven consecutive dates. The app depends on the first four, and freshness
+  depends on provenance. Keeping our integrated copy is the smaller, safer change.
+- **`cleanup_archives.py`.** It prunes upstream's `data/archive/<run_id>/` folders, which this pipeline
+  never creates. Our raw cache is already bounded (6 snapshots per hall), the CI runner is ephemeral,
+  `menu-data` is a single force-pushed commit, and run reports are artifacts with 30-day retention.

@@ -10,7 +10,8 @@ Unofficial student project for Hackcessability (Information Access track). Not a
 | --- | --- |
 | West, Warren, Marciano menus (7 days, ~2,400 dish occurrences) | Collected from bu.edu by the teammate scraper in `collector/` |
 | Manual meal builder | Whole-serving amounts, totals vs your meal target, incomplete totals shown as "at least X, known for N of M dishes" |
-| Local suggestions | Deterministic search over 2–3-dish plates, up to 3 distinct options, "Not this" swaps, "Why this plan?" |
+| Local suggestions | Deterministic search over 2–3-dish plates, up to 3 distinct options, "Not this" swaps, "Why this plan?". Off until the allergy question is answered and while menu data fails the freshness check |
+| Week view | Seven calendar days for one hall from the selected date, using the same planner, gate and per-day freshness; incomplete or unposted days are labelled |
 | Restrictions | One shared gate for menu, add, swap and suggestions. Unknown allergen info is excluded in strict mode (default) |
 | Dish details | Accessible `<dialog>`: restrictions first, then the label, ingredients, cross-contact notes and the official source link |
 | Privacy | Profile stays in the browser; saving to `localStorage` is opt-in, with a delete control |
