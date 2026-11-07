@@ -6,6 +6,7 @@ import { MenuList } from "./features/MenuList";
 import { MAX_SERVINGS, Plate } from "./features/Plate";
 import { Settings } from "./features/Settings";
 import { Suggestions } from "./features/Suggestions";
+import { Week } from "./features/Week";
 import { eligibility } from "./lib/freshness";
 import type { TrayEntry } from "./lib/nutrition";
 import { mealShare, planMeal, type PlanOption } from "./lib/planner";
@@ -14,7 +15,7 @@ import { checkRestrictions, type Restrictions } from "./lib/restrictions";
 import type { HallEntry, MenuIndex, MenuItem } from "./lib/schema";
 import { formatDate, formatHours, formatTimestamp, nyDate, nyMinutes, parseHours, pickMealIndex } from "./lib/time";
 
-type Tab = "plan" | "menu" | "settings";
+type Tab = "plan" | "week" | "menu" | "settings";
 type Picked = { id: string; servings: number };
 
 const initialSaved = loadProfile();
@@ -46,13 +47,15 @@ export default function App() {
   const [profile, setProfile] = useState<Profile>(initialSaved ?? DEFAULT_PROFILE);
   const [remember, setRemember] = useState(initialSaved !== null);
   // Hall/date/meal/view live in the URL (shareable, non-personal); the profile never does.
-  const [tab, setTab] = useState<Tab>(() => (["plan", "menu", "settings"].includes(initialUrl.get("view") ?? "") ? (initialUrl.get("view") as Tab) : "plan"));
+  const [tab, setTab] = useState<Tab>(() => (["plan", "week", "menu", "settings"].includes(initialUrl.get("view") ?? "") ? (initialUrl.get("view") as Tab) : "plan"));
   const [hallId, setHallId] = useState<string | null>(initialUrl.get("hall"));
   const [date, setDate] = useState<string | null>(initialUrl.get("date"));
   const [mealName, setMealName] = useState<string | null>(initialUrl.get("meal"));
   const [trays, setTrays] = useState<Record<string, Picked[]>>({});
   const [excluded, setExcluded] = useState<Record<string, string[]>>({});
   const [openItem, setOpenItem] = useState<MenuItem | null>(null);
+  /** Set when a dish is opened from the week view (another day or meal than the plate). */
+  const [openFromWeek, setOpenFromWeek] = useState<string | null>(null);
   const today = nyDate();
 
   useEffect(() => {
@@ -118,6 +121,15 @@ export default function App() {
     if (!stillEligible()) return;
     setTray(option.entries.filter((e) => checkRestrictions(e.item, profile.restrictions).allowed).map((e) => ({ id: e.item.id, servings: e.servings })));
     document.getElementById("plate-heading")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  /** Put a week-view meal on that day's own plate and open it in the Plan tab. */
+  const applyWeekMeal = (day: string, mealName: string, option: PlanOption) => {
+    if (!data || !hall || !eligibility(data, hall.id, day, new Date()).canRecommend) return;
+    const picked = option.entries.filter((e) => checkRestrictions(e.item, profile.restrictions).allowed).map((e) => ({ id: e.item.id, servings: e.servings }));
+    setTrays((t) => ({ ...t, [`${hall.id}/${day}/${mealName}`]: picked }));
+    setDate(day);
+    setMealName(mealName);
+    setTab("plan");
   };
 
   const header = (
@@ -239,10 +251,11 @@ export default function App() {
           </div>
         )}
 
-        <nav aria-label="Views" className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(5.5rem,100%),1fr))] gap-1 rounded-xl bg-sunken p-1">
+        <nav aria-label="Views" className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(4.25rem,100%),1fr))] gap-0.5 rounded-xl bg-sunken p-1">
           {(
             [
               ["plan", "Plan"],
+              ["week", "Week"],
               ["menu", "Menu"],
               ["settings", "Settings"],
             ] as const
@@ -313,7 +326,12 @@ export default function App() {
               </p>
             </div>
 
-            {tab === "plan" ? (
+            {tab === "week" ? (
+              <Week index={data!} hall={hall} start={activeDate!} profile={profile} now={now} onUse={applyWeekMeal} onOpen={(item, mealName) => {
+                setOpenFromWeek(mealName);
+                setOpenItem(item);
+              }} />
+            ) : tab === "plan" ? (
               <>
                 <section aria-labelledby="plate-heading">
                   <h2 id="plate-heading" className="mb-3 scroll-mt-4 text-lg font-bold">
@@ -375,7 +393,16 @@ export default function App() {
         </footer>
       </main>
 
-      <DishDialog item={openItem} restrictions={profile.restrictions} meal={meal?.name ?? ""} onAdd={addItem} onClose={() => setOpenItem(null)} />
+      <DishDialog
+        item={openItem}
+        restrictions={profile.restrictions}
+        meal={openFromWeek ?? meal?.name ?? ""}
+        onAdd={openFromWeek ? undefined : addItem}
+        onClose={() => {
+          setOpenItem(null);
+          setOpenFromWeek(null);
+        }}
+      />
     </>
   );
 }

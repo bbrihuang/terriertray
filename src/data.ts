@@ -43,36 +43,52 @@ export function useNow(intervalMs = 60_000): Date {
   return now;
 }
 
-const dayCache = new Map<string, DayMenu>();
+const dayCache = new Map<string, Promise<DayMenu>>();
+
+/** Fetch and validate one published day file; cached per data version, failures are not cached. */
+export function loadDay(file: string, version: string): Promise<DayMenu> {
+  const key = `${file}?v=${version}`;
+  let pending = dayCache.get(key);
+  if (!pending) {
+    pending = getJson(`/menus/${key}`).then((json) => {
+      const parsed = DayMenu.safeParse(json);
+      if (!parsed.success) throw new Error("format");
+      return parsed.data;
+    });
+    pending.catch(() => dayCache.delete(key));
+    dayCache.set(key, pending);
+  }
+  return pending;
+}
+
+const failure = (err: unknown) =>
+  err instanceof Error && err.message === "format" ? "This day's menu file has an unexpected format." : "This day's menu could not be loaded.";
 
 export function useDayMenu(file: string | null, version: string | null): Load<DayMenu> | null {
-  const key = file && version ? `${file}?v=${version}` : null;
-  const [load, setLoad] = useState<Load<DayMenu> | null>(null);
+  const loads = useDayMenus(file ? [file] : [], version);
+  return file ? (loads[file] ?? { state: "loading" }) : null;
+}
+
+/** Several day files at once (the week view). Keys are the file paths. */
+export function useDayMenus(files: string[], version: string | null): Record<string, Load<DayMenu>> {
+  const key = version ? files.join("|") : "";
+  const [loads, setLoads] = useState<Record<string, Load<DayMenu>>>({});
   useEffect(() => {
-    if (!key) {
-      setLoad(null);
-      return;
-    }
-    const cached = dayCache.get(key);
-    if (cached) {
-      setLoad({ state: "ready", data: cached });
+    if (!key || !version) {
+      setLoads({});
       return;
     }
     let live = true;
-    setLoad({ state: "loading" });
-    getJson(`/menus/${key}`)
-      .then((json) => {
-        const parsed = DayMenu.safeParse(json);
-        if (!live) return;
-        if (parsed.success) {
-          dayCache.set(key, parsed.data);
-          setLoad({ state: "ready", data: parsed.data });
-        } else setLoad({ state: "error", message: "This day's menu file has an unexpected format." });
-      })
-      .catch(() => live && setLoad({ state: "error", message: "This day's menu could not be loaded." }));
+    const list = key.split("|");
+    setLoads(Object.fromEntries(list.map((f) => [f, { state: "loading" } as const])));
+    for (const file of list) {
+      loadDay(file, version)
+        .then((data) => live && setLoads((l) => ({ ...l, [file]: { state: "ready", data } })))
+        .catch((err) => live && setLoads((l) => ({ ...l, [file]: { state: "error", message: failure(err) } })));
+    }
     return () => {
       live = false;
     };
-  }, [key]);
-  return load;
+  }, [key, version]);
+  return loads;
 }

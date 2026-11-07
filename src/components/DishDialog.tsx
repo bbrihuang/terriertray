@@ -8,7 +8,8 @@ type Props = {
   item: MenuItem | null;
   restrictions: Restrictions;
   meal: string;
-  onAdd: (item: MenuItem) => void;
+  /** Omitted when the dish was opened outside the current plate (e.g. from the week view). */
+  onAdd?: (item: MenuItem) => void;
   onClose: () => void;
 };
 
@@ -159,19 +160,21 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
           </p>
 
           <div className="mt-4 flex flex-wrap gap-3 border-t border-line pt-4">
-            <Button
-              variant="primary"
-              disabled={!verdict.allowed}
-              onClick={() => {
-                onAdd(item);
-                ref.current?.close();
-              }}
-            >
-              <Icon name="plus" /> Add to plate
-            </Button>
+            {onAdd && (
+              <Button
+                variant="primary"
+                disabled={!verdict.allowed}
+                onClick={() => {
+                  onAdd(item);
+                  ref.current?.close();
+                }}
+              >
+                <Icon name="plus" /> Add to plate
+              </Button>
+            )}
             <Button onClick={() => ref.current?.close()}>Close</Button>
           </div>
-          {!verdict.allowed && <p className="mt-2 text-sm text-muted">Change your restrictions in Settings to add this dish.</p>}
+          {onAdd && !verdict.allowed && <p className="mt-2 text-sm text-muted">Change your restrictions in Settings to add this dish.</p>}
         </div>
       )}
     </dialog>
