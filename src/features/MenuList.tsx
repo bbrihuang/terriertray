@@ -1,8 +1,8 @@
 import { useId, useMemo, useState } from "react";
 import { formatAmount } from "../lib/nutrition";
-import { allergenHeadline, checkRestrictions, type Restrictions } from "../lib/restrictions";
+import { allergenHeadline, allergyAnswered, checkRestrictions, type Restrictions } from "../lib/restrictions";
 import type { MenuItem } from "../lib/schema";
-import { Icon, IconButton } from "../components/ui";
+import { Icon, IconButton, Notice } from "../components/ui";
 
 type Props = {
   items: MenuItem[];
@@ -31,9 +31,17 @@ export function MenuList({ items, restrictions, onPlate, onAdd, onOpen }: Props)
   }, [items, restrictions, query, station, onlyFits]);
 
   const hidden = items.length - rows.length;
+  const answered = allergyAnswered(restrictions);
 
   return (
     <div>
+      {!answered && (
+        <div className="mb-4">
+          <Notice tone="warn" title="Set your allergies to add dishes">
+            You can browse everything, but adding and suggestions stay off until you answer the allergy question in Settings, even if the answer is “none”.
+          </Notice>
+        </div>
+      )}
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
         <div>
           <label htmlFor={`${ids}-q`} className="block font-semibold">
@@ -87,10 +95,14 @@ export function MenuList({ items, restrictions, onPlate, onAdd, onOpen }: Props)
                     {item.station ?? "Other"} · {item.servingText ?? "serving not listed"} ·{" "}
                     {item.caloriesKcal === null ? "no nutrition label" : `${formatAmount(item.caloriesKcal, " kcal")}, ${item.proteinG === null ? "protein unknown" : `${formatAmount(item.proteinG, " g")} protein`}`}
                   </p>
-                  <p className={`mt-1 flex items-center gap-1.5 text-sm ${verdict.allowed ? "text-muted" : "font-semibold text-danger"}`}>
-                    {!verdict.allowed && <Icon name="alert" className="size-4 shrink-0" />}
-                    {verdict.allowed ? allergenHeadline(verdict, restrictions) : verdict.reasons[0]}
-                  </p>
+                  {!answered && verdict.reasons.length === 1 ? (
+                    <p className="mt-1 text-sm text-muted">Allergies not set</p>
+                  ) : (
+                    <p className={`mt-1 flex items-center gap-1.5 text-sm ${verdict.allowed ? "text-muted" : "font-semibold text-danger"}`}>
+                      {!verdict.allowed && <Icon name="alert" className="size-4 shrink-0" />}
+                      {verdict.allowed ? allergenHeadline(verdict, restrictions) : verdict.reasons[0]}
+                    </p>
+                  )}
                 </div>
                 <IconButton
                   label={added ? `${item.name} is on your plate; add another serving` : verdict.allowed ? `Add ${item.name} to plate` : `${item.name} doesn't fit your restrictions`}

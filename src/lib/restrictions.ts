@@ -34,6 +34,9 @@ const INGREDIENT_HINTS: Record<string, RegExp> = {
   "Tree Nuts": /\b(almonds?|cashews?|walnuts?|pecans?|pistachios?|hazelnuts?|macadamia)\b/i,
 };
 
+/** True once the user has said "no allergens" or ticked at least one to avoid. */
+export const allergyAnswered = (r: Restrictions) => r.allergyAnswer === "none" || (r.allergyAnswer === "some" && r.avoidAllergens.length > 0);
+
 export type AllergenFinding = "contains" | "unknown" | "none_reported" | "not_checked";
 
 export type Verdict = {
@@ -76,6 +79,10 @@ export function checkRestrictions(item: MenuItem, r: Restrictions): Verdict {
     }
   } else if (r.allergyAnswer === "none") {
     allergen = "none_reported";
+  } else {
+    // Unanswered (or "yes" with nothing ticked) is not "no allergies": nothing passes until answered.
+    allowed = false;
+    reasons.push(r.allergyAnswer === "some" ? "Choose which allergens to avoid in Settings" : "Answer the allergy question in Settings first");
   }
 
   for (const tag of r.requireTags) {

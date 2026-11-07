@@ -66,8 +66,16 @@ describe("restriction gate", () => {
     expect(checkRestrictions(item({ allergens: ["Soy"] }), { ...noAllergies, requireTags: ["Gluten Free"] }).allowed).toBe(false);
   });
 
-  it("an unanswered allergy question is not treated as no allergies", () => {
-    expect(checkRestrictions(item({ allergens: null }), DEFAULT_RESTRICTIONS).allergen).toBe("not_checked");
+  it("an unanswered allergy question is not treated as no allergies, and blocks adding", () => {
+    const v = checkRestrictions(item({ allergens: [] }), DEFAULT_RESTRICTIONS);
+    expect(v).toMatchObject({ allergen: "not_checked", allowed: false });
+    expect(v.reasons[0]).toMatch(/allergy question/);
+  });
+
+  it("'yes' with no allergen ticked is also not an answer", () => {
+    const v = checkRestrictions(item({ allergens: [] }), { ...DEFAULT_RESTRICTIONS, allergyAnswer: "some" });
+    expect(v.allowed).toBe(false);
+    expect(v.reasons[0]).toMatch(/Choose which allergens/);
   });
 });
 
@@ -142,6 +150,13 @@ describe("planner on the real Warren Nov 7 menu", () => {
       expect(result.reason).toMatch(/restrictions/);
       expect(result.excluded.restricted).toBeGreaterThan(0);
     }
+  });
+
+  it("gives no suggestions or swaps until allergies are answered", () => {
+    const result = planMeal(dinner, targets, DEFAULT_RESTRICTIONS);
+    expect(result).toMatchObject({ kind: "infeasible", reason: expect.stringMatching(/allergy question/) });
+    const swapped = planMeal(dinner, targets, DEFAULT_RESTRICTIONS, { exclude: new Set([dinner[0]!.id]) });
+    expect(swapped.kind).toBe("infeasible");
   });
 
   it("asks for targets instead of guessing them", () => {

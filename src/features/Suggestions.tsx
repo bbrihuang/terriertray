@@ -29,8 +29,6 @@ function restrictionLine(r: Restrictions) {
   if (r.allergyAnswer === "some" && r.avoidAllergens.length > 0) {
     parts.push(`no dish lists ${r.avoidAllergens.join(", ")} on its label or in its ingredient text`);
     parts.push(r.strictUnknown ? "dishes with missing allergen info were left out" : "dishes with missing allergen info were allowed, as you chose");
-  } else if (r.allergyAnswer === "unanswered") {
-    parts.push("allergies are not set, so no allergen filtering was applied");
   }
   if (r.requireTags.length > 0) parts.push(`every dish is labeled ${r.requireTags.join(" and ")} by the source`);
   return parts.length ? parts.join("; ") : "no restrictions selected";

@@ -1,5 +1,5 @@
 import { hasCoreNutrition, totals, type TrayEntry } from "./nutrition";
-import { checkRestrictions, type Restrictions } from "./restrictions";
+import { allergyAnswered, checkRestrictions, type Restrictions } from "./restrictions";
 import type { MenuItem } from "./schema";
 
 /** Targets for ONE meal. null = no target for that nutrient. */
@@ -89,6 +89,10 @@ export function planMeal(
 ): PlanResult {
   const notes = validateTargets(targets);
   const excluded: Exclusions = { restricted: 0, incompleteNutrition: 0, buildYourOwn: 0, tooSmall: 0, userExcluded: 0 };
+
+  if (!allergyAnswered(restrictions)) {
+    return { kind: "infeasible", reason: "Answer the allergy question in Settings to get suggestions.", excluded, notes };
+  }
 
   if (Object.values(targets).every((v) => v === null || v <= 0)) {
     return { kind: "infeasible", reason: "Set at least a calorie or protein target to get suggestions.", excluded, notes };

@@ -27,7 +27,8 @@ function pickDate(dates: string[], today: string): string | null {
 function restrictionSummary(r: Restrictions) {
   const parts: string[] = [];
   if (r.allergyAnswer === "unanswered") parts.push("Allergies not set");
-  else if (r.allergyAnswer === "none" || r.avoidAllergens.length === 0) parts.push("No allergens filtered");
+  else if (r.allergyAnswer === "none") parts.push("No allergens filtered");
+  else if (r.avoidAllergens.length === 0) parts.push("Allergens not chosen");
   else parts.push(`Avoiding ${r.avoidAllergens.join(", ")}`);
   if (r.requireTags.length) parts.push(r.requireTags.join(" + "));
   return parts.join(" · ");
