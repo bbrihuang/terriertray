@@ -15,7 +15,8 @@ Unofficial student project for Hackcessability (Information Access track). Not a
 | Dish details | Accessible `<dialog>`: restrictions first, then the label, ingredients, cross-contact notes and the official source link |
 | Privacy | Profile stays in the browser; saving to `localStorage` is opt-in, with a delete control |
 | Fenway (Sodexo API) | Keyed collector client written and tested, **not connected**: no `SODEXO_API_KEY` was available, and the response format is unverified |
-| Scheduled refresh | `.github/workflows/refresh-menus.yml` (not yet run on GitHub) |
+| Scheduled refresh | `.github/workflows/refresh-menus.yml`, daily at 05:30 New York and on demand (not yet run on GitHub) |
+| Freshness gate | The upstream `validate_freshness.py` checks each refresh; suggestions need data under 24 hours old with all three halls posted for that day |
 
 ## Commands
 
@@ -51,7 +52,7 @@ profile (allergens, targets) ── stays in the browser ──▶ local planner
 ```
 
 - Raw HTML (12–16 MB per hall) and collector output stay in `collector/data/` (git-ignored), never in `public/`.
-- A hall that fails a refresh keeps its previous files and original fetch time, marked stale; good halls still publish.
+- New BU data is published only if all three halls collect and the upstream validator says it is fresh (all-or-nothing). Otherwise the previous snapshot stays, with its original fetch time, and ages into "stale". Each run writes a summary, keeps its JSON reports as 30-day artifacts, and opens (or updates) one `menu-refresh` issue on failure. That issue closes after the next full success; delivery follows your GitHub notification settings.
 - `index.json` carries a content-hash `dataVersion`; day files are requested with `?v=dataVersion`, so cached files never mix versions.
 - `docs/data-coverage.md` reports field coverage per hall. BU lists allergens for only about half of dishes; vitamins and minerals appear only as % Daily Value, so they are shown as printed and not scored.
 

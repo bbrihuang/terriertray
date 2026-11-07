@@ -5,7 +5,8 @@
  */
 import { execFileSync } from "node:child_process";
 
-if (process.env.VERCEL !== "1") process.exit(0);
+// The refresh workflow builds with the data it just validated (TERRIERTRAY_DATA_PINNED=1).
+if (process.env.VERCEL !== "1" || process.env.TERRIERTRAY_DATA_PINNED === "1") process.exit(0);
 
 const git = (...args: string[]) => execFileSync("git", args, { stdio: ["ignore", "pipe", "pipe"] }).toString();
 

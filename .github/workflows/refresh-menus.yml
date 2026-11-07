@@ -1,11 +1,11 @@
 name: refresh-menus
 
-# Collect BU menus (and check the Fenway feed), merge with the last published data,
-# publish to the `menu-data` branch, and deploy that exact data to Vercel if configured.
+# Collect BU menus (and check the Fenway feed), validate freshness, merge with the last
+# published data, publish to the `menu-data` branch, and deploy that exact data if configured.
 on:
   schedule:
-    # 10:15, 15:15, 21:15 UTC = 6:15 AM, 11:15 AM, 5:15 PM New York in EDT (one hour earlier in EST).
-    - cron: "15 10,15,21 * * *"
+    - cron: "30 5 * * *"
+      timezone: "America/New_York" # 05:30 New York, DST-aware
   workflow_dispatch:
     inputs:
       date:
@@ -18,7 +18,8 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write # push the menu-data branch only
+  contents: write # push the menu-data branch
+  issues: write # open/update/close the single failure issue
 
 jobs:
   refresh:
@@ -54,7 +55,7 @@ jobs:
             echo "First run: no menu-data branch yet, starting from the snapshot in main."
           fi
 
-      - name: Collect BU menus
+      - name: Collect BU menus (live)
         id: bu
         env:
           COLLECTOR_CONTACT: ${{ vars.COLLECTOR_CONTACT }}
@@ -67,6 +68,19 @@ jobs:
           (cd collector && python scripts/scrape_bu_menus.py --refresh --snapshot-date "$DATE")
           echo "code=$?" >> "$GITHUB_OUTPUT"
 
+      - name: Validate freshness (upstream validator)
+        id: gate
+        # All-or-nothing for the three BU halls: only a fully passed collection is validated.
+        if: steps.bu.outputs.code == '0'
+        run: |
+          set +e
+          (cd collector && python scripts/freshness_gate.py \
+            --input "data/processed/terrier_trays_menus_${{ steps.bu.outputs.date }}.json" \
+            --out data/processed/freshness.json --start "${{ steps.bu.outputs.date }}")
+          code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "status=$(jq -r .validatorStatus collector/data/processed/freshness.json 2>/dev/null || echo unknown)" >> "$GITHUB_OUTPUT"
+
       - name: Check Fenway feed
         env:
           SODEXO_API_KEY: ${{ secrets.SODEXO_API_KEY }}
@@ -75,15 +89,35 @@ jobs:
       - name: Merge and stage public data
         id: merge
         run: |
+          args=(--fenway collector/data/processed/fenway_status.json --coverage docs/data-coverage.md)
+          if [ "${{ steps.gate.outputs.code }}" = "0" ]; then
+            args+=(--bu "collector/data/processed/terrier_trays_menus_${{ steps.bu.outputs.date }}.json" \
+                   --freshness collector/data/processed/freshness.json)
+            echo "published=new" >> "$GITHUB_OUTPUT"
+          else
+            echo "New BU data not published; keeping the previous snapshot and its original age."
+            echo "published=previous" >> "$GITHUB_OUTPUT"
+          fi
           set +e
-          npx tsx scripts/build-menus.ts \
-            --bu "collector/data/processed/terrier_trays_menus_${{ steps.bu.outputs.date }}.json" \
-            --fenway collector/data/processed/fenway_status.json \
-            --coverage docs/data-coverage.md
+          npx tsx scripts/build-menus.ts "${args[@]}"
           code=$?
           echo "code=$code" >> "$GITHUB_OUTPUT"
-          # 0 = all halls fresh, 2 = some halls kept their previous snapshot. Anything else is a hard stop.
-          [ "$code" -eq 0 ] || [ "$code" -eq 2 ]
+          # 0 = all halls fresh, 2 = halls kept their previous snapshot. Anything else is a hard stop.
+          if [ "$code" -ne 0 ] && [ "$code" -ne 2 ]; then exit 1; fi
+          echo "version=$(jq -r .dataVersion public/menus/index.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Keep run reports (30 days)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refresh-reports-${{ github.run_id }}
+          # Small JSON reports only; raw HTML (12-16 MB per hall) is not kept.
+          path: |
+            collector/data/processed/validation_*.json
+            collector/data/processed/freshness.json
+            collector/data/processed/fenway_status.json
+          if-no-files-found: ignore
+          retention-days: 30
 
       - name: Verify
         run: |
@@ -92,37 +126,94 @@ jobs:
           npm run check:secrets
 
       - name: Publish menu-data branch
+        id: persist
         run: |
           tmp="$(mktemp -d)"
           cp -r public/menus "$tmp/menus"
           cp docs/data-coverage.md "$tmp/"
-          cp collector/data/processed/validation_*.json "$tmp/" 2>/dev/null || true
+          cp collector/data/processed/validation_*.json collector/data/processed/freshness.json "$tmp/" 2>/dev/null || true
           cd "$tmp"
           git init -q -b menu-data
           git config user.name "terriertray-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -qm "Menu data $(date -u +%FT%TZ) from ${GITHUB_SHA::7}"
+          git commit -qm "Menu data ${{ steps.merge.outputs.version }} $(date -u +%FT%TZ) from ${GITHUB_SHA::7}"
           # Single-commit branch: history stays bounded; main keeps the code history.
           git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" menu-data
+          echo "done=true" >> "$GITHUB_OUTPUT"
 
       - name: Deploy to Vercel
+        id: deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          # Build with the data validated above, not whatever the branch holds at build time.
+          TERRIERTRAY_DATA_PINNED: "1"
         run: |
           if [ -z "$VERCEL_TOKEN" ]; then
-            echo "VERCEL_TOKEN not configured; data published to menu-data, not deployed."
+            echo "result=not configured (VERCEL_TOKEN missing)" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           npx --yes vercel@65.2.0 pull --yes --environment=production --token "$VERCEL_TOKEN"
           npx --yes vercel@65.2.0 build --prod --token "$VERCEL_TOKEN"
+          built="$(jq -r .dataVersion .vercel/output/static/menus/index.json)"
+          if [ "$built" != "${{ steps.merge.outputs.version }}" ]; then
+            echo "Built data $built does not match validated ${{ steps.merge.outputs.version }}; not deploying."
+            echo "result=blocked (data version mismatch)" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
           npx --yes vercel@65.2.0 deploy --prebuilt --prod --token "$VERCEL_TOKEN"
+          echo "result=deployed $built" >> "$GITHUB_OUTPUT"
 
-      - name: Fail visibly on partial or failed collection
-        if: steps.bu.outputs.code != '0' || steps.merge.outputs.code != '0'
+      - name: Run summary
+        if: always()
         run: |
-          echo "Collector exit ${{ steps.bu.outputs.code }}, merge exit ${{ steps.merge.outputs.code }}."
-          echo "Previous data was kept for halls that failed. See validation_*.json on the menu-data branch."
+          case "${{ steps.bu.outputs.code }}" in
+            0) collection="passed (all three halls, live)";;
+            2) collection="partial: some halls failed, so nothing new is published (all-or-nothing)";;
+            1) collection="failed for every hall";;
+            *) collection="did not run";;
+          esac
+          {
+            echo "### Menu refresh for ${{ steps.bu.outputs.date || 'unknown date' }}"
+            echo "| Stage | Result |"
+            echo "|---|---|"
+            echo "| Collection | $collection |"
+            echo "| Validation | ${{ steps.gate.outputs.status || 'skipped (collection did not fully pass)' }} |"
+            echo "| Published data | ${{ steps.merge.outputs.published || 'not reached' }} (version ${{ steps.merge.outputs.version || 'n/a' }}) |"
+            echo "| Persistence (menu-data branch) | ${{ steps.persist.outputs.done == 'true' && 'pushed' || 'not pushed' }} |"
+            echo "| Deployment | ${{ steps.deploy.outputs.result || 'not reached' }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail visibly when new data was not published
+        id: verdict
+        if: steps.bu.outputs.code != '0' || steps.gate.outputs.code != '0' || steps.merge.outputs.code != '0'
+        run: |
+          echo "Collector exit ${{ steps.bu.outputs.code }}, validation exit ${{ steps.gate.outputs.code }}, merge exit ${{ steps.merge.outputs.code }}."
+          echo "The previous snapshot was kept. Reports are in the run artifacts and on the menu-data branch."
           exit 1
+
+      - name: Open or update the failure issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create menu-refresh --color B37C05 --description "Automated menu refresh failures" --force >/dev/null
+          existing="$(gh issue list --label menu-refresh --state open --json number --jq '.[0].number')"
+          body="Refresh for ${{ steps.bu.outputs.date }} failed: $RUN_URL (see the run summary). The site keeps the previous menu snapshot."
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "Menu refresh is failing" --label menu-refresh --body "$body"
+          fi
+
+      - name: Close the failure issue after a full success
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --label menu-refresh --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Refresh for ${{ steps.bu.outputs.date }} succeeded: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          done
