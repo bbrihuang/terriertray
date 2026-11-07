@@ -1,1 +1,0 @@
-Daily Calorie Requirement = -340.7314 - 7.4506 * Age + 8.1819 * Height_cm + 15.5104 * Weight_kg + 254.3456 * Activity_Level + 218.5443 * Gender_Male + 485.5141 * Gender_Other
