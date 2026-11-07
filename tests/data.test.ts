@@ -103,6 +103,15 @@ describe("publication merge", () => {
     expect(fenway).toMatchObject({ status: "not_configured", dates: [] });
   });
 
+  it("new BU data without a validation result is never marked fresh; a failed run keeps the old result", () => {
+    expect(first.index.freshness).toBeNull();
+    const checked = { basis: "oldest_hall_fetch" as const, basisAt: "2026-11-07T21:00:00Z", checkedAt: attemptedAt, validatorStatus: "fresh" as const, maxAgeHours: 24, expiryHours: 48, requestedDates: [], availableDates: ["2026-11-07"], missingDates: [], warnings: [], errors: [] };
+    const validated = buildMenus({ bu: envelope, fenway: null, freshness: checked, prior: null, attemptedAt, today });
+    expect(validated.index.freshness?.basisAt).toBe("2026-11-07T21:00:00Z");
+    const failedRun = buildMenus({ bu: null, fenway: null, prior: { index: validated.index, readDay: (f) => validated.files.get(f)! }, attemptedAt: "2026-11-09T10:00:00Z", today: "2026-11-09" });
+    expect(failedRun.index.freshness?.basisAt).toBe("2026-11-07T21:00:00Z"); // keeps its original age
+  });
+
   it("dataVersion changes when content changes", () => {
     const partial = { ...envelope, dining_halls: ["West Campus"], failed_halls: ["Warren Towers", "Marciano Commons"], status: "partial" as const };
     const other = buildMenus({ bu: partial, fenway: null, prior: null, attemptedAt, today });

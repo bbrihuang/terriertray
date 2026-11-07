@@ -28,6 +28,21 @@ export function useMenuIndex(): Load<MenuIndex> {
   return load;
 }
 
+/** Current time, refreshed every minute and when the tab becomes visible, so freshness re-ages in open tabs. */
+export function useNow(intervalMs = 60_000): Date {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const tick = () => setNow(new Date());
+    const timer = setInterval(tick, intervalMs);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, [intervalMs]);
+  return now;
+}
+
 const dayCache = new Map<string, DayMenu>();
 
 export function useDayMenu(file: string | null, version: string | null): Load<DayMenu> | null {

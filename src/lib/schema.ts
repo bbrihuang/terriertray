@@ -139,6 +139,22 @@ export const HallEntry = z.object({
 });
 export type HallEntry = z.infer<typeof HallEntry>;
 
+/** Output of collector/scripts/freshness_gate.py (upstream validator) for the BU halls. */
+export const Freshness = z.object({
+  basis: z.literal("oldest_hall_fetch"),
+  basisAt: z.string().nullable(),
+  checkedAt: z.string().nullable(),
+  validatorStatus: z.enum(["fresh", "stale", "expired", "missing_dates", "invalid"]),
+  maxAgeHours: z.number().positive(),
+  expiryHours: z.number().positive(),
+  requestedDates: z.array(z.iso.date()),
+  availableDates: z.array(z.iso.date()),
+  missingDates: z.array(z.iso.date()),
+  warnings: z.array(z.string()),
+  errors: z.array(z.string()),
+});
+export type Freshness = z.infer<typeof Freshness>;
+
 export const MenuIndex = z.object({
   schemaVersion: z.literal(1),
   /** Content hash; appended to day-file requests so cached files never mix versions. */
@@ -146,6 +162,8 @@ export const MenuIndex = z.object({
   generatedAt: z.string(),
   timezone: z.literal("America/New_York"),
   allergyNotice: z.string(),
+  /** null/absent = BU data was never validated, so suggestions stay off. */
+  freshness: Freshness.nullable().optional(),
   halls: z.array(HallEntry),
 });
 export type MenuIndex = z.infer<typeof MenuIndex>;

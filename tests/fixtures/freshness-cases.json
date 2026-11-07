@@ -1,0 +1,14 @@
+[
+  { "name": "just fetched", "basisAt": "2026-11-07T20:00:00+00:00", "now": "2026-11-07T20:00:00+00:00", "status": "fresh", "ageHours": 0 },
+  { "name": "exactly 24h", "basisAt": "2026-11-06T20:00:00+00:00", "now": "2026-11-07T20:00:00+00:00", "status": "fresh", "ageHours": 24 },
+  { "name": "24h plus one second", "basisAt": "2026-11-06T19:59:59+00:00", "now": "2026-11-07T20:00:00+00:00", "status": "stale", "ageHours": 24.000278 },
+  { "name": "exactly 48h", "basisAt": "2026-11-05T20:00:00+00:00", "now": "2026-11-07T20:00:00+00:00", "status": "stale", "ageHours": 48 },
+  { "name": "48h plus one second", "basisAt": "2026-11-05T19:59:59+00:00", "now": "2026-11-07T20:00:00+00:00", "status": "expired", "ageHours": 48.000278 },
+  { "name": "offset timestamp", "basisAt": "2026-11-07T10:30:00-05:00", "now": "2026-11-07T20:00:00Z", "status": "fresh", "ageHours": 4.5 },
+  { "name": "Z suffix", "basisAt": "2026-11-07T18:00:00Z", "now": "2026-11-07T20:00:00+00:00", "status": "fresh", "ageHours": 2 },
+  { "name": "4 minutes in the future (tolerated skew)", "basisAt": "2026-11-07T20:04:00+00:00", "now": "2026-11-07T20:00:00+00:00", "status": "fresh", "ageHours": 0 },
+  { "name": "6 minutes in the future", "basisAt": "2026-11-07T20:06:00+00:00", "now": "2026-11-07T20:00:00+00:00", "status": "invalid", "ageHours": null },
+  { "name": "no timezone", "basisAt": "2026-11-07T18:00:00", "now": "2026-11-07T20:00:00+00:00", "status": "invalid", "ageHours": null },
+  { "name": "unknown fetch time", "basisAt": null, "now": "2026-11-07T20:00:00+00:00", "status": "invalid", "ageHours": null },
+  { "name": "garbage", "basisAt": "yesterday", "now": "2026-11-07T20:00:00+00:00", "status": "invalid", "ageHours": null }
+]

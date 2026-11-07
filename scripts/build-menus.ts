@@ -16,7 +16,7 @@ import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { z } from "zod";
 import { BU_HALLS, toDayMenus } from "../src/lib/adapter.ts";
-import { DayMenu, MenuIndex, ScraperEnvelope, type HallEntry } from "../src/lib/schema.ts";
+import { DayMenu, Freshness, MenuIndex, ScraperEnvelope, type HallEntry } from "../src/lib/schema.ts";
 import { nyDate } from "../src/lib/time.ts";
 import { FenwayStatus, FENWAY } from "./sodexo.ts";
 
@@ -25,6 +25,8 @@ const KEEP_STALE_DAYS = 7;
 export type BuildInput = {
   bu: ScraperEnvelope | null;
   fenway: FenwayStatus | null;
+  /** freshness_gate.py result for this run's BU data; required for suggestions. */
+  freshness?: Freshness | null;
   prior: { index: MenuIndex; readDay: (file: string) => DayMenu } | null;
   attemptedAt: string;
   today: string;
@@ -39,7 +41,7 @@ const addDays = (iso: string, n: number) => {
 };
 
 /** Pure merge step (tested); I/O lives in main(). */
-export function buildMenus({ bu, fenway, prior, attemptedAt, today }: BuildInput): BuildOutput {
+export function buildMenus({ bu, fenway, freshness = null, prior, attemptedAt, today }: BuildInput): BuildOutput {
   const files = new Map<string, DayMenu>();
   const halls: HallEntry[] = [];
   const fresh = bu ? toDayMenus(bu) : [];
@@ -120,6 +122,8 @@ export function buildMenus({ bu, fenway, prior, attemptedAt, today }: BuildInput
     // User-facing wording of BU's warning (the scraper's notice also carries developer notes).
     allergyNotice:
       "BU Dining warns that ingredient substitutions, formulation changes and kitchen cross-contact can occur, and no menu item is guaranteed allergen-free. If you have a food allergy, talk with BU Dining staff before eating.",
+    // New BU data must bring its own validation; without new data the previous result is kept and simply ages.
+    freshness: bu ? freshness : (prior?.index.freshness ?? null),
     halls,
   };
 
@@ -171,6 +175,7 @@ function main() {
     options: {
       bu: { type: "string" },
       fenway: { type: "string" },
+      freshness: { type: "string" },
       out: { type: "string", default: "public/menus" },
       today: { type: "string" },
       coverage: { type: "string" },
@@ -200,7 +205,8 @@ function main() {
     }
   }
 
-  const { index, files } = buildMenus({ bu, fenway, prior, attemptedAt, today });
+  const freshness = values.freshness && existsSync(values.freshness) ? Freshness.parse(readJson(values.freshness)) : null;
+  const { index, files } = buildMenus({ bu, fenway, freshness, prior, attemptedAt, today });
 
   if (!bu && !prior) throw new Error("Nothing to publish: no collector output and no prior data.");
 

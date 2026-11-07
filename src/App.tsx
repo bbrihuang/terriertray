@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { DishDialog } from "./components/DishDialog";
 import { Button, Notice, Section } from "./components/ui";
-import { useDayMenu, useMenuIndex } from "./data";
+import { useDayMenu, useMenuIndex, useNow } from "./data";
 import { MenuList } from "./features/MenuList";
 import { MAX_SERVINGS, Plate } from "./features/Plate";
 import { Settings } from "./features/Settings";
 import { Suggestions } from "./features/Suggestions";
+import { eligibility } from "./lib/freshness";
 import type { TrayEntry } from "./lib/nutrition";
 import { mealShare, planMeal, type PlanOption } from "./lib/planner";
 import { clearProfile, DEFAULT_PROFILE, loadProfile, saveProfile, type Profile } from "./lib/profile-storage";
@@ -91,10 +92,15 @@ export default function App() {
   const target = mealShare(daily, profile.mealsPerDay);
   const targetLabel = profile.mealsPerDay === 1 ? "your whole-day targets" : `1/${profile.mealsPerDay} of your daily targets, for this meal`;
   const exclude = useMemo(() => new Set(excluded[ctx] ?? []), [excluded, ctx]);
+  const now = useNow();
+  const elig = data && hall && activeDate ? eligibility(data, hall.id, activeDate, now) : null;
+  const canSuggest = elig?.canRecommend ?? false;
+  // Checked again at click time, since a tab can sit open past the freshness limit.
+  const stillEligible = () => !!(data && hall && activeDate && eligibility(data, hall.id, activeDate, new Date()).canRecommend);
   const plan = useMemo(
-    () => (meal && hasTarget ? planMeal(meal.items, target, profile.restrictions, { exclude }) : null),
+    () => (meal && hasTarget && canSuggest ? planMeal(meal.items, target, profile.restrictions, { exclude }) : null),
     // target derives from profile
-    [meal, hasTarget, profile, exclude],
+    [meal, hasTarget, canSuggest, profile, exclude],
   );
 
   const setTray = (next: Picked[]) => setTrays((t) => ({ ...t, [ctx]: next }));
@@ -109,6 +115,7 @@ export default function App() {
     setTray(servings <= 0 ? current.filter((p) => p.id !== id) : current.map((p) => (p.id === id ? { ...p, servings } : p)));
   };
   const applyOption = (option: PlanOption) => {
+    if (!stillEligible()) return;
     setTray(option.entries.filter((e) => checkRestrictions(e.item, profile.restrictions).allowed).map((e) => ({ id: e.item.id, servings: e.servings })));
     document.getElementById("plate-heading")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -333,6 +340,11 @@ export default function App() {
                         Set my targets
                       </Button>
                     </Notice>
+                  ) : !canSuggest ? (
+                    <Notice tone="warn" title="Suggestions are off for this day">
+                      <p>{elig?.message}</p>
+                      <p className="mt-1">You can still build a plate yourself from the Menu tab; check dishes against the official page.</p>
+                    </Notice>
                   ) : (
                     plan && (
                       <Suggestions
@@ -343,7 +355,7 @@ export default function App() {
                         freshness={freshness(hall, activeDate!, today)}
                         excludedCount={exclude.size}
                         onUse={applyOption}
-                        onNotThis={(item) => setExcluded((x) => ({ ...x, [ctx]: [...(x[ctx] ?? []), item.id] }))}
+                        onNotThis={(item) => stillEligible() && setExcluded((x) => ({ ...x, [ctx]: [...(x[ctx] ?? []), item.id] }))}
                         onResetExcluded={() => setExcluded((x) => ({ ...x, [ctx]: [] }))}
                         onOpen={setOpenItem}
                       />
