@@ -1,0 +1,309 @@
+Age Group,Sex,Nutrient,Daily Amount
+Infants 0-6 mo,All,Vitamin A,400.0
+Infants 6-12 mo,All,Vitamin A,500.0
+Children 1-3 y,All,Vitamin A,300.0
+Children 4-8 y,All,Vitamin A,400.0
+Males 9-13 y,All,Vitamin A,600.0
+Males 14-18 y,All,Vitamin A,900.0
+Males 19-30 y,All,Vitamin A,900.0
+Males 31-50 y,All,Vitamin A,900.0
+Males 51-70 y,All,Vitamin A,900.0
+Males > 70 y,All,Vitamin A,900.0
+Females 9-13 y,All,Vitamin A,600.0
+Females 14-18 y,All,Vitamin A,700.0
+Females 19-30 y,All,Vitamin A,700.0
+Females 31-50 y,All,Vitamin A,700.0
+Females 51-70 y,All,Vitamin A,700.0
+Females > 70 y,All,Vitamin A,700.0
+Pregnancy 14-18 y,All,Vitamin A,750.0
+Pregnancy 19-30 y,All,Vitamin A,770.0
+Pregnancy 31-50 y,All,Vitamin A,770.0
+Lactation 14-18 y,All,Vitamin A,1200.0
+Lactation 19-30 y,All,Vitamin A,1300.0
+Lactation 31-50 y,All,Vitamin A,1300.0
+Infants 0-6 mo,All,Vitamin C,40.0
+Infants 6-12 mo,All,Vitamin C,50.0
+Children 1-3 y,All,Vitamin C,15.0
+Children 4-8 y,All,Vitamin C,25.0
+Males 9-13 y,All,Vitamin C,45.0
+Males 14-18 y,All,Vitamin C,75.0
+Males 19-30 y,All,Vitamin C,90.0
+Males 31-50 y,All,Vitamin C,90.0
+Males 51-70 y,All,Vitamin C,90.0
+Males > 70 y,All,Vitamin C,90.0
+Females 9-13 y,All,Vitamin C,45.0
+Females 14-18 y,All,Vitamin C,65.0
+Females 19-30 y,All,Vitamin C,75.0
+Females 31-50 y,All,Vitamin C,75.0
+Females 51-70 y,All,Vitamin C,75.0
+Females > 70 y,All,Vitamin C,75.0
+Pregnancy 14-18 y,All,Vitamin C,80.0
+Pregnancy 19-30 y,All,Vitamin C,85.0
+Pregnancy 31-50 y,All,Vitamin C,85.0
+Lactation 14-18 y,All,Vitamin C,115.0
+Lactation 19-30 y,All,Vitamin C,120.0
+Lactation 31-50 y,All,Vitamin C,120.0
+Infants 0-6 mo,All,Vitamin D,10.0
+Infants 6-12 mo,All,Vitamin D,10.0
+Children 1-3 y,All,Vitamin D,15.0
+Children 4-8 y,All,Vitamin D,15.0
+Males 9-13 y,All,Vitamin D,15.0
+Males 14-18 y,All,Vitamin D,15.0
+Males 19-30 y,All,Vitamin D,15.0
+Males 31-50 y,All,Vitamin D,15.0
+Males 51-70 y,All,Vitamin D,15.0
+Males > 70 y,All,Vitamin D,20.0
+Females 9-13 y,All,Vitamin D,15.0
+Females 14-18 y,All,Vitamin D,15.0
+Females 19-30 y,All,Vitamin D,15.0
+Females 31-50 y,All,Vitamin D,15.0
+Females 51-70 y,All,Vitamin D,15.0
+Females > 70 y,All,Vitamin D,20.0
+Pregnancy 14-18 y,All,Vitamin D,15.0
+Pregnancy 19-30 y,All,Vitamin D,15.0
+Pregnancy 31-50 y,All,Vitamin D,15.0
+Lactation 14-18 y,All,Vitamin D,15.0
+Lactation 19-30 y,All,Vitamin D,15.0
+Lactation 31-50 y,All,Vitamin D,15.0
+Infants 0-6 mo,All,Vitamin E,4.0
+Infants 6-12 mo,All,Vitamin E,5.0
+Children 1-3 y,All,Vitamin E,6.0
+Children 4-8 y,All,Vitamin E,7.0
+Males 9-13 y,All,Vitamin E,11.0
+Males 14-18 y,All,Vitamin E,15.0
+Males 19-30 y,All,Vitamin E,15.0
+Males 31-50 y,All,Vitamin E,15.0
+Males 51-70 y,All,Vitamin E,15.0
+Males > 70 y,All,Vitamin E,15.0
+Females 9-13 y,All,Vitamin E,11.0
+Females 14-18 y,All,Vitamin E,15.0
+Females 19-30 y,All,Vitamin E,15.0
+Females 31-50 y,All,Vitamin E,15.0
+Females 51-70 y,All,Vitamin E,15.0
+Females > 70 y,All,Vitamin E,15.0
+Pregnancy 14-18 y,All,Vitamin E,15.0
+Pregnancy 19-30 y,All,Vitamin E,15.0
+Pregnancy 31-50 y,All,Vitamin E,15.0
+Lactation 14-18 y,All,Vitamin E,19.0
+Lactation 19-30 y,All,Vitamin E,19.0
+Lactation 31-50 y,All,Vitamin E,19.0
+Infants 0-6 mo,All,Vitamin K,2.0
+Infants 6-12 mo,All,Vitamin K,2.5
+Children 1-3 y,All,Vitamin K,30.0
+Children 4-8 y,All,Vitamin K,55.0
+Males 9-13 y,All,Vitamin K,60.0
+Males 14-18 y,All,Vitamin K,75.0
+Males 19-30 y,All,Vitamin K,120.0
+Males 31-50 y,All,Vitamin K,120.0
+Males 51-70 y,All,Vitamin K,120.0
+Males > 70 y,All,Vitamin K,120.0
+Females 9-13 y,All,Vitamin K,60.0
+Females 14-18 y,All,Vitamin K,75.0
+Females 19-30 y,All,Vitamin K,90.0
+Females 31-50 y,All,Vitamin K,90.0
+Females 51-70 y,All,Vitamin K,90.0
+Females > 70 y,All,Vitamin K,90.0
+Pregnancy 14-18 y,All,Vitamin K,75.0
+Pregnancy 19-30 y,All,Vitamin K,90.0
+Pregnancy 31-50 y,All,Vitamin K,90.0
+Lactation 14-18 y,All,Vitamin K,75.0
+Lactation 19-30 y,All,Vitamin K,90.0
+Lactation 31-50 y,All,Vitamin K,90.0
+Infants 0-6 mo,All,Thiamin,0.2
+Infants 6-12 mo,All,Thiamin,0.3
+Children 1-3 y,All,Thiamin,0.5
+Children 4-8 y,All,Thiamin,0.6
+Males 9-13 y,All,Thiamin,0.9
+Males 14-18 y,All,Thiamin,1.2
+Males 19-30 y,All,Thiamin,1.2
+Males 31-50 y,All,Thiamin,1.2
+Males 51-70 y,All,Thiamin,1.2
+Males > 70 y,All,Thiamin,1.2
+Females 9-13 y,All,Thiamin,0.9
+Females 14-18 y,All,Thiamin,1.0
+Females 19-30 y,All,Thiamin,1.1
+Females 31-50 y,All,Thiamin,1.1
+Females 51-70 y,All,Thiamin,1.1
+Females > 70 y,All,Thiamin,1.1
+Pregnancy 14-18 y,All,Thiamin,1.4
+Pregnancy 19-30 y,All,Thiamin,1.4
+Pregnancy 31-50 y,All,Thiamin,1.4
+Lactation 14-18 y,All,Thiamin,1.4
+Lactation 19-30 y,All,Thiamin,1.4
+Lactation 31-50 y,All,Thiamin,1.4
+Infants 0-6 mo,All,Riboflavin,0.3
+Infants 6-12 mo,All,Riboflavin,0.4
+Children 1-3 y,All,Riboflavin,0.5
+Children 4-8 y,All,Riboflavin,0.6
+Males 9-13 y,All,Riboflavin,0.9
+Males 14-18 y,All,Riboflavin,1.3
+Males 19-30 y,All,Riboflavin,1.3
+Males 31-50 y,All,Riboflavin,1.3
+Males 51-70 y,All,Riboflavin,1.3
+Males > 70 y,All,Riboflavin,1.3
+Females 9-13 y,All,Riboflavin,0.9
+Females 14-18 y,All,Riboflavin,1.0
+Females 19-30 y,All,Riboflavin,1.1
+Females 31-50 y,All,Riboflavin,1.1
+Females 51-70 y,All,Riboflavin,1.1
+Females > 70 y,All,Riboflavin,1.1
+Pregnancy 14-18 y,All,Riboflavin,1.4
+Pregnancy 19-30 y,All,Riboflavin,1.4
+Pregnancy 31-50 y,All,Riboflavin,1.4
+Lactation 14-18 y,All,Riboflavin,1.6
+Lactation 19-30 y,All,Riboflavin,1.6
+Lactation 31-50 y,All,Riboflavin,1.6
+Infants 0-6 mo,All,Niacin,2.0
+Infants 6-12 mo,All,Niacin,4.0
+Children 1-3 y,All,Niacin,6.0
+Children 4-8 y,All,Niacin,8.0
+Males 9-13 y,All,Niacin,12.0
+Males 14-18 y,All,Niacin,16.0
+Males 19-30 y,All,Niacin,16.0
+Males 31-50 y,All,Niacin,16.0
+Males 51-70 y,All,Niacin,16.0
+Males > 70 y,All,Niacin,16.0
+Females 9-13 y,All,Niacin,12.0
+Females 14-18 y,All,Niacin,14.0
+Females 19-30 y,All,Niacin,14.0
+Females 31-50 y,All,Niacin,14.0
+Females 51-70 y,All,Niacin,14.0
+Females > 70 y,All,Niacin,14.0
+Pregnancy 14-18 y,All,Niacin,18.0
+Pregnancy 19-30 y,All,Niacin,18.0
+Pregnancy 31-50 y,All,Niacin,18.0
+Lactation 14-18 y,All,Niacin,17.0
+Lactation 19-30 y,All,Niacin,17.0
+Lactation 31-50 y,All,Niacin,17.0
+Infants 0-6 mo,All,Vitamin B6,0.1
+Infants 6-12 mo,All,Vitamin B6,0.3
+Children 1-3 y,All,Vitamin B6,0.5
+Children 4-8 y,All,Vitamin B6,0.6
+Males 9-13 y,All,Vitamin B6,1.0
+Males 14-18 y,All,Vitamin B6,1.3
+Males 19-30 y,All,Vitamin B6,1.3
+Males 31-50 y,All,Vitamin B6,1.3
+Males 51-70 y,All,Vitamin B6,1.7
+Males > 70 y,All,Vitamin B6,1.7
+Females 9-13 y,All,Vitamin B6,1.0
+Females 14-18 y,All,Vitamin B6,1.2
+Females 19-30 y,All,Vitamin B6,1.3
+Females 31-50 y,All,Vitamin B6,1.3
+Females 51-70 y,All,Vitamin B6,1.5
+Females > 70 y,All,Vitamin B6,1.5
+Pregnancy 14-18 y,All,Vitamin B6,1.9
+Pregnancy 19-30 y,All,Vitamin B6,1.9
+Pregnancy 31-50 y,All,Vitamin B6,1.9
+Lactation 14-18 y,All,Vitamin B6,2.0
+Lactation 19-30 y,All,Vitamin B6,2.0
+Lactation 31-50 y,All,Vitamin B6,2.0
+Infants 0-6 mo,All,Folate,65.0
+Infants 6-12 mo,All,Folate,80.0
+Children 1-3 y,All,Folate,150.0
+Children 4-8 y,All,Folate,200.0
+Males 9-13 y,All,Folate,300.0
+Males 14-18 y,All,Folate,400.0
+Males 19-30 y,All,Folate,400.0
+Males 31-50 y,All,Folate,400.0
+Males 51-70 y,All,Folate,400.0
+Males > 70 y,All,Folate,400.0
+Females 9-13 y,All,Folate,300.0
+Females 14-18 y,All,Folate,400.0
+Females 19-30 y,All,Folate,400.0
+Females 31-50 y,All,Folate,400.0
+Females 51-70 y,All,Folate,400.0
+Females > 70 y,All,Folate,400.0
+Pregnancy 14-18 y,All,Folate,600.0
+Pregnancy 19-30 y,All,Folate,600.0
+Pregnancy 31-50 y,All,Folate,600.0
+Lactation 14-18 y,All,Folate,500.0
+Lactation 19-30 y,All,Folate,500.0
+Lactation 31-50 y,All,Folate,500.0
+Infants 0-6 mo,All,Vitamin B12,0.4
+Infants 6-12 mo,All,Vitamin B12,0.5
+Children 1-3 y,All,Vitamin B12,0.9
+Children 4-8 y,All,Vitamin B12,1.2
+Males 9-13 y,All,Vitamin B12,1.8
+Males 14-18 y,All,Vitamin B12,2.4
+Males 19-30 y,All,Vitamin B12,2.4
+Males 31-50 y,All,Vitamin B12,2.4
+Males 51-70 y,All,Vitamin B12,2.4
+Males > 70 y,All,Vitamin B12,2.4
+Females 9-13 y,All,Vitamin B12,1.8
+Females 14-18 y,All,Vitamin B12,2.4
+Females 19-30 y,All,Vitamin B12,2.4
+Females 31-50 y,All,Vitamin B12,2.4
+Females 51-70 y,All,Vitamin B12,2.4
+Females > 70 y,All,Vitamin B12,2.4
+Pregnancy 14-18 y,All,Vitamin B12,2.6
+Pregnancy 19-30 y,All,Vitamin B12,2.6
+Pregnancy 31-50 y,All,Vitamin B12,2.6
+Lactation 14-18 y,All,Vitamin B12,2.8
+Lactation 19-30 y,All,Vitamin B12,2.8
+Lactation 31-50 y,All,Vitamin B12,2.8
+Infants 0-6 mo,All,Pantothenic Acid,1.7
+Infants 6-12 mo,All,Pantothenic Acid,1.8
+Children 1-3 y,All,Pantothenic Acid,2.0
+Children 4-8 y,All,Pantothenic Acid,3.0
+Males 9-13 y,All,Pantothenic Acid,4.0
+Males 14-18 y,All,Pantothenic Acid,5.0
+Males 19-30 y,All,Pantothenic Acid,5.0
+Males 31-50 y,All,Pantothenic Acid,5.0
+Males 51-70 y,All,Pantothenic Acid,5.0
+Males > 70 y,All,Pantothenic Acid,5.0
+Females 9-13 y,All,Pantothenic Acid,4.0
+Females 14-18 y,All,Pantothenic Acid,5.0
+Females 19-30 y,All,Pantothenic Acid,5.0
+Females 31-50 y,All,Pantothenic Acid,5.0
+Females 51-70 y,All,Pantothenic Acid,5.0
+Females > 70 y,All,Pantothenic Acid,5.0
+Pregnancy 14-18 y,All,Pantothenic Acid,6.0
+Pregnancy 19-30 y,All,Pantothenic Acid,6.0
+Pregnancy 31-50 y,All,Pantothenic Acid,6.0
+Lactation 14-18 y,All,Pantothenic Acid,7.0
+Lactation 19-30 y,All,Pantothenic Acid,7.0
+Lactation 31-50 y,All,Pantothenic Acid,7.0
+Infants 0-6 mo,All,Biotin,5.0
+Infants 6-12 mo,All,Biotin,6.0
+Children 1-3 y,All,Biotin,8.0
+Children 4-8 y,All,Biotin,12.0
+Males 9-13 y,All,Biotin,20.0
+Males 14-18 y,All,Biotin,25.0
+Males 19-30 y,All,Biotin,30.0
+Males 31-50 y,All,Biotin,30.0
+Males 51-70 y,All,Biotin,30.0
+Males > 70 y,All,Biotin,30.0
+Females 9-13 y,All,Biotin,20.0
+Females 14-18 y,All,Biotin,25.0
+Females 19-30 y,All,Biotin,30.0
+Females 31-50 y,All,Biotin,30.0
+Females 51-70 y,All,Biotin,30.0
+Females > 70 y,All,Biotin,30.0
+Pregnancy 14-18 y,All,Biotin,30.0
+Pregnancy 19-30 y,All,Biotin,30.0
+Pregnancy 31-50 y,All,Biotin,30.0
+Lactation 14-18 y,All,Biotin,35.0
+Lactation 19-30 y,All,Biotin,35.0
+Lactation 31-50 y,All,Biotin,35.0
+Infants 0-6 mo,All,Choline,125.0
+Infants 6-12 mo,All,Choline,150.0
+Children 1-3 y,All,Choline,200.0
+Children 4-8 y,All,Choline,250.0
+Males 9-13 y,All,Choline,375.0
+Males 14-18 y,All,Choline,550.0
+Males 19-30 y,All,Choline,550.0
+Males 31-50 y,All,Choline,550.0
+Males 51-70 y,All,Choline,550.0
+Males > 70 y,All,Choline,550.0
+Females 9-13 y,All,Choline,375.0
+Females 14-18 y,All,Choline,400.0
+Females 19-30 y,All,Choline,425.0
+Females 31-50 y,All,Choline,425.0
+Females 51-70 y,All,Choline,425.0
+Females > 70 y,All,Choline,425.0
+Pregnancy 14-18 y,All,Choline,450.0
+Pregnancy 19-30 y,All,Choline,450.0
+Pregnancy 31-50 y,All,Choline,450.0
+Lactation 14-18 y,All,Choline,550.0
+Lactation 19-30 y,All,Choline,550.0
+Lactation 31-50 y,All,Choline,550.0
