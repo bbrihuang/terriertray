@@ -1,6 +1,6 @@
 name: refresh-menus
 
-# Collect BU menus (and check the Fenway feed), validate freshness, merge with the last
+# Collect BU menus, validate freshness, merge with the last
 # published data, publish to the `menu-data` branch, and deploy that exact data if configured.
 on:
   schedule:
@@ -81,15 +81,13 @@ jobs:
           echo "code=$code" >> "$GITHUB_OUTPUT"
           echo "status=$(jq -r .validatorStatus collector/data/processed/freshness.json 2>/dev/null || echo unknown)" >> "$GITHUB_OUTPUT"
 
-      - name: Check Fenway feed
-        env:
-          SODEXO_API_KEY: ${{ secrets.SODEXO_API_KEY }}
-        run: npm run collect:fenway -- --date "${{ steps.bu.outputs.date }}"
+      # Fenway (Sodexo API) is deferred until its API-key requirement is resolved: no routine
+      # collection. The client stays in scripts/collect-fenway.ts for manual checks.
 
       - name: Merge and stage public data
         id: merge
         run: |
-          args=(--fenway collector/data/processed/fenway_status.json --coverage docs/data-coverage.md)
+          args=(--coverage docs/data-coverage.md)
           if [ "${{ steps.gate.outputs.code }}" = "0" ]; then
             args+=(--bu "collector/data/processed/terrier_trays_menus_${{ steps.bu.outputs.date }}.json" \
                    --freshness collector/data/processed/freshness.json)
@@ -115,7 +113,6 @@ jobs:
           path: |
             collector/data/processed/validation_*.json
             collector/data/processed/freshness.json
-            collector/data/processed/fenway_status.json
           if-no-files-found: ignore
           retention-days: 30
 

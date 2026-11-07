@@ -63,7 +63,9 @@ export default function App() {
   }, [profile, remember]);
 
   const data: MenuIndex | null = index.state === "ready" ? index.data : null;
-  const hall = data?.halls.find((h) => h.id === hallId) ?? data?.halls.find((h) => h.dates.length > 0) ?? null;
+  // Fenway (Sodexo API) is deferred: its code and index entry remain, but it is not offered as a choice.
+  const halls = data?.halls.filter((h) => h.source === "bu-html") ?? [];
+  const hall = halls.find((h) => h.id === hallId) ?? halls.find((h) => h.dates.length > 0) ?? null;
   const dates = hall?.dates.map((d) => d.date) ?? [];
   const activeDate = date && dates.includes(date) ? date : pickDate(dates, today);
   const file = hall?.dates.find((d) => d.date === activeDate)?.file ?? null;
@@ -183,7 +185,7 @@ export default function App() {
               }}
               className="mt-1 min-h-11 w-full rounded-lg border border-control bg-surface px-3 text-ink"
             >
-              {data!.halls.map((h) => (
+              {halls.map((h) => (
                 <option key={h.id} value={h.id}>
                   {h.name}
                   {h.dates.length === 0 ? " (no menu yet)" : ""}

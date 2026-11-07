@@ -15,7 +15,7 @@ Unofficial student project for Hackcessability (Information Access track). Not a
 | Restrictions | One shared gate for menu, add, swap and suggestions. Unknown allergen info is excluded in strict mode (default) |
 | Dish details | Accessible `<dialog>`: restrictions first, then the label, ingredients, cross-contact notes and the official source link |
 | Privacy | Profile stays in the browser; saving to `localStorage` is opt-in, with a delete control |
-| Fenway (Sodexo API) | Keyed collector client written and tested, **not connected**: no `SODEXO_API_KEY` was available, and the response format is unverified |
+| Fenway (Sodexo API) | **Deferred.** Client code and tests are kept, but Fenway is hidden from the hall picker and not collected on schedule (see below) |
 | Scheduled refresh | `.github/workflows/refresh-menus.yml`, daily at 05:30 New York and on demand (not yet run on GitHub) |
 | Freshness gate | The upstream `validate_freshness.py` checks each refresh; suggestions need data under 24 hours old with all three halls posted for that day |
 
@@ -40,7 +40,7 @@ python scripts/scrape_bu_menus.py --refresh          # live (3 requests, robots-
 python scripts/scrape_bu_menus.py --offline          # re-parse cached HTML
 python -m pytest tests
 cd .. && npx tsx scripts/build-menus.ts --bu collector/data/processed/terrier_trays_menus_<date>.json \
-  --fenway collector/data/processed/fenway_status.json --coverage docs/data-coverage.md
+  --freshness collector/data/processed/freshness.json --coverage docs/data-coverage.md
 ```
 
 ## How data flows
@@ -62,14 +62,16 @@ profile (allergens, targets) ── stays in the browser ──▶ local planner
 `vercel.json` sets framework `vite`, output `dist`, and security headers (CSP `default-src 'self'`, no framing, `nosniff`, `no-referrer`). Still required from the team:
 
 1. Import the repo in Vercel (git integration). Builds run `prebuild`, which pulls the latest `menu-data` branch if it exists.
-2. Repository secrets for the refresh workflow: `SODEXO_API_KEY` (Fenway), optionally `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` for redeploys after each refresh. Repository variable: `COLLECTOR_CONTACT` (email or URL for the scraper's user agent).
+2. Optional repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` for redeploys after each refresh. Repository variable: `COLLECTOR_CONTACT` (email or URL for the scraper's user agent).
 3. Run `refresh-menus` once manually; it creates the `menu-data` branch.
 
-Nothing has been deployed or pushed yet.
+Nothing has been deployed yet.
 
-## Fenway
+## Fenway (deferred)
 
-`npm run collect:fenway` reads `SODEXO_API_KEY` from the environment only. It calls the fixed Sodexo URL with the key in a header, and classifies the result (auth failure, unavailable, empty/closed, malformed, ok). With `--inspect` it writes a **keys-and-types-only** shape file, so the response can be mapped to `MenuItem` without exposing data or the key. Until that mapping is written from a real response, Fenway shows as "not connected yet" and no dishes are invented.
+**Open question for the team:** the organisers asked for at least one API key, and the only keyed source here is Sodexo's Fenway menu API. No authorised `SODEXO_API_KEY` has been available, so its response format has never been verified. Until that is resolved, Fenway is not offered in the app and the scheduled refresh does not call Sodexo. Nothing else has replaced it.
+
+To resume, `npm run collect:fenway` (manual only) reads `SODEXO_API_KEY` from the environment only. It calls the fixed Sodexo URL with the key in a header, and classifies the result (auth failure, unavailable, empty/closed, malformed, ok). With `--inspect` it writes a **keys-and-types-only** shape file, so the response can be mapped to `MenuItem` without exposing data or the key. Until that mapping is written from a real response, Fenway shows as "not connected yet" and no dishes are invented.
 
 ## More
 
