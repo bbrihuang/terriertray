@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+/* Contrast measured (WCAG): ink/page 15.96, muted/page 6.35, muted/surface 6.78,
+   on-brand/brand 4.72, brand-ink/page 5.39, danger/surface 7.46, control/surface 4.14.
+   Dark: ink/page 15.48, muted/surface 8.32, brand/surface 7.85, danger/surface 8.42. */
+:root {
+  --page: #faf7f1;
+  --surface: #ffffff;
+  --sunken: #f3ece0;
+  --ink: #2a1803;
+  --muted: #6b5840;
+  --line: #e6dccb;
+  --control: #8c7a60;
+  --brand: #b37c05;
+  --on-brand: #2a1803;
+  --brand-ink: #8a5d00;
+  --brand-soft: #fbf3e2;
+  --danger: #a3240c;
+  --danger-soft: #fbeae5;
+  --focus: #2a1803;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #17120b;
+    --surface: #211a11;
+    --sunken: #1b150d;
+    --ink: #f3e9d8;
+    --muted: #c4b296;
+    --line: #3a2f20;
+    --control: #8f7d62;
+    --brand: #e0a52a;
+    --on-brand: #17120b;
+    --brand-ink: #e0a52a;
+    --brand-soft: #2c2213;
+    --danger: #ff9b85;
+    --danger-soft: #3a1d16;
+    --focus: #f3e9d8;
+    color-scheme: dark;
+  }
+}
+
+@theme {
+  --font-sans: "Atkinson Hyperlegible Next Variable", ui-sans-serif, system-ui, sans-serif;
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-control: var(--control);
+  --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+}
+
+@layer base {
+  html {
+    background: var(--page);
+    color: var(--ink);
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent; /* replaced by :active / focus-visible styles */
+  }
+  body {
+    @apply font-sans antialiased;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  ::selection {
+    background: var(--brand);
+    color: var(--on-brand);
+  }
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  input,
+  select,
+  textarea {
+    font-size: 1rem; /* 16px+ keeps iOS from zooming */
+    caret-color: var(--brand-ink);
+  }
+  a {
+    color: var(--brand-ink);
+    text-underline-offset: 3px;
+  }
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+  dialog::backdrop {
+    background: rgb(23 18 11 / 0.55);
+  }
+}
+
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fade-in {
+    animation: fade-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+}

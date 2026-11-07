@@ -1,0 +1,128 @@
+name: refresh-menus
+
+# Collect BU menus (and check the Fenway feed), merge with the last published data,
+# publish to the `menu-data` branch, and deploy that exact data to Vercel if configured.
+on:
+  schedule:
+    # 10:15, 15:15, 21:15 UTC = 6:15 AM, 11:15 AM, 5:15 PM New York in EDT (one hour earlier in EST).
+    - cron: "15 10,15,21 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Snapshot date label (YYYY-MM-DD, New York). Leave blank for today."
+        required: false
+
+# One refresh at a time; a queued run waits instead of racing the data branch.
+concurrency:
+  group: refresh-menus
+  cancel-in-progress: false
+
+permissions:
+  contents: write # push the menu-data branch only
+
+jobs:
+  refresh:
+    # Never run with secrets on forks.
+    if: github.repository == 'bbrihuang/terriertray'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TZ: America/New_York
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: collector/requirements.txt
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: pip install -r collector/requirements.txt
+      - run: npm ci
+
+      - name: Load last published data
+        run: |
+          if git ls-remote --exit-code --heads origin menu-data >/dev/null; then
+            git fetch --depth=1 origin menu-data
+            rm -rf public/menus
+            git --work-tree=public checkout FETCH_HEAD -- menus
+            git reset -q
+          else
+            echo "First run: no menu-data branch yet, starting from the snapshot in main."
+          fi
+
+      - name: Collect BU menus
+        id: bu
+        env:
+          COLLECTOR_CONTACT: ${{ vars.COLLECTOR_CONTACT }}
+          INPUT_DATE: ${{ inputs.date }}
+        run: |
+          DATE="${INPUT_DATE:-$(date +%F)}"
+          [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "Bad date"; exit 1; }
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          set +e
+          (cd collector && python scripts/scrape_bu_menus.py --refresh --snapshot-date "$DATE")
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Check Fenway feed
+        env:
+          SODEXO_API_KEY: ${{ secrets.SODEXO_API_KEY }}
+        run: npm run collect:fenway -- --date "${{ steps.bu.outputs.date }}"
+
+      - name: Merge and stage public data
+        id: merge
+        run: |
+          set +e
+          npx tsx scripts/build-menus.ts \
+            --bu "collector/data/processed/terrier_trays_menus_${{ steps.bu.outputs.date }}.json" \
+            --fenway collector/data/processed/fenway_status.json \
+            --coverage docs/data-coverage.md
+          code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          # 0 = all halls fresh, 2 = some halls kept their previous snapshot. Anything else is a hard stop.
+          [ "$code" -eq 0 ] || [ "$code" -eq 2 ]
+
+      - name: Verify
+        run: |
+          npm test
+          npm run build
+          npm run check:secrets
+
+      - name: Publish menu-data branch
+        run: |
+          tmp="$(mktemp -d)"
+          cp -r public/menus "$tmp/menus"
+          cp docs/data-coverage.md "$tmp/"
+          cp collector/data/processed/validation_*.json "$tmp/" 2>/dev/null || true
+          cd "$tmp"
+          git init -q -b menu-data
+          git config user.name "terriertray-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Menu data $(date -u +%FT%TZ) from ${GITHUB_SHA::7}"
+          # Single-commit branch: history stays bounded; main keeps the code history.
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" menu-data
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN not configured; data published to menu-data, not deployed."
+            exit 0
+          fi
+          npx --yes vercel@65.2.0 pull --yes --environment=production --token "$VERCEL_TOKEN"
+          npx --yes vercel@65.2.0 build --prod --token "$VERCEL_TOKEN"
+          npx --yes vercel@65.2.0 deploy --prebuilt --prod --token "$VERCEL_TOKEN"
+
+      - name: Fail visibly on partial or failed collection
+        if: steps.bu.outputs.code != '0' || steps.merge.outputs.code != '0'
+        run: |
+          echo "Collector exit ${{ steps.bu.outputs.code }}, merge exit ${{ steps.merge.outputs.code }}."
+          echo "Previous data was kept for halls that failed. See validation_*.json on the menu-data branch."
+          exit 1

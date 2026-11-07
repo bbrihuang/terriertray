@@ -28,11 +28,14 @@ from collections import Counter
 from datetime import date, datetime, timedelta, timezone
 import hashlib
 import json
+import os
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 import re
 import shutil
 import time
 from urllib import robotparser
+from zoneinfo import ZoneInfo
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -123,12 +126,35 @@ ALLERGY_NOTICE = (
     "only means that BU lists no allergens."
 )
 
-USER_AGENT = "TerrierTrays/1.0 (educational menu research)"
+# Vendored from https://github.com/aladincrnolic/bumenuscraper at
+# 31ae28101ec88794ec6ec927e460fa814d6c5193 (TerrierTray integration fixes
+# applied on top; see collector/README.md).
+
+# Contact goes in the user agent so BU can reach the operator.
+CONTACT = os.environ.get(
+    "COLLECTOR_CONTACT",
+    "https://github.com/bbrihuang/terriertray"
+)
+
+USER_AGENT = f"TerrierTrays/1.1 (educational menu research; +{CONTACT})"
 
 HTTP_TIMEOUT = (10, 35)
 
 # Minimum delay before each live dining-page request.
 REQUEST_DELAY_SECONDS = 2.0
+
+# Retries apply to connection errors, 429 and 5xx only.
+MAX_ATTEMPTS = 3
+BACKOFF_SECONDS = 5.0
+MAX_RETRY_AFTER_SECONDS = 120.0
+
+# Real pages are ~12-16 MB; anything far larger is not a menu page.
+MAX_RESPONSE_BYTES = 40 * 1024 * 1024
+
+# Keep at most this many raw HTML snapshots per hall.
+RAW_RETENTION = 6
+
+SCHEMA_VERSION = "1.1"
 
 
 # ============================================================
@@ -457,7 +483,19 @@ def extract_food_item(item, dining_hall):
     # INITIALIZE THE COMPLETE RECORD
     # ------------------------------------------
 
+    wrapper = own_match(item, ".menu-item-wrapper")
+
     food = {
+        # Assigned per hall in extract_all_with_diagnostics.
+        "occurrence_id": None,
+
+        # BU exposes data-menu-id but leaves it empty on every
+        # observed item; None means "no source ID", never invented.
+        "source_recipe_id": (
+            (wrapper.get("data-menu-id") or "").strip() or None
+            if wrapper is not None else None
+        ),
+
         "name": name,
         "dining_hall": dining_hall,
 
@@ -465,11 +503,16 @@ def extract_food_item(item, dining_hall):
             own_match(item, ".js-sortby-station")
         ),
 
+        "description": clean_text(
+            own_match(item, ".menu-description")
+        ),
+
         "meal": None,
         "date": None,
 
         "dietary_tags": [],
         "allergens": None,
+        "allergen_status": "missing_nutrition_wrapper",
 
         "serving_size": None,
         "calories": None,
@@ -576,6 +619,7 @@ def extract_food_item(item, dining_hall):
     # ------------------------------------------
 
     food["allergens"] = extract_allergens(nutrition)
+    food["allergen_status"] = allergen_status(nutrition)
 
     # ------------------------------------------
     # SERVING SIZE
@@ -649,6 +693,104 @@ def extract_food_item(item, dining_hall):
 
 
 # ============================================================
+# OCCURRENCE IDS AND MEAL HOURS
+# ============================================================
+
+def assign_occurrence_ids(records, dining_hall):
+    """
+    Give each record a stable ID from its actual scope.
+
+    Same-name dishes in one hall/date/meal/station are kept
+    separate with a document-order disambiguator, never merged.
+    """
+    seen = Counter()
+
+    for record in records:
+
+        scope = "|".join(
+            str(record[key] or "")
+            for key in ("date", "meal", "station", "name")
+        )
+
+        seen[scope] += 1
+
+        digest = hashlib.sha1(
+            f"{scope}|{seen[scope]}".encode("utf-8")
+        ).hexdigest()[:12]
+
+        record["occurrence_id"] = (
+            f"bu-{HALL_SLUGS[dining_hall]}-{record['date']}-"
+            f"{(record['meal'] or 'unknown').lower()}-{digest}"
+        )
+
+
+MONTHS = {
+    name: index
+    for index, name in enumerate(
+        ["january", "february", "march", "april", "may", "june",
+         "july", "august", "september", "october", "november",
+         "december"],
+        start=1
+    )
+}
+
+HOURS_DAY_RE = re.compile(
+    r"(?:[A-Za-z]+,\s*)?([A-Za-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?\b"
+)
+
+
+def parse_meal_hours(soup, menu_dates):
+    """
+    Read BU's "Upcoming Hours" block as published.
+
+    Day headings omit the year, so a heading is matched only to a
+    menu date with the same month and day. Unmatched headings are
+    skipped; no opening times are invented.
+
+    Returns {date: {meal: "7:00 AM - 11:00 AM"}}.
+    """
+    by_month_day = {
+        (date.fromisoformat(value).month,
+         date.fromisoformat(value).day): value
+        for value in menu_dates
+    }
+
+    hours = {}
+
+    for heading in soup.select(".location-single-hours-day"):
+
+        match = HOURS_DAY_RE.search(clean_text(heading) or "")
+
+        if match is None:
+            continue
+
+        month = MONTHS.get(match.group(1).lower())
+
+        service_date = by_month_day.get(
+            (month, int(match.group(2)))
+        )
+
+        listing = heading.find_next_sibling()
+
+        if (
+            service_date is None
+            or listing is None
+            or "location-single-hours-list" not in listing.get("class", [])
+        ):
+            continue
+
+        for group in listing.select(".location-hours-daygroup"):
+
+            meal = clean_text(group.select_one(".daygroup-days"))
+            times = clean_text(group.select_one(".daygroup-times"))
+
+            if meal and times:
+                hours.setdefault(service_date, {})[meal] = times
+
+    return hours
+
+
+# ============================================================
 # EXTRACT ALL FOOD ITEMS FROM ONE HALL
 # ============================================================
 
@@ -699,9 +841,7 @@ def extract_all_with_diagnostics(soup, dining_hall):
 
             records.append(food)
 
-            statuses[
-                allergen_status(nutrition)
-            ] += 1
+            statuses[food["allergen_status"]] += 1
 
         except Exception as exc:
 
@@ -710,12 +850,15 @@ def extract_all_with_diagnostics(soup, dining_hall):
                 "error": repr(exc),
             })
 
+    assign_occurrence_ids(records, dining_hall)
+
     # Count unknown values in each field.
     missing = Counter(
         field
         for record in records
         for field, value in record.items()
         if value is None
+        and field not in ("source_recipe_id", "description")
     )
 
     # Count occurrences by date and meal.
@@ -789,7 +932,8 @@ def validate_hall(
     soup,
     records,
     report,
-    dining_hall
+    dining_hall,
+    snapshot_date=None
 ):
     """
     Validate the scraped data for a single dining hall.
@@ -858,34 +1002,45 @@ def validate_hall(
             "At least one source URL does not match its dining hall."
         )
 
-    # Verify seven menu dates.
+    # Menu windows legitimately vary (holidays, closures,
+    # provider changes). Require real dates; flag oddities.
     dates = report["dates"]
 
-    if len(dates) != 7:
+    if not dates:
 
         report["errors"].append(
-            f"Expected 7 menu dates, found {len(dates)}: {dates}"
+            "No valid menu service dates found."
         )
 
     else:
 
-        first_date = date.fromisoformat(dates[0])
+        actual = [date.fromisoformat(value) for value in dates]
 
-        expected_dates = [
-            first_date + timedelta(days=i)
-            for i in range(7)
+        gaps = [
+            later.isoformat()
+            for earlier, later in zip(actual, actual[1:])
+            if (later - earlier).days > 1
         ]
 
-        actual_dates = [
-            date.fromisoformat(value)
-            for value in dates
-        ]
-
-        if actual_dates != expected_dates:
-
-            report["errors"].append(
-                "Menu dates are not seven consecutive days."
+        if gaps:
+            report["warnings"].append(
+                f"Menu dates are not consecutive (gap before {gaps})."
             )
+
+        if len(dates) > 14:
+            report["warnings"].append(
+                f"Unusually long menu window: {len(dates)} dates."
+            )
+
+        if snapshot_date is not None:
+
+            label = date.fromisoformat(snapshot_date)
+
+            if abs((actual[0] - label).days) > 7:
+                report["warnings"].append(
+                    f"First menu date {dates[0]} is far from the "
+                    f"snapshot date {snapshot_date}."
+                )
 
     # Missing nutrition is reported, not invented.
     missing = report["missing_field_counts"]
@@ -1057,30 +1212,7 @@ def read_or_fetch_html(
 
     print(f"[{hall}] Downloading {url}")
 
-    response = session.get(
-        url,
-        timeout=HTTP_TIMEOUT
-    )
-
-    response.raise_for_status()
-
-    # Prevent unexpectedly redirected content from
-    # being treated as official dining hall data.
-    if not response.url.startswith(
-        "https://www.bu.edu/dining/location/"
-    ):
-
-        raise ValueError(
-            f"Unexpected redirect for {hall}: {response.url}"
-        )
-
-    html = response.content
-
-    if not html:
-
-        raise ValueError(
-            f"Empty HTML response for {hall}"
-        )
+    html, fetch_meta = http_get(session, url, hall)
 
     # Preserve a previous snapshot during refresh.
     if path.exists():
@@ -1102,9 +1234,181 @@ def read_or_fetch_html(
 
     write_bytes_atomically(path, html)
 
+    # Fetch time is recorded at download; file mtime is not
+    # trustworthy after git checkout or copying.
+    write_json(fetch_meta_path(path), fetch_meta)
+
+    prune_raw_cache(slug, path)
+
     print(f"[{hall}] HTML saved.")
 
     return html, path
+
+
+def retry_after_seconds(response):
+    """
+    Parse Retry-After (seconds or HTTP date), bounded.
+
+    Returns None when the header is absent or unusable.
+    """
+    value = (response.headers.get("Retry-After") or "").strip()
+
+    if not value:
+        return None
+
+    if value.isdigit():
+        seconds = float(value)
+
+    else:
+        try:
+            when = parsedate_to_datetime(value)
+        except (TypeError, ValueError):
+            return None
+
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=timezone.utc)
+
+        seconds = (when - datetime.now(timezone.utc)).total_seconds()
+
+    return min(max(seconds, 0.0), MAX_RETRY_AFTER_SECONDS)
+
+
+def http_get(session, url, hall, sleep=time.sleep):
+    """
+    GET one official menu page with bounded retries.
+
+    Retries connection errors, 429 and 5xx (honoring Retry-After),
+    never other 4xx. Rejects off-site redirects, non-HTML and
+    oversized or empty responses.
+
+    Returns html bytes and fetch metadata.
+    """
+    last_error = None
+
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+
+        try:
+            response = session.get(
+                url,
+                timeout=HTTP_TIMEOUT,
+                stream=True
+            )
+
+        except requests.RequestException as exc:
+            last_error = exc
+            response = None
+
+        if response is not None:
+
+            retryable = (
+                response.status_code == 429
+                or response.status_code >= 500
+            )
+
+            if not retryable:
+                break
+
+            last_error = requests.HTTPError(
+                f"HTTP {response.status_code} for {url}"
+            )
+
+            wait = retry_after_seconds(response)
+            response.close()
+
+        else:
+            wait = None
+
+        if attempt == MAX_ATTEMPTS:
+            raise last_error
+
+        delay = wait if wait is not None else BACKOFF_SECONDS * attempt
+
+        print(
+            f"[{hall}] Attempt {attempt} failed ({last_error}); "
+            f"retrying in {delay:.0f}s"
+        )
+
+        sleep(delay)
+
+    try:
+
+        response.raise_for_status()
+
+        # Prevent unexpectedly redirected content from
+        # being treated as official dining hall data.
+        if not response.url.startswith(
+            "https://www.bu.edu/dining/location/"
+        ):
+            raise ValueError(
+                f"Unexpected redirect for {hall}: {response.url}"
+            )
+
+        content_type = response.headers.get("Content-Type", "")
+
+        if "text/html" not in content_type.lower():
+            raise ValueError(
+                f"Unexpected content type for {hall}: {content_type!r}"
+            )
+
+        chunks = []
+        size = 0
+
+        for chunk in response.iter_content(chunk_size=1 << 16):
+
+            size += len(chunk)
+
+            if size > MAX_RESPONSE_BYTES:
+                raise ValueError(
+                    f"Response for {hall} exceeds "
+                    f"{MAX_RESPONSE_BYTES} bytes"
+                )
+
+            chunks.append(chunk)
+
+        html = b"".join(chunks)
+
+        if not html:
+            raise ValueError(
+                f"Empty HTML response for {hall}"
+            )
+
+        meta = {
+            "url": url,
+            "final_url": response.url,
+            "fetched_at_utc": datetime.now(timezone.utc).isoformat(),
+            "http_status": response.status_code,
+            "content_type": content_type,
+            "bytes": len(html),
+            "sha256": hashlib.sha256(html).hexdigest(),
+        }
+
+        return html, meta
+
+    finally:
+        response.close()
+
+
+def fetch_meta_path(path):
+    """Sidecar holding the real fetch time of a raw HTML file."""
+    return path.with_name(path.stem + ".fetch.json")
+
+
+def prune_raw_cache(slug, current, keep=RAW_RETENTION):
+    """
+    Delete the oldest raw snapshots (and their sidecars) for a hall,
+    keeping `current` plus the newest `keep - 1` others by name
+    (names sort by date).
+    """
+    files = sorted(
+        path
+        for path in RAW_DIR.glob(f"{slug}_*.html")
+        if path != current
+    )
+
+    for old in files[:-(keep - 1)] if keep > 1 else files:
+
+        old.unlink(missing_ok=True)
+        fetch_meta_path(old).unlink(missing_ok=True)
 
 
 # ============================================================
@@ -1117,7 +1421,27 @@ def source_metadata(path, html, hall):
 
     SHA-256 allows future verification that the raw
     HTML has not changed.
+
+    fetched_at_utc comes from the sidecar written at download.
+    Older snapshots without one report null (unknown), never
+    a time derived from the file system.
     """
+    sha256 = hashlib.sha256(html).hexdigest()
+
+    fetched_at = None
+    meta_path = fetch_meta_path(path)
+
+    if meta_path.exists():
+
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            meta = {}
+
+        # Only trust the sidecar if it describes these exact bytes.
+        if meta.get("sha256") == sha256:
+            fetched_at = meta.get("fetched_at_utc")
+
     return {
         "url": DINING_HALL_URLS[hall],
 
@@ -1125,14 +1449,9 @@ def source_metadata(path, html, hall):
             PROJECT_ROOT
         ).as_posix(),
 
-        "raw_html_sha256": hashlib.sha256(
-            html
-        ).hexdigest(),
+        "raw_html_sha256": sha256,
 
-        "file_saved_at_utc": datetime.fromtimestamp(
-            path.stat().st_mtime,
-            timezone.utc
-        ).isoformat(),
+        "fetched_at_utc": fetched_at,
     }
 
 
@@ -1218,7 +1537,8 @@ def main():
     parser.add_argument(
         "--snapshot-date",
 
-        default=date.today().isoformat(),
+        # Service dates are America/New_York regardless of runner TZ.
+        default=datetime.now(ZoneInfo("America/New_York")).date().isoformat(),
 
         help=(
             "Cache/output file label (YYYY-MM-DD). "
@@ -1326,11 +1646,17 @@ def main():
                     )
                 )
 
-                validate_hall(
+                hall_ok = validate_hall(
                     soup,
                     records,
                     report,
-                    hall
+                    hall,
+                    snapshot_date
+                )
+
+                report["meal_hours"] = parse_meal_hours(
+                    soup,
+                    report["dates"]
                 )
 
                 reports[hall] = report
@@ -1341,7 +1667,10 @@ def main():
                     hall
                 )
 
-                by_hall[hall] = records
+                # A hall that fails validation is not published,
+                # but it no longer blocks the other halls.
+                if hall_ok:
+                    by_hall[hall] = records
 
                 print_hall_summary(report)
 
@@ -1368,38 +1697,48 @@ def main():
         session.close()
 
     # ------------------------------------------
-    # CROSS-HALL VALIDATION
+    # CROSS-HALL CHECKS AND STATUS
     # ------------------------------------------
 
-    errors = [
+    failed = [
         hall
         for hall, report in reports.items()
         if report["errors"]
     ]
 
-    # Verify all three halls contain the same dates.
-    if not errors:
+    published = [
+        hall
+        for hall in DINING_HALL_URLS
+        if hall in by_hall
+    ]
 
-        date_sets = [
-            set(reports[hall]["dates"])
-            for hall in DINING_HALL_URLS
-        ]
+    # Halls can legitimately post different windows
+    # (closures, holidays), so this is a warning only.
+    cross_hall_warnings = []
 
-        first_dates = date_sets[0]
+    date_sets = {
+        hall: reports[hall]["dates"]
+        for hall in published
+    }
 
-        if not all(
-            dates == first_dates
-            for dates in date_sets[1:]
-        ):
+    if len({tuple(dates) for dates in date_sets.values()}) > 1:
 
-            errors.append(
-                "Cross-hall date mismatch"
+        cross_hall_warnings.append(
+            "Halls cover different menu dates: "
+            + "; ".join(
+                f"{hall}: {dates[0]}..{dates[-1]} ({len(dates)})"
+                for hall, dates in date_sets.items()
             )
+        )
 
-            print(
-                "\nERROR: Dining halls do not "
-                "cover the same seven dates."
-            )
+        print("\nNOTE:", cross_hall_warnings[-1])
+
+    if not failed:
+        status = "passed"
+    elif published:
+        status = "partial"
+    else:
+        status = "failed"
 
     # ------------------------------------------
     # SAVE VALIDATION REPORT
@@ -1412,13 +1751,13 @@ def main():
             timezone.utc
         ).isoformat(),
 
-        "status": (
-            "failed"
-            if errors
-            else "passed"
-        ),
+        "status": status,
 
-        "failed_halls_or_checks": errors,
+        "failed_halls_or_checks": failed,
+
+        "published_halls": published,
+
+        "cross_hall_warnings": cross_hall_warnings,
 
         "halls": reports,
     }
@@ -1433,12 +1772,10 @@ def main():
         validation
     )
 
-    # Do not publish a new combined dataset
-    # if one or more halls fail validation.
-    if errors:
+    if not published:
 
         print("\n" + "=" * 60)
-        print("VALIDATION FAILED")
+        print("VALIDATION FAILED FOR EVERY HALL")
         print("=" * 60)
 
         print(
@@ -1447,33 +1784,18 @@ def main():
         )
 
         print(
-            "No new combined dataset was published."
+            "No new dataset was published; "
+            "existing files were left in place."
         )
 
         return 1
 
     # ------------------------------------------
-    # COMBINE ALL THREE HALLS
-    # ------------------------------------------
-
-    # Do not deduplicate by name.
-    # The same food can appear in several halls,
-    # meals, or dates.
-    all_records = [
-        record
-        for hall in DINING_HALL_URLS
-        for record in by_hall[hall]
-    ]
-
-    menu_dates = reports[
-        "West Campus"
-    ]["dates"]
-
-    # ------------------------------------------
     # SAVE INDIVIDUAL HALL DATASETS
     # ------------------------------------------
 
-    for hall, records in by_hall.items():
+    # Failed halls keep whatever earlier files exist.
+    for hall in published:
 
         path = (
             OUTPUT_DIR
@@ -1482,20 +1804,35 @@ def main():
 
         write_json(
             path,
-            records
+            by_hall[hall]
         )
 
         print(
-            f"\nSaved {len(records)} records "
+            f"\nSaved {len(by_hall[hall])} records "
             f"for {hall}: {path}"
         )
 
     # ------------------------------------------
-    # BUILD COMBINED DATASET
+    # BUILD COMBINED DATASET (published halls only)
     # ------------------------------------------
 
+    # Do not deduplicate by name.
+    # The same food can appear in several halls,
+    # meals, or dates.
+    all_records = [
+        record
+        for hall in published
+        for record in by_hall[hall]
+    ]
+
+    menu_dates = sorted({
+        value
+        for hall in published
+        for value in reports[hall]["dates"]
+    })
+
     combined = {
-        "schema_version": "1.0",
+        "schema_version": SCHEMA_VERSION,
 
         "generated_at_utc": datetime.now(
             timezone.utc
@@ -1503,24 +1840,30 @@ def main():
 
         "snapshot_date": snapshot_date,
 
+        "status": status,
+
         "menu_dates": menu_dates,
 
-        "dining_halls": list(
-            DINING_HALL_URLS
-        ),
+        "dining_halls": published,
+
+        "failed_halls": failed,
 
         "total_records": len(all_records),
 
         "allergy_notice": ALLERGY_NOTICE,
 
-        "sources": sources,
+        "sources": {
+            hall: sources[hall]
+            for hall in published
+        },
+
+        "meal_hours": {
+            hall: reports[hall]["meal_hours"]
+            for hall in published
+        },
 
         "records": all_records,
     }
-
-    # ------------------------------------------
-    # SAVE COMBINED JSON
-    # ------------------------------------------
 
     combined_path = (
         OUTPUT_DIR
@@ -1537,14 +1880,18 @@ def main():
     # ------------------------------------------
 
     print("\n" + "=" * 60)
-    print("TERRIER TRAYS — EXTRACTION COMPLETE")
+    print(f"TERRIER TRAYS — EXTRACTION {status.upper()}")
     print("=" * 60)
 
     for hall in DINING_HALL_URLS:
 
         print(
             f"{hall}: "
-            f"{len(by_hall[hall])} records"
+            + (
+                f"{len(by_hall[hall])} records"
+                if hall in by_hall
+                else "FAILED (not published)"
+            )
         )
 
     print(
@@ -1574,7 +1921,8 @@ def main():
         "be treated as safe for allergies."
     )
 
-    return 0
+    # 2 = partial: some halls published, others failed.
+    return 0 if status == "passed" else 2
 
 
 if __name__ == "__main__":

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vercel/
+.env
+.env.*
+!.env.example
+*.log
+__pycache__/
+.pytest_cache/
+.venv*/
+# Raw HTML (12-16 MB per hall) and collector output stay out of git and public/.
+collector/data/

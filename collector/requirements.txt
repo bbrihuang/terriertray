@@ -1,0 +1,4 @@
+requests==2.34.2
+beautifulsoup4==4.15.0
+soupsieve==4.0.1
+tzdata==2026.6

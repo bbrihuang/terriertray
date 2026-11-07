@@ -1,0 +1,266 @@
+{
+ "schemaVersion": 1,
+ "dataVersion": "ef3fed837e30bc48",
+ "generatedAt": "2026-11-07T22:30:24.836Z",
+ "timezone": "America/New_York",
+ "allergyNotice": "BU Dining warns that ingredient substitutions, formulation changes and kitchen cross-contact can occur, and no menu item is guaranteed allergen-free. If you have a food allergy, talk with BU Dining staff before eating.",
+ "halls": [
+  {
+   "id": "west",
+   "name": "West Campus",
+   "source": "bu-html",
+   "sourceUrl": "https://www.bu.edu/dining/location/west/",
+   "status": "ok",
+   "lastAttemptAt": "2026-11-07T22:30:24.836Z",
+   "lastSuccessfulFetchAt": "2026-11-07T22:28:07.325628+00:00",
+   "note": null,
+   "dates": [
+    {
+     "date": "2026-11-07",
+     "file": "west/2026-11-07.json",
+     "itemCount": 127,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-08",
+     "file": "west/2026-11-08.json",
+     "itemCount": 125,
+     "meals": [
+      "Breakfast",
+      "Brunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-09",
+     "file": "west/2026-11-09.json",
+     "itemCount": 145,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-10",
+     "file": "west/2026-11-10.json",
+     "itemCount": 135,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-11",
+     "file": "west/2026-11-11.json",
+     "itemCount": 136,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-12",
+     "file": "west/2026-11-12.json",
+     "itemCount": 160,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-13",
+     "file": "west/2026-11-13.json",
+     "itemCount": 168,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "warren",
+   "name": "Warren Towers",
+   "source": "bu-html",
+   "sourceUrl": "https://www.bu.edu/dining/location/warren/",
+   "status": "ok",
+   "lastAttemptAt": "2026-11-07T22:30:24.836Z",
+   "lastSuccessfulFetchAt": "2026-11-07T22:28:46.290552+00:00",
+   "note": null,
+   "dates": [
+    {
+     "date": "2026-11-07",
+     "file": "warren/2026-11-07.json",
+     "itemCount": 104,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-08",
+     "file": "warren/2026-11-08.json",
+     "itemCount": 81,
+     "meals": [
+      "Brunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-09",
+     "file": "warren/2026-11-09.json",
+     "itemCount": 112,
+     "meals": [
+      "Breakfast",
+      "Brunch",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-10",
+     "file": "warren/2026-11-10.json",
+     "itemCount": 93,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-11",
+     "file": "warren/2026-11-11.json",
+     "itemCount": 119,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-12",
+     "file": "warren/2026-11-12.json",
+     "itemCount": 113,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-13",
+     "file": "warren/2026-11-13.json",
+     "itemCount": 90,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "marciano",
+   "name": "Marciano Commons",
+   "source": "bu-html",
+   "sourceUrl": "https://www.bu.edu/dining/location/marciano/",
+   "status": "ok",
+   "lastAttemptAt": "2026-11-07T22:30:24.836Z",
+   "lastSuccessfulFetchAt": "2026-11-07T22:29:45.127211+00:00",
+   "note": null,
+   "dates": [
+    {
+     "date": "2026-11-07",
+     "file": "marciano/2026-11-07.json",
+     "itemCount": 125,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-08",
+     "file": "marciano/2026-11-08.json",
+     "itemCount": 62,
+     "meals": [
+      "Brunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-09",
+     "file": "marciano/2026-11-09.json",
+     "itemCount": 99,
+     "meals": [
+      "Breakfast",
+      "Brunch",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-10",
+     "file": "marciano/2026-11-10.json",
+     "itemCount": 99,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-11",
+     "file": "marciano/2026-11-11.json",
+     "itemCount": 106,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-12",
+     "file": "marciano/2026-11-12.json",
+     "itemCount": 102,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-13",
+     "file": "marciano/2026-11-13.json",
+     "itemCount": 101,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "fenway",
+   "name": "The Fenway Dining Hall",
+   "source": "sodexo-api",
+   "sourceUrl": "https://bufenway.sodexomyway.com/en-us/locations/the-fenway-dining-hall",
+   "status": "not_configured",
+   "lastAttemptAt": "2026-11-07T22:11:40.055Z",
+   "lastSuccessfulFetchAt": null,
+   "note": "The Fenway menu feed is not connected yet (no API key configured for the collector).",
+   "dates": []
+  }
+ ]
+}
