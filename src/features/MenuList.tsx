@@ -55,14 +55,14 @@ export function MenuList({ items, restrictions, onPlate, onAdd, onOpen }: Props)
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. chicken, tofu, rice…"
             autoComplete="off"
-            className="mt-1 min-h-11 w-full rounded-lg border border-control bg-surface px-3 text-ink placeholder:text-muted"
+            className="mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink placeholder:text-muted"
           />
         </div>
         <div>
           <label htmlFor={`${ids}-s`} className="block font-semibold">
             Station
           </label>
-          <select id={`${ids}-s`} value={station} onChange={(e) => setStation(e.target.value)} className="mt-1 min-h-11 w-full rounded-lg border border-control bg-surface px-3 text-ink">
+          <select id={`${ids}-s`} value={station} onChange={(e) => setStation(e.target.value)} className="mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink">
             <option value="">All stations</option>
             {stations.map((s) => (
               <option key={s}>{s}</option>
@@ -80,9 +80,9 @@ export function MenuList({ items, restrictions, onPlate, onAdd, onOpen }: Props)
       </p>
 
       {rows.length === 0 ? (
-        <p className="mt-4 rounded-xl border border-line bg-surface p-4">No dishes match. Try a shorter search or another station.</p>
+        <p className="glass mt-4 p-4">No dishes match. Try a shorter search or another station.</p>
       ) : (
-        <ul className="mt-3 divide-y divide-line rounded-2xl border border-line bg-surface">
+        <ul className="glass mt-3 divide-y divide-line">
           {rows.map(({ item, verdict }) => {
             const added = onPlate.has(item.id);
             return (

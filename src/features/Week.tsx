@@ -89,9 +89,7 @@ export function Week({ index, hall, start, profile, now, onUse, onOpen }: Props)
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-balance">
-        Week at {hall.name}, from {formatDate(start, "short")}
-      </h2>
+      <h3 className="text-lg font-semibold tracking-[-0.01em] text-balance">Seven days from {formatDate(start, "short")}</h3>
       <p className="mt-1 text-sm text-muted">
         Each planned meal aims for {mealsPerDay === 1 ? "your whole-day targets" : `1/${mealsPerDay} of your daily targets`}. When a day lists more meals than you eat, later meals are planned first. These are the best matches among listed dishes, not advice for your body.
       </p>
@@ -99,7 +97,7 @@ export function Week({ index, hall, start, profile, now, onUse, onOpen }: Props)
         {pending.length > 0 ? `Planning meals… ${done} of ${jobs.length} done` : jobs.length > 0 ? `Planned ${jobs.length} meals.` : ""}
       </p>
 
-      <ol className="mt-4 space-y-5">
+      <ol className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2 lg:items-start">
         {days.map(({ date, file, load, elig, meals }) => {
           const planned = meals.flatMap((m) => {
             const p = plans[`${date}|${m.name}`];
@@ -111,16 +109,16 @@ export function Week({ index, hall, start, profile, now, onUse, onOpen }: Props)
           const day = dayTotals(planned, mealsPerDay);
 
           return (
-            <li key={date} className="rounded-2xl border border-line bg-surface p-4">
+            <li key={date} className="glass p-5">
               <section aria-labelledby={`day-${date}`}>
-                <h3 id={`day-${date}`} className="font-bold">
+                <h4 id={`day-${date}`} className="font-semibold">
                   {formatDate(date)}
-                </h3>
+                </h4>
 
                 {!file ? (
                   <p className="mt-1 text-muted">No menu posted for this day yet.</p>
                 ) : !load || load.state === "loading" ? (
-                  <div className="mt-2 h-16 animate-pulse rounded-lg bg-sunken" aria-label="Loading this day…" />
+                  <div className="mt-2 h-16 motion-safe:animate-pulse rounded-[var(--radius-inner)] bg-sunken" aria-label="Loading this day…" />
                 ) : load.state === "error" ? (
                   <p className="mt-1 text-danger">{load.message}</p>
                 ) : !elig.canRecommend ? (
@@ -139,9 +137,9 @@ export function Week({ index, hall, start, profile, now, onUse, onOpen }: Props)
                       const protein = option ? option.entries.reduce((n, e) => n + (e.item.proteinG ?? 0) * e.servings, 0) : 0;
                       return (
                         <div key={key} className="mt-3 border-t border-line pt-3 first:border-0 first:pt-0">
-                          <h4 id={`week-${key}`} tabIndex={-1} className="font-semibold">
+                          <h5 id={`week-${key}`} tabIndex={-1} className="font-semibold">
                             {m.name} <span className="font-normal text-muted tnum">{formatHours(m.hours) ?? ""}</span>
-                          </h4>
+                          </h5>
                           {!current ? (
                             <p className="text-sm text-muted">Planning…</p>
                           ) : current.kind === "infeasible" ? (

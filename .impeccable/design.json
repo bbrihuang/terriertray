@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T00:30:00Z",
+  "title": "Design System: TerrierTray",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "primary", "displayName": "Ink", "canonical": "#111114" },
+      "accent-ink": { "role": "secondary", "displayName": "Lavender Ink", "canonical": "#4f35c2" },
+      "page": { "role": "neutral", "displayName": "Lavender White", "canonical": "#f4f3f8" },
+      "muted": { "role": "neutral", "displayName": "Quiet Ink", "canonical": "#56556a" },
+      "blob-lavender": { "role": "tertiary", "displayName": "Lavender Light", "canonical": "#b9a8ff" },
+      "blob-peach": { "role": "tertiary", "displayName": "Peach Light", "canonical": "#ffc7a3" },
+      "blob-sky": { "role": "tertiary", "displayName": "Sky Light", "canonical": "#a9d4ff" },
+      "blob-pink": { "role": "tertiary", "displayName": "Pink Light", "canonical": "#ffb3c1" }
+    },
+    "shadows": {
+      "card": "0 8px 24px rgb(30 20 60 / 0.06)",
+      "dialog": "0 24px 60px rgb(30 20 60 / 0.18)",
+      "tab-selected": "0 2px 8px rgb(30 20 60 / 0.12)"
+    },
+    "materials": {
+      "glass": "background: rgba(255,255,255,.72); backdrop-filter: blur(20px) saturate(140%); border: 1px solid rgba(255,255,255,.95)",
+      "blobs": "four fixed circles, min(420px,75vw), blur(80px), opacity .55 (.22 at night)"
+    },
+    "motion": {
+      "ease": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+      "rise": "opacity 0→1, translateY 10px→0, 420ms, 50ms stagger, once per view",
+      "press": "scale(0.97) on :active, 120ms",
+      "ring": "stroke-dashoffset, 700ms",
+      "blobs": "18s alternate drift",
+      "reducedMotion": "all of the above disabled; skeleton pulse is motion-safe only"
+    },
+    "breakpoints": { "chips-two-col": "26rem", "desktop": "1024px" },
+    "narrative": {
+      "northStar": "A plate on soft light.",
+      "keyCharacteristics": [
+        "Two-tone headline on every view",
+        "Black means act: one black pill per view",
+        "Big numbers, small units, tabular figures",
+        "Planned is never shown as eaten; unknown is labelled, never zero"
+      ],
+      "notCanonized": "None found by the detector at handoff."
+    }
+  }
+}

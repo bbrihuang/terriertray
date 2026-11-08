@@ -42,7 +42,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
 
   return (
     <div>
-      <Section title="Food allergies" id={`${id}-allergy`}>
+      <Section card title="Food allergies" id={`${id}-allergy`}>
         <fieldset>
           <legend className="sr-only">Do you need to avoid any allergens?</legend>
           <div className="space-y-1">
@@ -61,8 +61,8 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
         </fieldset>
 
         {r.allergyAnswer === "some" && (
-          <fieldset className="mt-3 rounded-2xl border border-line bg-surface p-4">
-            <legend className="px-1 font-semibold">Avoid dishes whose label or ingredients list</legend>
+          <fieldset className="mt-4 border-t border-line pt-4">
+            <legend className="font-semibold">Avoid dishes whose label or ingredients list</legend>
             <div className="grid grid-cols-1 gap-x-4 min-[22rem]:grid-cols-2">
               {ALLERGENS.map((a) => (
                 <label key={a} className="flex min-h-11 items-center gap-3">
@@ -72,7 +72,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
               ))}
             </div>
             {confirmRemove && (
-              <div className="mt-3 rounded-xl border border-brand bg-brand-soft p-3" role="group" aria-label="Confirm removing an allergen filter">
+              <div className="mt-3 rounded-[var(--radius-inner)] border border-brand bg-brand-soft p-3" role="group" aria-label="Confirm removing an allergen filter">
                 <p className="font-semibold">Stop filtering {confirmRemove}?</p>
                 <p className="text-sm text-muted">Dishes listing {confirmRemove} will appear in suggestions again.</p>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -104,7 +104,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
         </p>
       </Section>
 
-      <Section title="Diet labels" id={`${id}-diet`}>
+      <Section card title="Diet labels" id={`${id}-diet`}>
         <fieldset>
           <legend className="text-muted">Only include dishes the dining hall labels as:</legend>
           <div className="mt-1 grid grid-cols-1 gap-x-4 min-[22rem]:grid-cols-2">
@@ -123,7 +123,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
         </fieldset>
       </Section>
 
-      <Section title="Daily targets" id={`${id}-targets`}>
+      <Section card title="Daily targets" id={`${id}-targets`}>
         <p className="text-muted">Enter your own numbers. Leave blank anything you don't track. TerrierTray doesn't estimate these for you.</p>
         <div className="mt-3 grid grid-cols-1 gap-3 min-[22rem]:grid-cols-2">
           {TARGETS.map(([key, label, unit]) => (
@@ -142,7 +142,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
                 step={1}
                 value={profile.daily[key] ?? ""}
                 onChange={(e) => setTarget(key, e.target.value)}
-                className="mt-1 min-h-11 w-full rounded-lg border border-control bg-surface px-3 text-ink tnum"
+                className="mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink tnum"
               />
             </div>
           ))}
@@ -154,7 +154,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
           id={`${id}-meals`}
           value={profile.mealsPerDay}
           onChange={(e) => onChange({ ...profile, mealsPerDay: Number(e.target.value) })}
-          className="mt-1 min-h-11 w-full rounded-lg border border-control bg-surface px-3 text-ink"
+          className="mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink"
         >
           {[1, 2, 3, 4].map((n) => (
             <option key={n} value={n}>
@@ -164,7 +164,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
         </select>
       </Section>
 
-      <Section title="Privacy on this device" id={`${id}-privacy`}>
+      <Section card title="Privacy on this device" id={`${id}-privacy`}>
         <p className="text-muted">Your allergies and targets stay in this browser. Planning happens on your device, and nothing you enter here is sent anywhere.</p>
         <label className="mt-3 flex min-h-11 items-start gap-3">
           <input type="checkbox" checked={remember} onChange={(e) => onRemember(e.target.checked)} className={`${box} mt-0.5`} />
@@ -175,7 +175,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
         </label>
         <div className="mt-3">
           {confirmDelete ? (
-            <div className="rounded-xl border border-danger bg-danger-soft p-3" role="group" aria-label="Confirm deleting saved settings">
+            <div className="rounded-[var(--radius-inner)] border border-danger/30 bg-danger-soft p-3" role="group" aria-label="Confirm deleting saved settings">
               <p className="font-semibold">Delete saved settings and reset this page?</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button

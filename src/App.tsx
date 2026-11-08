@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { DishDialog } from "./components/DishDialog";
-import { Button, Notice, Section } from "./components/ui";
+import { Button, Headline, Notice, Pill, Section } from "./components/ui";
 import { useDayMenu, useMenuIndex, useNow } from "./data";
 import { MenuList } from "./features/MenuList";
 import { MAX_SERVINGS, Plate } from "./features/Plate";
@@ -134,99 +134,132 @@ export default function App() {
     setTab("plan");
   };
 
-  const header = (
-    <header className="bg-brand text-on-brand">
-      <div className="mx-auto max-w-xl px-4 py-4">
-        <h1 className="text-2xl font-bold tracking-tight" translate="no">TerrierTray</h1>
-        <p className="text-sm">Portion planner for BU dining halls · unofficial student project</p>
+  const brand = (
+    <>
+      <div className="blobs" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
       </div>
-    </header>
+      <header className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 pt-5">
+        <div className="flex items-center gap-2.5">
+          <PlateMark />
+          <h1 className="text-xl font-semibold tracking-[-0.02em]" translate="no">
+            TerrierTray
+          </h1>
+        </div>
+        <p className="text-sm text-muted">Portion planner for BU dining halls · unofficial</p>
+      </header>
+    </>
   );
 
   if (index.state !== "ready") {
     return (
       <>
-        {header}
-        <main className="mx-auto max-w-xl px-4 py-6">
+        {brand}
+        <main className="mx-auto max-w-5xl px-5 py-8">
           {index.state === "loading" ? (
-            <div aria-busy="true" aria-label="Loading menus…" className="space-y-3">
-              <div className="h-11 animate-pulse rounded-lg bg-sunken" />
-              <div className="h-40 animate-pulse rounded-2xl bg-sunken" />
+            <div aria-busy="true" aria-label="Loading menus…" className="max-w-xl space-y-3">
+              <div className="h-16 motion-safe:animate-pulse rounded-[var(--radius-card)] bg-sunken" />
+              <div className="h-48 motion-safe:animate-pulse rounded-[var(--radius-card)] bg-sunken" />
             </div>
           ) : (
-            <Notice tone="danger" title="Menus unavailable">
-              {index.message}
-            </Notice>
+            <div className="max-w-xl">
+              <Notice tone="danger" title="Menus unavailable">
+                {index.message}
+              </Notice>
+            </div>
           )}
         </main>
       </>
     );
   }
 
+  const dishCount = meal?.items.length ?? 0;
+  const headline: [string, string] =
+    tab === "settings"
+      ? ["Your settings.", "They stay on this device."]
+      : tab === "week"
+        ? [`Your week at ${hall?.name ?? "BU"}.`, "Planned meals, not eaten ones."]
+        : tab === "menu"
+          ? [`What’s on at ${hall?.name ?? "BU"}.`, meal ? `${meal.name}, ${dishCount} ${dishCount === 1 ? "dish" : "dishes"}.` : "Pick a day and meal."]
+          : meal
+            ? [`${meal.name} at ${hall?.name}.`, "Build a plate that fits your day."]
+            : [`${hall?.name ?? "BU dining"}.`, "Pick a day and meal."];
+
+  const freshTone = !elig ? "neutral" : elig.canRecommend ? "ok" : elig.status === "not_validated" ? "neutral" : "warn";
+  const freshLabel = !elig ? "Not checked" : elig.canRecommend ? "Fresh" : elig.status === "missing_date" ? "Not all halls posted" : elig.status === "not_validated" ? "Not checked" : "Older than 24 hours";
+
   return (
     <>
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-10 focus:rounded-lg focus:bg-surface focus:p-3">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-10 focus:rounded-full focus:bg-surface-solid focus:px-4 focus:py-3">
         Skip to content
       </a>
-      {header}
+      {brand}
 
-      <div className="mx-auto max-w-xl px-4">
-        <div className="mt-4 grid grid-cols-1 gap-3 min-[26rem]:grid-cols-2">
-          <div>
-            <label htmlFor="hall" className="block font-semibold">
-              Dining hall
-            </label>
-            <select
-              id="hall"
-              value={hall?.id ?? ""}
-              onChange={(e) => {
-                setHallId(e.target.value);
-                setMealName(null);
-              }}
-              className="mt-1 min-h-11 w-full rounded-lg border border-control bg-surface px-3 text-ink"
-            >
-              {halls.map((h) => (
-                <option key={h.id} value={h.id}>
-                  {h.name}
-                  {h.dates.length === 0 ? " (no menu yet)" : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="date" className="block font-semibold">
-              Day
-            </label>
-            <select
-              id="date"
-              value={activeDate ?? ""}
-              disabled={dates.length === 0}
-              onChange={(e) => {
-                setDate(e.target.value);
-                setMealName(null);
-              }}
-              className="mt-1 min-h-11 w-full rounded-lg border border-control bg-surface px-3 text-ink disabled:opacity-60"
-            >
-              {dates.length === 0 && <option value="">No dates</option>}
-              {dates.map((d) => (
-                <option key={d} value={d}>
-                  {d === today ? `Today, ${formatDate(d, "short")}` : formatDate(d)}
-                </option>
-              ))}
-            </select>
+      <div className="mx-auto max-w-5xl px-5">
+        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-end lg:gap-10">
+          <Headline statement={headline[0]} feeling={headline[1]} />
+
+          <div className="glass p-4">
+            <div className="grid grid-cols-1 gap-3 min-[26rem]:grid-cols-2">
+              <div>
+                <label htmlFor="hall" className="block text-sm font-semibold">
+                  Dining hall
+                </label>
+                <select
+                  id="hall"
+                  value={hall?.id ?? ""}
+                  onChange={(e) => {
+                    setHallId(e.target.value);
+                    setMealName(null);
+                  }}
+                  className="mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink"
+                >
+                  {halls.map((h) => (
+                    <option key={h.id} value={h.id}>
+                      {h.name}
+                      {h.dates.length === 0 ? " (no menu yet)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="date" className="block text-sm font-semibold">
+                  Day
+                </label>
+                <select
+                  id="date"
+                  value={activeDate ?? ""}
+                  disabled={dates.length === 0}
+                  onChange={(e) => {
+                    setDate(e.target.value);
+                    setMealName(null);
+                  }}
+                  className="mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink disabled:opacity-60"
+                >
+                  {dates.length === 0 && <option value="">No dates</option>}
+                  {dates.map((d) => (
+                    <option key={d} value={d}>
+                      {d === today ? `Today, ${formatDate(d, "short")}` : formatDate(d)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <p className="mt-2 flex flex-wrap items-center gap-x-2 text-sm">
+              <span className="font-semibold">{restrictionSummary(profile.restrictions)}</span>
+              <Button variant="quiet" className="min-h-11 px-3 text-sm" onClick={() => setTab("settings")}>
+                Edit
+              </Button>
+            </p>
           </div>
         </div>
 
-        <p className="mt-3 flex flex-wrap items-center gap-x-2 text-sm">
-          <span className="font-semibold">{restrictionSummary(profile.restrictions)}</span>
-          <Button variant="quiet" className="min-h-11 px-2 text-sm" onClick={() => setTab("settings")}>
-            Edit
-          </Button>
-        </p>
-
-        {meals.length > 0 && (
-          <div className="mt-2" role="group" aria-label="Meal">
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(8.75rem,100%),1fr))] gap-2">
+        {meals.length > 0 && tab !== "settings" && (
+          <div className="mt-5" role="group" aria-label="Meal">
+            <div className="flex flex-wrap gap-2">
               {meals.map((m, i) => {
                 const selected = m === meal;
                 const range = parseHours(m.hours);
@@ -239,13 +272,13 @@ export default function App() {
                     type="button"
                     aria-pressed={selected}
                     onClick={() => setMealName(m.name)}
-                    className={`min-h-11 rounded-xl border px-3 py-1.5 text-left ${selected ? "border-ink bg-ink text-page" : "border-control bg-surface text-ink hover:bg-sunken"}`}
+                    className={`press min-h-11 min-w-[7.5rem] rounded-[18px] px-4 py-2 text-left ${selected ? "bg-action text-on-action" : "border border-rim bg-field text-ink shadow-[var(--shadow)] hover:bg-surface-solid"}`}
                   >
                     <span className="block font-semibold">
                       {m.name}
                       {live ? " · now" : next ? " · next" : ""}
                     </span>
-                    <span className={`block text-sm tnum ${selected ? "" : "text-muted"}`}>{formatHours(m.hours) ?? "Hours not listed"}</span>
+                    <span className={`block text-sm tnum ${selected ? "opacity-85" : "text-muted"}`}>{formatHours(m.hours) ?? "Hours not listed"}</span>
                   </button>
                 );
               })}
@@ -253,7 +286,7 @@ export default function App() {
           </div>
         )}
 
-        <nav aria-label="Views" className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(4.25rem,100%),1fr))] gap-0.5 rounded-xl bg-sunken p-1">
+        <nav aria-label="Views" className="glass mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(4.25rem,100%),1fr))] gap-0.5 !rounded-full p-1 lg:max-w-md">
           {(
             [
               ["plan", "Plan"],
@@ -267,7 +300,7 @@ export default function App() {
               type="button"
               aria-current={tab === id ? "page" : undefined}
               onClick={() => setTab(id)}
-              className={`min-h-11 rounded-lg font-semibold ${tab === id ? "bg-brand text-on-brand shadow-[0_1px_3px_rgb(23_18_11/0.15)]" : "text-muted hover:text-ink"}`}
+              className={`press min-h-11 rounded-full font-semibold ${tab === id ? "bg-tab-selected text-ink shadow-[0_2px_8px_rgb(30_20_60/0.12)]" : "text-muted hover:text-ink"}`}
             >
               {label}
             </button>
@@ -275,44 +308,52 @@ export default function App() {
         </nav>
       </div>
 
-      <main id="main" className="mx-auto max-w-xl px-4 pt-5 pb-16">
+      <main id="main" key={tab} className="mx-auto max-w-5xl px-5 pt-6 pb-16">
         {tab === "settings" ? (
-          <Settings
-            profile={profile}
-            onChange={setProfile}
-            remember={remember}
-            onRemember={(on) => {
-              setRemember(on);
-              if (!on) clearProfile();
-            }}
-            onDeleteSaved={() => {
-              clearProfile();
-              setRemember(false);
-              setProfile(DEFAULT_PROFILE);
-            }}
-          />
+          <div className="rise max-w-2xl">
+            <Settings
+              profile={profile}
+              onChange={setProfile}
+              remember={remember}
+              onRemember={(on) => {
+                setRemember(on);
+                if (!on) clearProfile();
+              }}
+              onDeleteSaved={() => {
+                clearProfile();
+                setRemember(false);
+                setProfile(DEFAULT_PROFILE);
+              }}
+            />
+          </div>
         ) : !hall || hall.dates.length === 0 ? (
-          <Notice tone="warn" title={hall ? `${hall.name}: no menu yet` : "No menus collected"}>
-            {hall?.note ?? "Menus have not been collected yet."} Check the{" "}
-            <a href={hall?.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline">
-              official menu page
-            </a>
-            .
-          </Notice>
+          <div className="max-w-xl">
+            <Notice tone="warn" title={hall ? `${hall.name}: no menu yet` : "No menus collected"}>
+              {hall?.note ?? "Menus have not been collected yet."} Check the{" "}
+              <a href={hall?.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline">
+                official menu page
+              </a>
+              .
+            </Notice>
+          </div>
         ) : !day || day.state === "loading" ? (
-          <div aria-busy="true" aria-label="Loading this day’s menu…" className="space-y-3">
-            <div className="h-24 animate-pulse rounded-2xl bg-sunken" />
-            <div className="h-48 animate-pulse rounded-2xl bg-sunken" />
+          <div aria-busy="true" aria-label="Loading this day’s menu…" className="max-w-xl space-y-3">
+            <div className="h-28 motion-safe:animate-pulse rounded-[var(--radius-card)] bg-sunken" />
+            <div className="h-56 motion-safe:animate-pulse rounded-[var(--radius-card)] bg-sunken" />
           </div>
         ) : day.state === "error" ? (
-          <Notice tone="danger" title="This menu didn't load">
-            {day.message}
-          </Notice>
+          <div className="max-w-xl">
+            <Notice tone="danger" title="This menu didn't load">
+              {day.message}
+            </Notice>
+          </div>
         ) : !meal ? (
-          <Notice title="Nothing posted for this day">The dining hall page lists no meals for {formatDate(activeDate!)}. It may be closed or the menu isn't posted.</Notice>
+          <div className="max-w-xl">
+            <Notice title="Nothing posted for this day">The dining hall page lists no meals for {formatDate(activeDate!)}. It may be closed or the menu isn't posted.</Notice>
+          </div>
         ) : (
           <>
-            <div className="mb-5 space-y-3">
+            <div className="rise mb-6 space-y-3">
               {hall.status === "stale_after_failure" && (
                 <Notice tone="warn" title="Showing an older snapshot">
                   The last refresh{hall.lastAttemptAt ? ` (${formatTimestamp(hall.lastAttemptAt)})` : ""} failed. These dishes may have changed.
@@ -323,22 +364,35 @@ export default function App() {
                   No newer menu has been collected for this hall yet. Check the official page for today.
                 </Notice>
               )}
-              <p className="text-sm text-muted">
-                {freshness(hall, activeDate!, today)} Availability can change during service.
+              <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+                <Pill tone={freshTone}>{freshLabel}</Pill>
+                <span>
+                  {freshness(hall, activeDate!, today)} Availability can change during service.
+                </span>
               </p>
             </div>
 
             {tab === "week" ? (
-              <Week index={data!} hall={hall} start={activeDate!} profile={profile} now={now} onUse={applyWeekMeal} onOpen={(item, mealName) => {
-                setOpenFromWeek(mealName);
-                setOpenItem(item);
-              }} />
+              <div className="rise [--i:1]">
+                <Week
+                  index={data!}
+                  hall={hall}
+                  start={activeDate!}
+                  profile={profile}
+                  now={now}
+                  onUse={applyWeekMeal}
+                  onOpen={(item, mealName) => {
+                    setOpenFromWeek(mealName);
+                    setOpenItem(item);
+                  }}
+                />
+              </div>
             ) : tab === "plan" ? (
-              <>
-                <section aria-labelledby="plate-heading">
-                  <h2 id="plate-heading" className="mb-3 scroll-mt-4 text-lg font-bold">
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] lg:items-start lg:gap-8">
+                <section aria-labelledby="plate-heading" className="rise [--i:1] lg:sticky lg:top-5">
+                  <h3 id="plate-heading" className="mb-3 scroll-mt-4 text-lg font-semibold tracking-[-0.01em]">
                     Your {meal.name.toLowerCase()} plate
-                  </h2>
+                  </h3>
                   {conflicts.length > 0 && (
                     <div className="mb-3">
                       <Notice tone="danger" title="Something on your plate no longer fits your restrictions">
@@ -352,44 +406,48 @@ export default function App() {
                   <Plate meal={meal.name} entries={entries} target={hasTarget ? target : null} targetLabel={hasTarget ? targetLabel : null} onServings={setServings} onOpen={setOpenItem} />
                 </section>
 
-                <Section title="Suggested plates" id="suggest-heading">
-                  {!hasTarget ? (
-                    <Notice title="Add a target to get suggestions">
-                      <p>Enter a daily calorie or protein target in Settings. TerrierTray splits it across your meals and finds dishes that fit.</p>
-                      <Button variant="primary" className="mt-3" onClick={() => setTab("settings")}>
-                        Set my targets
-                      </Button>
-                    </Notice>
-                  ) : !canSuggest ? (
-                    <Notice tone="warn" title="Suggestions are off for this day">
-                      <p>{elig?.message}</p>
-                      <p className="mt-1">You can still build a plate yourself from the Menu tab; check dishes against the official page.</p>
-                    </Notice>
-                  ) : (
-                    plan && (
-                      <Suggestions
-                        result={plan}
-                        target={target}
-                        targetLabel={targetLabel}
-                        restrictions={profile.restrictions}
-                        freshness={freshness(hall, activeDate!, today)}
-                        excludedCount={exclude.size}
-                        onUse={applyOption}
-                        onNotThis={(item) => stillEligible() && setExcluded((x) => ({ ...x, [ctx]: [...(x[ctx] ?? []), item.id] }))}
-                        onResetExcluded={() => setExcluded((x) => ({ ...x, [ctx]: [] }))}
-                        onOpen={setOpenItem}
-                      />
-                    )
-                  )}
-                </Section>
-              </>
+                <div className="rise [--i:2]">
+                  <Section title="Suggested plates" id="suggest-heading">
+                    {!hasTarget ? (
+                      <Notice title="Add a target to get suggestions">
+                        <p>Enter a daily calorie or protein target in Settings. TerrierTray splits it across your meals and finds dishes that fit.</p>
+                        <Button variant="primary" className="mt-3" onClick={() => setTab("settings")}>
+                          Set my targets
+                        </Button>
+                      </Notice>
+                    ) : !canSuggest ? (
+                      <Notice tone="warn" title="Suggestions are off for this day">
+                        <p>{elig?.message}</p>
+                        <p className="mt-1">You can still build a plate yourself from the Menu tab; check dishes against the official page.</p>
+                      </Notice>
+                    ) : (
+                      plan && (
+                        <Suggestions
+                          result={plan}
+                          target={target}
+                          targetLabel={targetLabel}
+                          restrictions={profile.restrictions}
+                          freshness={freshness(hall, activeDate!, today)}
+                          excludedCount={exclude.size}
+                          onUse={applyOption}
+                          onNotThis={(item) => stillEligible() && setExcluded((x) => ({ ...x, [ctx]: [...(x[ctx] ?? []), item.id] }))}
+                          onResetExcluded={() => setExcluded((x) => ({ ...x, [ctx]: [] }))}
+                          onOpen={setOpenItem}
+                        />
+                      )
+                    )}
+                  </Section>
+                </div>
+              </div>
             ) : (
-              <MenuList items={meal.items} restrictions={profile.restrictions} onPlate={onPlate} onAdd={addItem} onOpen={setOpenItem} />
+              <div className="rise [--i:1] max-w-2xl">
+                <MenuList items={meal.items} restrictions={profile.restrictions} onPlate={onPlate} onAdd={addItem} onOpen={setOpenItem} />
+              </div>
             )}
           </>
         )}
 
-        <footer className="mt-12 border-t border-line pt-4 text-sm text-muted">
+        <footer className="mt-14 max-w-2xl border-t border-line pt-4 text-sm text-muted">
           <p>{data!.allergyNotice}</p>
           <p className="mt-2">Not affiliated with or endorsed by Boston University. Menu facts come from BU Dining; suggestions are estimates, not medical or dietary advice.</p>
         </footer>
@@ -406,5 +464,22 @@ export default function App() {
         }}
       />
     </>
+  );
+}
+
+/** Brand mark: a plate drawn as a pastel ring (not an assistant avatar). */
+function PlateMark() {
+  return (
+    <svg viewBox="0 0 32 32" className="size-8" aria-hidden="true">
+      <defs>
+        <linearGradient id="plate-mark" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="var(--blob-peach)" />
+          <stop offset="0.5" stopColor="var(--blob-pink)" />
+          <stop offset="1" stopColor="var(--blob-lavender)" />
+        </linearGradient>
+      </defs>
+      <circle cx="16" cy="16" r="12" fill="none" stroke="url(#plate-mark)" strokeWidth="5" />
+      <circle cx="16" cy="16" r="5.5" fill="var(--ink)" opacity="0.9" />
+    </svg>
   );
 }

@@ -23,9 +23,10 @@ export function Icon({ name, className = "size-5" }: { name: keyof typeof paths;
 type Variant = "primary" | "secondary" | "quiet";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-brand text-on-brand font-semibold hover:brightness-95 active:brightness-90",
-  secondary: "bg-surface text-ink border border-control hover:bg-sunken",
-  quiet: "text-brand-ink hover:bg-brand-soft underline-offset-4",
+  // Black means "act": one primary per view.
+  primary: "bg-action text-on-action font-semibold hover:brightness-125 dark:hover:brightness-95",
+  secondary: "bg-field text-ink font-semibold border border-rim shadow-[var(--shadow)] hover:bg-surface-solid",
+  quiet: "text-brand-ink font-semibold hover:bg-brand-soft",
 };
 
 export function Button({ variant = "secondary", className = "", ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
@@ -33,7 +34,7 @@ export function Button({ variant = "secondary", className = "", ...props }: Butt
     <button
       type="button"
       {...props}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 text-base transition-[filter,background-color] duration-150 disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${className}`}
+      className={`press inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-base disabled:cursor-not-allowed disabled:opacity-45 ${variants[variant]} ${className}`}
     />
   );
 }
@@ -45,37 +46,64 @@ export function IconButton({ label, icon, className = "", ...props }: ButtonHTML
       aria-label={label}
       title={label}
       {...props}
-      className={`inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-control bg-surface text-ink hover:bg-sunken disabled:cursor-not-allowed disabled:opacity-40 ${className}`}
+      className={`press inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-rim bg-field text-ink shadow-[var(--shadow)] hover:bg-surface-solid disabled:cursor-not-allowed disabled:opacity-40 ${className}`}
     >
       <Icon name={icon} />
     </button>
   );
 }
 
-export function Notice({ tone = "neutral", title, children }: { tone?: "neutral" | "warn" | "danger"; title: string; children?: ReactNode }) {
-  const tones = {
-    neutral: "border-line bg-surface",
-    warn: "border-brand bg-brand-soft",
-    danger: "border-danger bg-danger-soft",
-  };
+const tones = {
+  neutral: "glass",
+  warn: "rounded-[var(--radius-card)] border border-warn/25 bg-warn-soft",
+  danger: "rounded-[var(--radius-card)] border border-danger/30 bg-danger-soft",
+};
+
+export function Notice({ tone = "neutral", title, children }: { tone?: keyof typeof tones; title: string; children?: ReactNode }) {
   return (
-    <div className={`rounded-xl border p-4 ${tones[tone]}`} role={tone === "danger" ? "alert" : undefined}>
-      <p className="font-semibold">{title}</p>
-      {children && <div className="mt-1 text-muted">{children}</div>}
+    <div className={`p-4 ${tones[tone]}`} role={tone === "danger" ? "alert" : undefined}>
+      <p className={`font-semibold ${tone === "warn" ? "text-warn" : tone === "danger" ? "text-danger" : ""}`}>{title}</p>
+      {children && <div className="mt-1 text-ink">{children}</div>}
     </div>
   );
 }
 
-export function Section({ title, action, children, id }: { title: string; action?: ReactNode; children: ReactNode; id?: string }) {
+/** Small tinted status pill: dot + words, never colour alone. */
+export function Pill({ tone = "neutral", children }: { tone?: "neutral" | "ok" | "warn" | "danger"; children: ReactNode }) {
+  const t = {
+    neutral: "bg-sunken text-ink",
+    ok: "bg-ok-soft text-ok",
+    warn: "bg-warn-soft text-warn",
+    danger: "bg-danger-soft text-danger",
+  }[tone];
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-semibold ${t}`}>
+      <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+      {children}
+    </span>
+  );
+}
+
+/** Two-tone headline: a statement, then a quieter line in the same size. */
+export function Headline({ id, statement, feeling, as: Tag = "h2" }: { id?: string; statement: ReactNode; feeling: ReactNode; as?: "h1" | "h2" }) {
+  return (
+    <Tag id={id} className="text-[1.6875rem] leading-[1.15] font-medium tracking-[-0.02em] text-balance lg:text-[2.5rem]">
+      <span className="block">{statement}</span>
+      <span className="block text-muted">{feeling}</span>
+    </Tag>
+  );
+}
+
+export function Section({ title, action, children, id, card = false }: { title: string; action?: ReactNode; children: ReactNode; id?: string; card?: boolean }) {
   return (
     <section aria-labelledby={id} className="mt-8 first:mt-0">
       <div className="mb-3 flex items-end justify-between gap-3">
-        <h2 id={id} className="text-lg font-bold text-balance">
+        <h3 id={id} className="text-lg font-semibold tracking-[-0.01em] text-balance">
           {title}
-        </h2>
+        </h3>
         {action}
       </div>
-      {children}
+      {card ? <div className="glass p-5">{children}</div> : children}
     </section>
   );
 }

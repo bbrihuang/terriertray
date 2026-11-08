@@ -61,14 +61,14 @@ export function Suggestions({ result, target, targetLabel, restrictions, freshne
         result.options.map((option, n) => {
           const t = totals(option.entries);
           return (
-            <article key={option.entries.map((e) => e.item.id).join()} className="fade-in rounded-2xl border border-line bg-surface p-4" aria-labelledby={`opt-${n}`}>
-              <h3 id={`opt-${n}`} className="font-bold">
+            <article key={option.entries.map((e) => e.item.id).join()} className="fade-in glass p-5" aria-labelledby={`opt-${n}`}>
+              <h4 id={`opt-${n}`} className="font-semibold">
                 {n === 0 ? "Closest match" : `Option ${n + 1}`}
                 <span className="font-normal text-muted tnum">
                   {" "}
                   · {formatAmount(t.caloriesKcal.value, " kcal")}, {formatAmount(t.proteinG.value, " g")} protein
                 </span>
-              </h3>
+              </h4>
               {option.far && <p className="mt-1 font-semibold text-danger">Still far from your targets; this is the nearest available.</p>}
               <ul className="mt-2 space-y-2">
                 {option.entries.map(({ item, servings }) => (
@@ -88,7 +88,7 @@ export function Suggestions({ result, target, targetLabel, restrictions, freshne
                   </li>
                 ))}
               </ul>
-              <details className="mt-3 rounded-lg bg-sunken px-3">
+              <details className="mt-3 rounded-[var(--radius-inner)] bg-sunken px-3">
                 <summary className="min-h-11 cursor-pointer py-2.5 font-semibold">Why this plan?</summary>
                 <ul className="list-disc space-y-1 pb-3 pl-5 text-sm tnum">
                   <li>Calories: {fit(t.caloriesKcal.value, target.caloriesKcal, " kcal")}</li>

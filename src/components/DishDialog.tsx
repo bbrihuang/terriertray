@@ -67,13 +67,13 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
       onClose={handleClose}
       onClick={(e) => e.target === ref.current && ref.current?.close()}
       aria-labelledby="dish-title"
-      className="m-auto max-h-[90dvh] w-[min(36rem,calc(100vw-1.5rem))] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-surface p-0 text-ink shadow-[0_12px_40px_rgb(23_18_11/0.25)]"
+      className="m-auto max-h-[90dvh] w-[min(36rem,calc(100vw-1.5rem))] overflow-y-auto overscroll-contain rounded-[var(--radius-card)] border border-rim bg-surface-solid p-0 text-ink shadow-[0_24px_60px_rgb(30_20_60/0.18)]"
     >
       {item && verdict && (
         <div className="p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 id="dish-title" ref={heading} tabIndex={-1} className="text-xl font-bold text-balance break-words">
+              <h2 id="dish-title" ref={heading} tabIndex={-1} className="text-xl font-semibold tracking-[-0.01em] text-balance break-words">
                 {item.name}
               </h2>
               <p className="text-muted">
@@ -84,7 +84,7 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
             <IconButton label="Close dish details" icon="close" onClick={() => ref.current?.close()} />
           </div>
 
-          <section aria-label="Restrictions" className={`mt-4 rounded-xl border p-4 ${verdict.allowed ? "border-line bg-sunken" : "border-danger bg-danger-soft"}`}>
+          <section aria-label="Restrictions" className={`mt-4 rounded-[var(--radius-inner)] border p-4 ${verdict.allowed ? "border-line bg-sunken" : "border-danger/30 bg-danger-soft"}`}>
             <p className="flex items-center gap-2 font-semibold">
               <Icon name={verdict.allowed ? "info" : "alert"} className={`size-5 ${verdict.allowed ? "" : "text-danger"}`} />
               {verdict.allowed ? allergenHeadline(verdict, restrictions) : "Doesn't fit your restrictions"}
@@ -117,7 +117,7 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
             </h3>
             <p className="text-muted">Serving: {item.servingText ?? "not listed"}</p>
             {item.caloriesKcal === null ? (
-              <p className="mt-2 rounded-lg bg-sunken p-3">The source page has no nutrition label for this dish.</p>
+              <p className="mt-2 rounded-[var(--radius-inner)] bg-sunken p-3">The source page has no nutrition label for this dish.</p>
             ) : (
               <table className="mt-2 w-full tnum">
                 <caption className="sr-only">Nutrition facts as published</caption>

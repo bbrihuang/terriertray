@@ -1,42 +1,73 @@
 @import "tailwindcss";
 
-/* Contrast measured (WCAG): ink/page 15.96, muted/page 6.35, muted/surface 6.78,
-   on-brand/brand 4.72, brand-ink/page 5.39, danger/surface 7.46, control/surface 4.14.
-   Dark: ink/page 15.48, muted/surface 8.32, brand/surface 7.85, danger/surface 8.42. */
+/* Soft glass world. Contrast measured against the WORST case: a 72% white card over the
+   strongest pastel blob (light) and a 74% night card over a blob (dark).
+   Light: ink 16.8, muted 6.45 (4.69 directly on page over a blob), accent 7.14, danger 5.86,
+   warn 6.90, control border 3.58, white on action 18.85, ok ink on its tint 4.60.
+   Dark: ink 13.47, muted 7.62, accent 8.46, danger 7.40, control 4.42, action 16.85. */
 :root {
-  --page: #faf7f1;
-  --surface: #ffffff;
-  --sunken: #f3ece0;
-  --ink: #2a1803;
-  --muted: #6b5840;
-  --line: #e6dccb;
-  --control: #8c7a60;
-  --brand: #b37c05;
-  --on-brand: #2a1803;
-  --brand-ink: #8a5d00;
-  --brand-soft: #fbf3e2;
-  --danger: #a3240c;
-  --danger-soft: #fbeae5;
-  --focus: #2a1803;
+  --page: #f4f3f8;
+  --surface: rgb(255 255 255 / 0.72); /* frosted card */
+  --surface-solid: #fbfbfd; /* reduced transparency / dialogs */
+  --field: rgb(255 255 255 / 0.9);
+  --sunken: rgb(17 17 20 / 0.045);
+  --rim: rgb(255 255 255 / 0.95);
+  --tab-selected: #ffffff;
+  --ink: #111114;
+  --muted: #56556a;
+  --line: rgb(17 17 20 / 0.08);
+  --control: #7e7d90;
+  --action: #111114;
+  --on-action: #ffffff;
+  --brand: #b9a8ff; /* lavender: selection and highlights only */
+  --on-brand: #111114;
+  --brand-ink: #4f35c2; /* links and accent text */
+  --brand-soft: #eeeafe;
+  --danger: #b42318;
+  --danger-soft: #fde7e4;
+  --warn: #8a3b0a;
+  --warn-soft: #ffebdc;
+  --ok: #1f7a3f;
+  --ok-soft: #ddf3e4;
+  --focus: #111114;
+  --shadow: 0 8px 24px rgb(30 20 60 / 0.06);
+  --blob-lavender: #b9a8ff;
+  --blob-peach: #ffc7a3;
+  --blob-sky: #a9d4ff;
+  --blob-pink: #ffb3c1;
+  --blob-opacity: 0.55;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --page: #17120b;
-    --surface: #211a11;
-    --sunken: #1b150d;
-    --ink: #f3e9d8;
-    --muted: #c4b296;
-    --line: #3a2f20;
-    --control: #8f7d62;
-    --brand: #e0a52a;
-    --on-brand: #17120b;
-    --brand-ink: #e0a52a;
-    --brand-soft: #2c2213;
-    --danger: #ff9b85;
-    --danger-soft: #3a1d16;
-    --focus: #f3e9d8;
+    --page: #14121c;
+    --surface: rgb(32 28 46 / 0.74);
+    --surface-solid: #201c2e;
+    --field: rgb(40 35 57 / 0.92);
+    --sunken: rgb(255 255 255 / 0.05);
+    --rim: rgb(255 255 255 / 0.09);
+    --tab-selected: rgb(255 255 255 / 0.16);
+    --ink: #f3f1fa;
+    --muted: #b9b6cc;
+    --line: rgb(255 255 255 / 0.09);
+    --control: #8c88a3;
+    --action: #f3f1fa;
+    --on-action: #111114;
+    --brand: #8f7be8;
+    --on-brand: #ffffff;
+    --brand-ink: #c9b8ff;
+    --brand-soft: #2c2645;
+    --danger: #ff9b8a;
+    --danger-soft: #3a1e22;
+    --warn: #ffb98a;
+    --warn-soft: #3a2618;
+    --ok: #8fdca8;
+    --ok-soft: #173126;
+    --focus: #f3f1fa;
+    --shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+    --blob-opacity: 0.22;
     color-scheme: dark;
   }
 }
@@ -45,17 +76,28 @@
   --font-sans: "Atkinson Hyperlegible Next Variable", ui-sans-serif, system-ui, sans-serif;
   --color-page: var(--page);
   --color-surface: var(--surface);
+  --color-surface-solid: var(--surface-solid);
+  --color-field: var(--field);
+  --color-tab-selected: var(--tab-selected);
   --color-sunken: var(--sunken);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-control: var(--control);
+  --color-action: var(--action);
+  --color-on-action: var(--on-action);
   --color-brand: var(--brand);
   --color-on-brand: var(--on-brand);
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --radius-card: 22px;
+  --radius-inner: 14px;
 }
 
 @layer base {
@@ -78,7 +120,7 @@
   :focus-visible {
     outline: 3px solid var(--focus);
     outline-offset: 2px;
-    border-radius: 6px;
+    border-radius: 10px;
   }
   input,
   select,
@@ -94,7 +136,17 @@
     overflow: hidden;
   }
   dialog::backdrop {
-    background: rgb(23 18 11 / 0.55);
+    background: rgb(20 18 28 / 0.35);
+    backdrop-filter: blur(6px);
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--control);
+    border-radius: 999px;
+    border: 3px solid var(--page);
   }
 }
 
@@ -102,14 +154,67 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Frosted card: the only surface treatment. */
+@utility glass {
+  background: var(--surface);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--rim);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow);
+}
+
+/* Pastel light behind everything; decorative, fixed, below content. */
+.blobs {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.blobs span {
+  position: absolute;
+  width: min(420px, 75vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: var(--blob-opacity);
+}
+.blobs span:nth-child(1) { background: var(--blob-lavender); top: -8%; left: -12%; }
+.blobs span:nth-child(2) { background: var(--blob-peach); top: 18%; right: -18%; }
+.blobs span:nth-child(3) { background: var(--blob-sky); bottom: -10%; left: 10%; }
+.blobs span:nth-child(4) { background: var(--blob-pink); bottom: 20%; right: 5%; width: min(300px, 55vw); }
+
+/* Users who ask for less transparency get solid cards and no blobs. */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --surface: var(--surface-solid); }
+  .blobs { display: none; }
+}
+
+@media (forced-colors: active) {
+  .blobs { display: none; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  .fade-in {
-    animation: fade-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  .blobs span { animation: drift 18s var(--ease) infinite alternate; }
+  .blobs span:nth-child(2) { animation-delay: -6s; }
+  .blobs span:nth-child(3) { animation-delay: -12s; }
+  @keyframes drift {
+    to { transform: translate3d(4%, 6%, 0) scale(1.06); }
   }
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(4px);
-    }
+
+  /* Entry: each block rises in once per view, staggered by --i. */
+  .rise {
+    animation: rise 420ms var(--ease) both;
+    animation-delay: calc(60ms + var(--i, 0) * 50ms);
   }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+  }
+  .fade-in { animation: rise 220ms var(--ease) both; }
+
+  .press { transition: transform 120ms var(--ease), background-color 150ms, filter 150ms; }
+  .press:active:not(:disabled) { transform: scale(0.97); }
+
+  .ring-progress { transition: stroke-dashoffset 700ms var(--ease); }
 }

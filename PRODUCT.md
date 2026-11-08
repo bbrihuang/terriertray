@@ -25,7 +25,7 @@ Standing in line or walking to a hall, on a small screen and possibly in bright 
 Menu data refreshes a few times a day, not live. About half of dishes lack allergen lists. Micronutrients are available only as % Daily Value. No accounts and no server-side profile.
 
 ## Brand Commitments
-TerrierTray name. Warm off-white page, amber/saffron header, near-black brown text, flat bordered surfaces. No BU logo or mascot. No "safe for you" claims.
+TerrierTray name. Soft pastel glass (2026-11-08 refresh, see DESIGN.md): lavender-white page lit by blurred pastel light, frosted cards, black pills for actions, two-tone headlines. No AI assistant imagery. No BU logo or mascot. No "safe for you" claims.
 
 ## Evidence on Hand
 Real scraped menus for West, Warren and Marciano (Nov 7–13, 2026). No user research. *(inferred)*
@@ -34,4 +34,4 @@ Real scraped menus for West, Warren and Marciano (Nov 7–13, 2026). No user res
 Real data only; unknown stays unknown. One primary action per meal. Explain every suggestion. Restrictions are never relaxed automatically.
 
 ## Accessibility & Inclusion
-WCAG 2.2 AA: measured contrast, 44 px targets, 16 px inputs, keyboard and screen-reader paths, reflow at 320 px and 200% text, reduced motion. Atkinson Hyperlegible Next as the single typeface.
+WCAG 2.2 AA: measured contrast, 44 px targets, 16 px inputs, keyboard and screen-reader paths, reflow at 320 px and 200% text, reduced motion and reduced transparency. Atkinson Hyperlegible Next as the single typeface.
