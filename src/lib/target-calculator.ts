@@ -21,6 +21,13 @@ export type ModelInput = { age: number; gender: Gender; heightCm: number; weight
 
 export const RANGES = model.ranges;
 
+/** Goal presets are explicit planning choices, not additional trained models. */
+export const PLANNING_GOALS = [
+  { adjustmentPercent: 0, label: "Maintaining — use model estimate" },
+  { adjustmentPercent: -10, label: "Cutting — 10% below estimate" },
+  { adjustmentPercent: 10, label: "Bulking — 10% above estimate" },
+] as const;
+
 /** Why an input can't be used, or null. Inputs outside the training data are never extrapolated. */
 export function unsupportedReason(i: ModelInput): string | null {
   const within = (v: number, [lo, hi]: number[]) => Number.isFinite(v) && v >= lo! && v <= hi!;

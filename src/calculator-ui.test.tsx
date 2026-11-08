@@ -31,12 +31,16 @@ describe("model calculator interaction", () => {
     fetched.mockRestore();
   });
 
-  it("keeps a chosen adjustment separate and visible", () => {
+  it("names the goal and keeps its calorie difference separate from the model prediction", () => {
     const apply = vi.fn();
     render(<TargetCalculator currentKcal={null} onApply={apply} />);
     fill();
-    fireEvent.change(screen.getByLabelText(/^Your adjustment/), { target: { value: "-10" } });
+    fireEvent.change(screen.getByLabelText(/^Planning goal/), { target: { value: "-10" } });
     expect(screen.getByText("2,718")).toBeTruthy(); // prediction itself unchanged
+    expect(screen.getByText(/272 fewer kcal\/day than the model estimate/)).toBeTruthy();
+    expect(screen.getByRole("option", { name: /Cutting/ })).toBeTruthy();
+    expect(screen.getByRole("option", { name: /Bulking/ })).toBeTruthy();
+    expect(screen.getByRole("option", { name: /Maintaining/ })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Apply 2,446 kcal as my daily target" }));
     expect(apply).toHaveBeenCalledWith(2446);
   });

@@ -1,14 +1,9 @@
 import { useId, useState } from "react";
 import { Button } from "../components/ui";
 import model from "../lib/calorie-model.json";
-import { ACTIVITY_LEVELS, applyAdjustment, feetAndInchesToCm, GENDERS, poundsToKg, predictCalories, RANGES, type Gender } from "../lib/target-calculator";
+import { ACTIVITY_LEVELS, applyAdjustment, feetAndInchesToCm, GENDERS, PLANNING_GOALS, poundsToKg, predictCalories, RANGES, type Gender } from "../lib/target-calculator";
 
 const field = "mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink tnum";
-const ADJUSTMENTS = [
-  [0, "No adjustment: use the model’s prediction"],
-  [-10, "−10% (my choice)"],
-  [10, "+10% (my choice)"],
-] as const;
 
 /**
  * Measurements -> our model's prediction -> review -> explicit Apply.
@@ -144,16 +139,17 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
               <span className="text-[2.125rem] leading-none font-semibold tracking-[-0.03em]">{Math.round(prediction).toLocaleString("en-US")}</span>
               <span className="text-sm text-muted"> kcal per day</span>
             </p>
-            <label htmlFor={`${id}-adjust`} className="mt-4 block font-semibold">Your adjustment <span className="font-normal text-muted">(optional, not part of the model)</span></label>
+            <label htmlFor={`${id}-adjust`} className="mt-4 block font-semibold">Planning goal</label>
             <select id={`${id}-adjust`} className={field} value={adjust} onChange={(e) => edit(setAdjust)(Number(e.target.value))}>
-              {ADJUSTMENTS.map(([v, label]) => (
-                <option key={v} value={v}>{label}</option>
+              {PLANNING_GOALS.map(({ adjustmentPercent, label }) => (
+                <option key={adjustmentPercent} value={adjustmentPercent}>{label}</option>
               ))}
             </select>
+            <p className="mt-2 text-sm text-muted">Goals adjust the model estimate; they don’t predict weight or muscle change. Maintaining uses the estimate unchanged, not a measured maintenance level.</p>
             <p className="mt-3 tnum">
               Daily calorie target to apply: <span className="font-semibold">{target!.toLocaleString("en-US")} kcal</span>
-              {adjust !== 0 && <span className="text-muted"> (prediction {adjust > 0 ? "+" : "−"}{Math.abs(adjust)}%)</span>}
             </p>
+            <p className="mt-1 text-sm text-muted tnum">{adjust === 0 ? "No change from the model estimate" : `${Math.abs(target! - Math.round(prediction)).toLocaleString("en-US")} ${adjust > 0 ? "more" : "fewer"} kcal/day than the model estimate (${adjust > 0 ? "+" : "−"}${Math.abs(adjust)}%)`}</p>
             <Button
               variant="primary"
               className="mt-3"
