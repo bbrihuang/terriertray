@@ -12,7 +12,7 @@ Unofficial student project for Hackcessability (Information Access track). Not a
 | --- | --- |
 | West, Warren, Marciano menus (7 days, ~2,400 dish occurrences) | Collected from bu.edu by the teammate scraper in `collector/` |
 | Manual meal builder | Whole-serving amounts, totals vs your meal target, incomplete totals shown as "at least X, known for N of M dishes" |
-| Daily summary | Below the meal selector on Plan; combines planned plates across all halls for the selected date. Published menu calories stay separate from approximate known macro energy using 4/4/9; loading, unavailable and partial data are explicit |
+| Daily summary | Below the meal selector on Plan; combines planned plates across all halls for the selected date. Four rings compare published calories and macro grams with daily targets; loading, unavailable and partial data are explicit |
 | Optional target calculator | US units first, convertible measurements, unchanged calorie model, editable planning adjustment and optional Balanced/Muscle-focused macro allocations; preview before explicit Apply |
 | Local suggestions | Deterministic search over 2–3-dish plates, up to 3 distinct options, "Not this" swaps, "Why this plan?". Off until the allergy question is answered and while menu data fails the freshness check |
 | Week view | Seven calendar days for one hall from the selected date, using the same planner, gate and per-day freshness; incomplete or unposted days are labelled |
@@ -23,7 +23,7 @@ Unofficial student project for Hackcessability (Information Access track). Not a
 | Scheduled refresh | `.github/workflows/refresh-menus.yml`, daily at 05:30 New York and on demand (not yet run on GitHub) |
 | Freshness gate | The upstream `validate_freshness.py` checks each refresh; suggestions need data under 24 hours old with all three halls posted for that day |
 
-The approved square TerrierTrays mascot logo is supplied by the user and replaces the earlier no-mascot direction. It links home to Plan without clearing profile or tray state; the unofficial notice remains. Short transitions explain views, meals, dialogs, plate contents, rings and allocations, with reduced-motion equivalents and no decorative loops. The visible rename does not migrate the existing `terriertray.profile.v1` or `terriertray-theme` keys or `terriertray:*` event names.
+The approved square TerrierTrays mascot logo is supplied by the user and replaces the earlier no-mascot direction. It links home to Plan without clearing profile or tray state; the unofficial notice remains. A gentle intro and deliberate transitions explain arrivals and changes, with reduced-motion equivalents and no decorative loops. Each view captures its animation choice on mount, so typing and field focus never replay the page. The clipped navigation pill keeps decorative white labels aligned over the real accessible buttons. Keyboard activation is immediate. The visible rename does not migrate the existing `terriertray.profile.v1` or `terriertray-theme` keys or `terriertray:*` event names.
 
 ## Commands
 
@@ -65,7 +65,8 @@ profile (allergens, targets) ── stays in the browser ──▶ local planner
 - New BU data is published only if all three halls collect and the upstream validator says it is fresh (all-or-nothing). Otherwise the previous snapshot stays, with its original fetch time, and ages into "stale". Each run writes a summary, keeps its JSON reports as 30-day artifacts, and opens (or updates) one `menu-refresh` issue on failure. That issue closes after the next full success; delivery follows your GitHub notification settings.
 - `index.json` carries a content-hash `dataVersion`; day files are requested with `?v=dataVersion`, so cached files never mix versions.
 - `docs/data-coverage.md` reports field coverage per hall. BU lists allergens for only about half of dishes; vitamins and minerals appear only as % Daily Value, so they are shown as printed and not scored.
-- The daily summary loads nutrition for planned plates across halls on the selected date. Its menu-calorie total uses published calories. The separate macro-energy bar uses known protein and carbohydrate grams × 4 plus fat grams × 9; it may differ from menu calories. Missing values remain unknown or “at least,” with coverage and loading/unavailable states; exact target differences require complete totals.
+- The daily summary loads nutrition for planned plates across halls on the selected date. Four rings compare published calories and protein/carbs/fat grams with daily targets. Visual progress caps at 100%, while actual totals and over-target amounts remain readable. Unknown or missing-target rings are empty; partial progress is dashed with coverage. The former derived-energy bar, explanation and repeated remaining amounts were removed at the user's request. Allocation arithmetic remains unchanged in the calculator.
+- `planMeal()` runs only on Plan. Settings edits must not optimize plates on every keystroke; Week retains its existing separate planning path.
 
 ## Deployment (Vercel)
 

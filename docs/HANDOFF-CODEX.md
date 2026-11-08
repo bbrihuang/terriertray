@@ -5,6 +5,17 @@ Stack: React 19 + TypeScript + Vite + Tailwind 4, static on Vercel. All planning
 
 Read first: `PRODUCT.md`, `DESIGN.md`, `docs/DEVELOPMENT.md` (developer guide), `docs/REFERENCE_DATA.md`. `README.md` is the user-facing guide.
 
+## Motion and daily-summary repair — November 8, 2026
+
+The user reported rushed/replaying animation and a cluttered summary. This repair supersedes the earlier outline indicator and derived-energy summary:
+
+- Removed document-wide keyboard/pointer animation toggles. They restarted the main entrance on each typing-to-clicking switch; the browser reproduced the animation changing from `none` to `surface-enter` without a React remount. A regression now protects stable Settings/input nodes, focus and page motion configuration.
+- Gated plate optimization to Plan. Settings target edits previously ran `planMeal()` per character; Week keeps its existing separate planning path.
+- Added a calmer 700ms header/hero/meal intro. View arrival is 460ms, the clipped scarlet navigation pill 480ms and ring progress 650ms. Decorative white nav labels counter-translate to retain alignment and contrast. Keyboard navigation is immediate; the view captures its animation choice on mount, so field focus cannot replay it. Active range controls remain immediate. Reduced-motion CSS keeps the final state without movement.
+- Replaced daily-stat paragraphs and derived-energy material with four target rings: published calories, protein, carbs and fat. Rings cap visually at 100% while retaining actual totals, use dashed partial progress with coverage and stay empty when nutrition/targets are unknown. No derived-energy explanation, percentage legend or repeated remaining amounts in this summary. The existing allocation wrapper, calorie model, datasets, aggregation and scraper remain unchanged.
+
+Verified: **171 tests in 16 files**, TypeScript, direct Vite production build and built-output secret checks passed on Node 24.22.1. Browser checks confirmed stable animation/opacity while switching between typing and clicking, immediate keyboard navigation, exact overlay-label alignment, and light/dark rings at desktop and 320px. No full screen-reader or OS reduced-motion emulation was run. Existing font/palette/radius detector advisories remain intentional/out of scope. Changes are local; push only when asked.
+
 ## Current continuation — motion, macros, branding and daily totals
 
 The current approved behavior supersedes the historical calories-only and no-mascot constraints below:
@@ -13,12 +24,12 @@ The current approved behavior supersedes the historical calories-only and no-mas
 - The calculator starts with feet, inches and pounds; unit switching converts existing values. The original regression, its exports and parity fixtures, source datasets, scraper and normalization remain unchanged.
 - Optional Balanced (20% protein / 30% fat / rest carbs) and Muscle-focused (0.8 g protein/lb / 30% fat / rest carbs) allocations wrap the final calorie budget. Native protein/fat sliders never alter calories. Custom shares persist across body, calorie and goal changes; choosing a preset or Reset split restores defaults. Reject impossible splits rather than silently reducing protein. These are planning starting points, not model predictions or guarantees.
 - Preview calories, grams, kcal and percentages before explicit Apply. Included macro targets are applied at 0.1 g precision; uncheck “Include suggested macros” to preserve manual macros and apply calories only. Draft measurements and controls remain temporary; only applied targets enter the existing opt-in profile flow.
-- The approved daily summary sits below the meal selector on Plan. It combines planned plates across all halls for the selected date. Published menu calories remain distinct from approximate known macro energy (4 kcal/g protein and carbs, 9 kcal/g fat). Partial, loading and unavailable nutrition stay labelled; incomplete totals must not imply exact remaining targets. All totals are planned, not eaten.
-- Short, purposeful transitions are allowed for view/meal changes, dialogs, plate contents, rings and allocation bars. Preserve immediate keyboard feedback and reduced-motion equivalents; no decorative loops.
+- The approved daily summary sits below the meal selector on Plan. It combines planned plates across all halls for the selected date. Four rings compare published calories and macro grams with daily targets; derived-energy statistics are omitted. Partial, loading and unavailable nutrition stay labelled; incomplete totals must not imply exact remaining targets. All totals are planned, not eaten.
+- Purposeful introductions and transitions are allowed for view/meal changes, dialogs, plate contents, rings and allocation bars. Preserve stable fields, immediate keyboard feedback and reduced-motion equivalents; no decorative loops.
 
 The current changes are local; do not push without the user's instruction. Run the current verification commands below rather than relying on historical test counts.
 
-Current verification (November 7): **167 tests across 16 files passed** on bundled Node 24.22.1, along with TypeScript, direct Vite production build, built-output secret checks and whitespace checks. Browser checks covered light/dark desktop views, 320px reflow, keyboard sliders, explicit macro Apply, Home focus/state preservation and two dining halls contributing to the same day's total. Reduced-motion behavior was reviewed in the guarded CSS; no operating-system preference emulation or complete screen-reader audit was performed. The detector's Inter warning conflicts with the user's explicit Inter Tight choice; existing palette/radius advisories remain outside this task. A navigation contrast issue during indicator movement was fixed by keeping the selected button's fill stationary and animating a transparent outline. Protected model, original dataset and collector paths have an empty diff from `8bcc670`.
+Historical verification (November 7): **167 tests across 16 files passed** on bundled Node 24.22.1, along with TypeScript, direct Vite production build, built-output secret checks and whitespace checks. Browser checks covered light/dark desktop views, 320px reflow, keyboard sliders, explicit macro Apply, Home focus/state preservation and two dining halls contributing to the same day's total. Reduced-motion behavior was reviewed in the guarded CSS; no operating-system preference emulation or complete screen-reader audit was performed. The detector's Inter warning conflicts with the user's explicit Inter Tight choice; existing palette/radius advisories remain outside this task. The former transparent-outline navigation treatment was superseded by the November 8 repair. Protected model, original dataset and collector paths had an empty diff from `8bcc670`.
 
 ## Codex continuation — November 7, 2026
 
@@ -131,7 +142,7 @@ A local, untracked `.claude/launch.json` exists so Claude's browser pane can run
   - Inputs ≥16px, targets ≥44px, visible focus.
   - Work at 320px with no horizontal scroll.
   - Use the approved square TerrierTrays mascot logo and retain the unofficial notice. Short, purposeful, reduced-motion-aware transitions are allowed; no loops.
-  - Keep the daily summary below the meal selector, scoped to all planned halls for the selected date. Separate published menu calories from known macro energy; label partial data honestly.
+  - Keep the four-ring daily summary below the meal selector, scoped to all planned halls for the selected date. Use published calories and macro grams against daily targets; label partial data honestly and omit derived-energy clutter.
 
 ## Verify
 Use Node 24 (`.nvmrc`); the bundled Node 24.22.1 has been used for continuation verification.

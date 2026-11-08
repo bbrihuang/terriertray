@@ -41,9 +41,9 @@ TerrierTrays can only filter on what BU Dining publishes, and **BU leaves the al
 
 - **Menus update a few times a day.** Each menu shows when it was last fetched. If it's more than a day old, it's labelled and suggestions pause until fresh data arrives. You can still browse the menu.
 - **Some nutrition is missing.** When a dish has no calorie data, totals read "at least" and say how many dishes they include.
-- **Menu calories and macro energy are separate.** The daily summary shows published menu calories alongside approximate energy from known macros, using 4 kcal/g for protein and carbs and 9 kcal/g for fat. They may differ. Missing or loading nutrition stays labelled; partial totals do not claim an exact amount left.
+- **Daily target rings.** Four circles show planned calories, protein, carbs and fat against your daily targets. Calories use BU's published values. Missing or loading nutrition stays labelled; partial totals use dashed progress and coverage counts.
 - **Planned, not eaten.** Totals are what you planned, not a food log.
-- **Return home.** The TerrierTrays logo takes you back to Plan without clearing your plates or settings. Short transitions respect reduced-motion preferences.
+- **Return home.** The TerrierTrays logo takes you back to Plan without clearing your plates or settings. A gentle intro and navigation transitions respect reduced-motion preferences; typing never restarts the page animation.
 
 ## Your privacy
 

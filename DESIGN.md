@@ -73,7 +73,7 @@ The header holds the square TerrierTrays logo and view navigation. The logo is a
 
 The signature is the **actual plate total**: a scarlet ring shows planned calories against the student's meal share. The ring never invents progress. Unknown nutrition remains labelled, including “at least” and coverage counts. Totals are planned, never eaten.
 
-The daily summary combines planned dishes from all halls for the selected date. Keep published menu calories distinct from the approximate energy of known macros (4 kcal/g protein, 4 kcal/g carbs, 9 kcal/g fat). The macro bar represents that known macro energy, not progress against menu calories. Missing, loading and unavailable nutrition remain explicit; show exact target differences only for complete totals.
+The daily summary combines planned dishes from all halls for the selected date. Four scarlet rings show published calories and protein/carbs/fat grams against the existing daily targets. Keep the total, target, unit and nutrient label; omit derived energy, percentage legends and repeated remaining amounts. Cap arcs at a full circle without hiding over-target totals. Partial progress is dashed and labelled with coverage; unknown or missing-target rings stay unfilled. Empty, loading and unavailable states remain explicit. Macro allocation arithmetic and its expandable explanation stay in the calculator.
 
 ## Interface rules
 
@@ -82,7 +82,7 @@ The daily summary combines planned dishes from all halls for the selected date. 
 - Keep controls at least 44px and fields at least 48px tall. Preserve labels, keyboard focus, and native dialog behavior.
 - Keep body and label contrast at least 4.5:1 over their actual backgrounds; use words with semantic status colors.
 - Selected meals use a blush row and scarlet icon well. Published hours and planned totals remain visible.
-- Use short, purposeful transitions for view and meal changes, dialogs, plate contents, calorie rings and editable allocation bars. Keep repeated controls responsive and keyboard feedback immediate. No looping decoration. Reduced motion reaches the same final state without movement.
+- Use a 700ms header/hero introduction with 80–160ms grouping delays, 460ms content arrivals, a 480ms clipped navigation pill and 650ms target-ring progress. The pill's decorative white labels counter-translate so they stay aligned and retain contrast. Capture each view's animation choice on mount: field focus or typing must never toggle document-wide motion styles. Keyboard navigation and active range controls are immediate. No looping decoration. Reduced motion reaches the same final state without movement.
 - Do not add healthcare claims, assistant chat, fake proof, reminders, or other unsupported features.
 - Menu rows lead with name and kcal per serving; ordinary nutrition/station/serving detail is available in the existing dish dialog. Keep missing nutrition and item-specific allergy/restriction warnings visible. The unanswered allergy gate is stated once above the list, with Add disabled until answered.
 

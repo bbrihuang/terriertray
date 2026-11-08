@@ -33,12 +33,12 @@ Real scraped menus for West, Warren and Marciano (Nov 7–13, 2026). No user res
 ## Product Principles
 Real data only; unknown stays unknown. One primary action per meal. Explain every suggestion. Restrictions are never relaxed automatically.
 
-The approved daily summary sits below the meal selector and combines planned plates across all halls for the selected date. Published menu calories stay separate from approximate known macro energy calculated with 4/4/9 kcal per gram. Partial, loading and unavailable data stay labelled; incomplete totals do not produce exact remaining-target claims. Planned is never presented as eaten.
+The approved daily summary sits below the meal selector and combines planned plates across all halls for the selected date. Four target rings show published calories and protein, carbs and fat grams. Omit derived-energy statistics and repeated remaining amounts from this summary. Partial progress is dashed with coverage; unknown, loading and unavailable data stay labelled. Planned is never presented as eaten.
 
 ## Accessibility & Inclusion
 WCAG 2.2 AA: measured contrast, 44 px targets, 16 px inputs, keyboard and screen-reader paths, reflow at 320 px and 200% text, reduced motion and reduced transparency. Inter Tight as the single typeface, selected by the user after an isolated font preview.
 
-Short transitions may explain changes to views, meals, dialogs, plate contents and allocation bars. No decorative loops; reduced motion preserves the same information without movement.
+A gentle introduction and deliberate navigation, dialog, plate and ring transitions explain arrival and change. Typing and field focus never replay page animation, and plate optimization does not run in Settings. No decorative loops; reduced motion preserves the same information without movement.
 
 ## Optional target estimates
 The team's unchanged trained calorie regression is the only calorie estimator: measurements → prediction → planning adjustment → review → explicit Apply. Feet, inches and pounds appear first; unit changes convert existing values. Runs on the device; inputs are temporary; out-of-range inputs are refused. No clinical accuracy claim.
