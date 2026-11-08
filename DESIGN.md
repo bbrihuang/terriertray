@@ -1,5 +1,5 @@
 ---
-name: TerrierTray
+name: TerrierTrays
 description: A BU dining planner with white surfaces and a soft scarlet atmosphere
 colors:
   page: "#f7f7f9"
@@ -47,7 +47,7 @@ components:
   focus: "Visible neutral outline"
 ---
 
-# TerrierTray design system
+# TerrierTrays design system
 
 **Direction:** Put the day's real dining-hall choices on a calm white surface, with BU scarlet guiding the next action.
 
@@ -59,6 +59,8 @@ Observed reference traits: broad rounded white panels, large two-tone headings, 
 
 Adaptation choices: the user explicitly requested the gradient quality alongside BU scarlet and white. Confine the blush, peach, and ice-blue wash to the meal-context hero. Working surfaces stay opaque; scarlet marks primary actions. There are no drifting blobs or frosted cards.
 
+The user-provided square TerrierTrays mascot logo is the approved brand asset, replacing the earlier no-mascot direction. Keep its original design and text; do not substitute official BU artwork or imply endorsement. The unofficial student-project notice remains visible.
+
 ## Appearance
 
 A single sun/moon icon button in the header switches between Light and Dark. Settings → Appearance offers Light, Dark, and System; System removes the explicit choice and resumes following OS changes. Explicit choices persist under `terriertray-theme`, independently of personal profile storage. The small `public/theme.js` script resolves appearance before the app paints and updates native control color-scheme and browser theme color. Storage failures fall back gracefully; appearance changes never read or store measurements.
@@ -67,9 +69,11 @@ Dark mode uses a charcoal page (#171619), raised panels (#242227), light ink (#f
 
 ## Composition
 
-The header holds the plate-and-cutlery identity and view navigation. The hero groups the current hall, date, and next planning action. The real meal schedule follows, then plate totals and suggested dishes. Desktop uses complementary columns; mobile stacks the same information with usable controls and no horizontal overflow.
+The header holds the square TerrierTrays logo and view navigation. The logo is a Home link that returns to Plan without clearing plates or profile state. The hero groups the current hall, date, and next planning action. The real meal schedule follows, then the approved daily summary below the meal selector, followed by the active plate and suggested dishes. Desktop uses complementary columns; mobile stacks the same information with usable controls and no horizontal overflow.
 
 The signature is the **actual plate total**: a scarlet ring shows planned calories against the student's meal share. The ring never invents progress. Unknown nutrition remains labelled, including “at least” and coverage counts. Totals are planned, never eaten.
+
+The daily summary combines planned dishes from all halls for the selected date. Keep published menu calories distinct from the approximate energy of known macros (4 kcal/g protein, 4 kcal/g carbs, 9 kcal/g fat). The macro bar represents that known macro energy, not progress against menu calories. Missing, loading and unavailable nutrition remain explicit; show exact target differences only for complete totals.
 
 ## Interface rules
 
@@ -78,13 +82,17 @@ The signature is the **actual plate total**: a scarlet ring shows planned calori
 - Keep controls at least 44px and fields at least 48px tall. Preserve labels, keyboard focus, and native dialog behavior.
 - Keep body and label contrast at least 4.5:1 over their actual backgrounds; use words with semantic status colors.
 - Selected meals use a blush row and scarlet icon well. Published hours and planned totals remain visible.
-- Buttons use short, named color/press transitions. No looping decoration or page-entry animation. Reduced motion reaches the same final state without movement.
+- Use short, purposeful transitions for view and meal changes, dialogs, plate contents, calorie rings and editable allocation bars. Keep repeated controls responsive and keyboard feedback immediate. No looping decoration. Reduced motion reaches the same final state without movement.
 - Do not add healthcare claims, assistant chat, fake proof, reminders, or other unsupported features.
 - Menu rows lead with name and kcal per serving; ordinary nutrition/station/serving detail is available in the existing dish dialog. Keep missing nutrition and item-specific allergy/restriction warnings visible. The unanswered allergy gate is stated once above the list, with Add disabled until answered.
 
 ## Product contracts
 
 Planning remains local. Measurements are neither saved nor sent; profile storage is opt-in. Use the existing trained calorie regression with an explicit Apply step, not replacement equations or invented models.
+
+The calculator starts with feet, inches and pounds, with unit switching converting existing measurements. Optional Balanced and Muscle-focused macro allocations divide the final calorie budget without changing the model. Preview grams, kcal and percentages before Apply; applied grams are rounded to 0.1 g. “Include suggested macros” can be unchecked to preserve manual macro targets. Keep the preset and slider explanations distinct from model predictions and clinical limits.
+
+The visible name is TerrierTrays; existing `terriertray-theme`, `terriertray.profile.v1` and `terriertray:*` event names retain their singular spelling for compatibility.
 
 Use the completed BU HTML scraper data. Preserve freshness checks before automatic recommendations and again at action time; stale menus remain visibly labelled and browsable. Fenway stays deferred.
 

@@ -1,9 +1,24 @@
-# TerrierTray: handoff for Codex
+# TerrierTrays: handoff for Codex
 
 Repository: `C:\Users\Brian\code\terriertrays` (GitHub `bbrihuang/terriertrays`), branch `main`.
 Stack: React 19 + TypeScript + Vite + Tailwind 4, static on Vercel. All planning and calorie inference run in the browser; there is no backend, account system or database.
 
 Read first: `PRODUCT.md`, `DESIGN.md`, `docs/DEVELOPMENT.md` (developer guide), `docs/REFERENCE_DATA.md`. `README.md` is the user-facing guide.
+
+## Current continuation — motion, macros, branding and daily totals
+
+The current approved behavior supersedes the historical calories-only and no-mascot constraints below:
+
+- The visible name is **TerrierTrays**. The user-provided square mascot logo is the approved asset and links home to Plan without clearing profile or plates. Preserve the unofficial-BU notice. Keep the singular `terriertray.profile.v1`, `terriertray-theme` and `terriertray:*` identifiers for compatibility.
+- The calculator starts with feet, inches and pounds; unit switching converts existing values. The original regression, its exports and parity fixtures, source datasets, scraper and normalization remain unchanged.
+- Optional Balanced (20% protein / 30% fat / rest carbs) and Muscle-focused (0.8 g protein/lb / 30% fat / rest carbs) allocations wrap the final calorie budget. Native protein/fat sliders never alter calories. Custom shares persist across body, calorie and goal changes; choosing a preset or Reset split restores defaults. Reject impossible splits rather than silently reducing protein. These are planning starting points, not model predictions or guarantees.
+- Preview calories, grams, kcal and percentages before explicit Apply. Included macro targets are applied at 0.1 g precision; uncheck “Include suggested macros” to preserve manual macros and apply calories only. Draft measurements and controls remain temporary; only applied targets enter the existing opt-in profile flow.
+- The approved daily summary sits below the meal selector on Plan. It combines planned plates across all halls for the selected date. Published menu calories remain distinct from approximate known macro energy (4 kcal/g protein and carbs, 9 kcal/g fat). Partial, loading and unavailable nutrition stay labelled; incomplete totals must not imply exact remaining targets. All totals are planned, not eaten.
+- Short, purposeful transitions are allowed for view/meal changes, dialogs, plate contents, rings and allocation bars. Preserve immediate keyboard feedback and reduced-motion equivalents; no decorative loops.
+
+The current changes are local; do not push without the user's instruction. Run the current verification commands below rather than relying on historical test counts.
+
+Current verification (November 7): **167 tests across 16 files passed** on bundled Node 24.22.1, along with TypeScript, direct Vite production build, built-output secret checks and whitespace checks. Browser checks covered light/dark desktop views, 320px reflow, keyboard sliders, explicit macro Apply, Home focus/state preservation and two dining halls contributing to the same day's total. Reduced-motion behavior was reviewed in the guarded CSS; no operating-system preference emulation or complete screen-reader audit was performed. The detector's Inter warning conflicts with the user's explicit Inter Tight choice; existing palette/radius advisories remain outside this task. A navigation contrast issue during indicator movement was fixed by keeping the selected button's fill stationary and animating a transparent outline. Protected model, original dataset and collector paths have an empty diff from `8bcc670`.
 
 ## Codex continuation — November 7, 2026
 
@@ -19,7 +34,7 @@ The phone verification also refined the populated plate at 320px: the calorie su
 
 Original model artifacts, source datasets, scraper and normalization code remain unchanged. Appearance is still separate from opt-in personal profile storage. The font experiment is isolated outside this repository; the selected font alone was applied to the app.
 
-The continuation was verified using the bundled **Node 24.22.1**, resolving the old Node-26-only verification limitation. The suite now contains **119 tests in 12 files**. Browser checks covered compact menus, native dish dialogs, weekly meals and a populated plate at phone/desktop sizes, light/dark appearance, keyboard opening/closing and focus return. These checks do not constitute a full assistive-software audit.
+That continuation was verified using the bundled **Node 24.22.1**, resolving the old Node-26-only verification limitation. At that point the suite contained **119 tests in 12 files**. Browser checks covered compact menus, native dish dialogs, weekly meals and a populated plate at phone/desktop sizes, light/dark appearance, keyboard opening/closing and focus return. These checks do not constitute a full assistive-software audit.
 
 The remaining external item is a confirmed live deployment URL for the README. No URL was invented. Detector-wide palette/radius drift remains advisory; this continuation updated relevant typography and appearance guidance rather than rewriting unrelated design tokens.
 
@@ -101,9 +116,9 @@ A local, untracked `.claude/launch.json` exists so Claude's browser pane can run
   - The scraper and normalization code in `collector/`
 
   Do not add a second model or standard equation either.
-- Adjustments are user-chosen planning rules, not predictions. No weight-change claims, timelines, "safe minimums", AI goal models, macro formulas or automatic exercise calories.
+- Adjustments and the approved optional macro allocations are user-chosen planning rules, not predictions. No weight-change claims, timelines, "safe minimums", AI goal models or automatic exercise calories. Macro allocations must wrap the unchanged final calorie budget.
 - Measurements stay in component memory: never saved, sent, logged or put in URLs. Profile storage stays opt-in. Theme storage (`terriertray-theme`) is separate and nonpersonal.
-- Apply changes daily calories only, and only on an explicit click.
+- Apply changes daily calories and, when “Include suggested macros” is checked, the previewed macro targets at 0.1 g precision, only on an explicit click. Unchecking preserves manual macro targets.
 - Keep these visible:
   - Allergy-answer gating, unknown-allergen text and cross-contact "Ingredient notes".
   - Freshness pill and stale-menu labels, plus freshness checks at recommendation time and at action time.
@@ -115,13 +130,15 @@ A local, untracked `.claude/launch.json` exists so Claude's browser pane can run
   - Keep the scarlet/white light palette and the charcoal/rose dark palette.
   - Inputs ≥16px, targets ≥44px, visible focus.
   - Work at 320px with no horizontal scroll.
+  - Use the approved square TerrierTrays mascot logo and retain the unofficial notice. Short, purposeful, reduced-motion-aware transitions are allowed; no loops.
+  - Keep the daily summary below the meal selector, scoped to all planned halls for the selected date. Separate published menu calories from known macro energy; label partial data honestly.
 
 ## Verify
-Use Node 24 (`.nvmrc`). Checks so far ran on Node 26 only.
+Use Node 24 (`.nvmrc`); the bundled Node 24.22.1 has been used for continuation verification.
 
 ```bash
 npm run typecheck
-npm test                 # 102 tests in 9 files passed at handoff
+npm test                 # run the current suite; historical counts above are snapshots
 npm exec vite build      # avoid `npm run build`: its prebuild refetches menu data
 npm run check:secrets
 git diff --check
