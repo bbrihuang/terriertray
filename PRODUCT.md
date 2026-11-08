@@ -37,4 +37,4 @@ Real data only; unknown stays unknown. One primary action per meal. Explain ever
 WCAG 2.2 AA: measured contrast, 44 px targets, 16 px inputs, keyboard and screen-reader paths, reflow at 320 px and 200% text, reduced motion and reduced transparency. Atkinson Hyperlegible Next as the single typeface.
 
 ## Optional target estimates
-Settings includes local-only measurement-based estimates with standard and experimental dataset modes. Inputs are temporary; only reviewed target numbers may be saved. No clinical accuracy claim.
+The team's trained calorie regression is the only automatic estimator: measurements → prediction → review → explicit Apply (calories only). Runs on the device; inputs are temporary; out-of-range inputs are refused. No clinical accuracy claim.

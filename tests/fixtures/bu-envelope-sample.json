@@ -1,8 +1,8 @@
 {
- "schema_version": "1.1",
- "generated_at_utc": "2026-11-07T22:01:33.723285+00:00",
- "snapshot_date": "2026-11-07",
- "status": "passed",
+ "schema_version": "1.0",
+ "run_id": "2026-11-08_010353367168_4f030c89",
+ "generated_at_utc": "2026-11-08T01:05:26.338347+00:00",
+ "snapshot_date": "2026-11-08",
  "menu_dates": [
   "2026-11-07",
   "2026-11-08",
@@ -17,147 +17,31 @@
   "Warren Towers",
   "Marciano Commons"
  ],
- "failed_halls": [],
  "total_records": 17,
- "allergy_notice": "BU Dining warns that ingredient substitutions, formulation changes, and kitchen cross-contact can occur. No menu item is guaranteed allergen-free. Students with allergies should consult BU Dining staff. A null allergens field means unknown. An empty allergen list, when explicitly documented, only means that BU lists no allergens.",
+ "allergy_notice": "BU Dining warns that ingredients may change and cross-contact may occur. No menu item is guaranteed allergen-free. Ask BU Dining staff about allergies. allergens=null means unknown; allergens=[] means only that the source explicitly listed none, not that a dish is guaranteed safe.",
+ "validation_status": "passed",
  "sources": {
   "West Campus": {
    "url": "https://www.bu.edu/dining/location/west/",
-   "raw_html_path": "data/raw/west_2026-11-07.html",
-   "raw_html_sha256": "87e7488ee9e8a079500428746f4ca8e41885df75abf5fa7c354766f69559f345",
-   "fetched_at_utc": null
+   "raw_html_path": "data/archive/2026-11-08_010353367168_4f030c89/west.html",
+   "raw_html_sha256": "24e7973038ff9fa8e2d82125dc876366cfac3a7f3ef33e8a3b90ba28cf6f0bb0"
   },
   "Warren Towers": {
    "url": "https://www.bu.edu/dining/location/warren/",
-   "raw_html_path": "data/raw/warren_2026-11-07.html",
-   "raw_html_sha256": "4827704212e1580225b7805ce646fd23a5ecdc0f6474c4a7a8767f45420b234c",
-   "fetched_at_utc": null
+   "raw_html_path": "data/archive/2026-11-08_010353367168_4f030c89/warren.html",
+   "raw_html_sha256": "c3029432929081d78d0bc27256e88e7fd403de7ad3e559252b65bc3f9d800a0b"
   },
   "Marciano Commons": {
    "url": "https://www.bu.edu/dining/location/marciano/",
-   "raw_html_path": "data/raw/marciano_2026-11-07.html",
-   "raw_html_sha256": "eb2f53d47766c0ee9f07867376122410721b6ccaf812f8bd831c2a9b3a281568",
-   "fetched_at_utc": null
-  }
- },
- "meal_hours": {
-  "West Campus": {
-   "2026-11-07": {
-    "Breakfast": "9:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 9:00 PM"
-   },
-   "2026-11-08": {
-    "Brunch": "10:00 AM - 4:00 PM",
-    "Dinner": "4:00 PM - 9:00 PM"
-   },
-   "2026-11-09": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 10:00 PM"
-   },
-   "2026-11-10": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 10:00 PM"
-   },
-   "2026-11-11": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 10:00 PM"
-   },
-   "2026-11-12": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 10:00 PM"
-   },
-   "2026-11-13": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 9:00 PM"
-   }
-  },
-  "Warren Towers": {
-   "2026-11-07": {
-    "Breakfast": "9:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 9:00 PM"
-   },
-   "2026-11-08": {
-    "Brunch": "10:00 AM - 4:00 PM",
-    "Dinner": "4:00 PM - 9:00 PM"
-   },
-   "2026-11-09": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 10:00 PM"
-   },
-   "2026-11-10": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 10:00 PM"
-   },
-   "2026-11-11": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 10:00 PM"
-   },
-   "2026-11-12": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 10:00 PM"
-   },
-   "2026-11-13": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 9:00 PM"
-   }
-  },
-  "Marciano Commons": {
-   "2026-11-07": {
-    "Breakfast": "9:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 9:00 PM"
-   },
-   "2026-11-08": {
-    "Brunch": "10:00 AM - 4:00 PM",
-    "Dinner": "4:00 PM - 9:00 PM"
-   },
-   "2026-11-09": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 9:00 PM"
-   },
-   "2026-11-10": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 9:00 PM"
-   },
-   "2026-11-11": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 9:00 PM"
-   },
-   "2026-11-12": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 9:00 PM"
-   },
-   "2026-11-13": {
-    "Breakfast": "7:00 AM - 11:00 AM",
-    "Lunch": "11:00 AM - 5:00 PM",
-    "Dinner": "5:00 PM - 9:00 PM"
-   }
+   "raw_html_path": "data/archive/2026-11-08_010353367168_4f030c89/marciano.html",
+   "raw_html_sha256": "ca846976fd1f8b7e5dae98d692ba6705fc91838991f6b8f3c0f747c15d3906f6"
   }
  },
  "records": [
   {
-   "occurrence_id": "bu-west-2026-11-07-breakfast-7705bd617756",
-   "source_recipe_id": null,
    "name": "French Toast Bar",
    "dining_hall": "West Campus",
    "station": "Mediterranean",
-   "description": null,
    "meal": "Breakfast",
    "date": "2026-11-07",
    "dietary_tags": [
@@ -169,7 +53,6 @@
     "Soy",
     "Wheat"
    ],
-   "allergen_status": "allergens_listed",
    "serving_size": "1 slice",
    "calories": 210,
    "total_fat_g": 5,
@@ -189,12 +72,9 @@
    "source_url": "https://www.bu.edu/dining/location/west/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-07-breakfast-4a91af98dfe7",
-   "source_recipe_id": null,
    "name": "Scrambled Eggs",
    "dining_hall": "Warren Towers",
    "station": "Grill",
-   "description": "Cage Free eggs scrambled with salt and pepper",
    "meal": "Breakfast",
    "date": "2026-11-07",
    "dietary_tags": [
@@ -204,7 +84,6 @@
    "allergens": [
     "Egg"
    ],
-   "allergen_status": "allergens_listed",
    "serving_size": "1/2 cup",
    "calories": 140,
    "total_fat_g": 9,
@@ -224,19 +103,15 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-07-breakfast-059e36a81854",
-   "source_recipe_id": null,
    "name": "Beef Sausage Links Halal",
    "dining_hall": "Warren Towers",
    "station": "Grill",
-   "description": "Beef Sausage Links Halal",
    "meal": "Breakfast",
    "date": "2026-11-07",
    "dietary_tags": [
     "Halal"
    ],
    "allergens": null,
-   "allergen_status": "empty_allergen_list",
    "serving_size": "2 link",
    "calories": 170,
    "total_fat_g": 14,
@@ -256,12 +131,9 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-07-lunch-a75523e3f806",
-   "source_recipe_id": null,
    "name": "Scrambled Eggs",
    "dining_hall": "Warren Towers",
    "station": "Grill",
-   "description": "Cage Free eggs scrambled with salt and pepper",
    "meal": "Lunch",
    "date": "2026-11-07",
    "dietary_tags": [
@@ -271,7 +143,6 @@
    "allergens": [
     "Egg"
    ],
-   "allergen_status": "allergens_listed",
    "serving_size": "1/2 cup",
    "calories": 140,
    "total_fat_g": 9,
@@ -291,17 +162,13 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-07-lunch-8a98f2771bfa",
-   "source_recipe_id": null,
    "name": "Singaporean Beef Rendang",
    "dining_hall": "Warren Towers",
    "station": "World",
-   "description": "Beef stewed with coconut milk lemon grass and spices",
    "meal": "Lunch",
    "date": "2026-11-07",
    "dietary_tags": [],
    "allergens": null,
-   "allergen_status": "explicitly_unavailable",
    "serving_size": "4 Ounce",
    "calories": 140,
    "total_fat_g": 6,
@@ -321,17 +188,13 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-07-lunch-d21659a56535",
-   "source_recipe_id": null,
    "name": "Tomato Basil Soup",
    "dining_hall": "Warren Towers",
    "station": "Soup",
-   "description": "Fresh pack tomatoes, tomato paste and tomato puree with sauteed garlic & onion, finished with touch of heavy cream and basil",
    "meal": "Lunch",
    "date": "2026-11-07",
    "dietary_tags": [],
    "allergens": null,
-   "allergen_status": "missing_nutrition_wrapper",
    "serving_size": null,
    "calories": null,
    "total_fat_g": null,
@@ -351,17 +214,13 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-07-lunch-870e414027bc",
-   "source_recipe_id": null,
    "name": "Tomato Basil Soup",
    "dining_hall": "Warren Towers",
    "station": "Deli",
-   "description": "Fresh pack tomatoes, tomato paste and tomato puree with sauteed garlic & onion, finished with touch of heavy cream and basil",
    "meal": "Lunch",
    "date": "2026-11-07",
    "dietary_tags": [],
    "allergens": null,
-   "allergen_status": "missing_nutrition_wrapper",
    "serving_size": null,
    "calories": null,
    "total_fat_g": null,
@@ -381,17 +240,13 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-07-dinner-0923a5dd87b3",
-   "source_recipe_id": null,
    "name": "Singaporean Beef Rendang",
    "dining_hall": "Warren Towers",
    "station": "World",
-   "description": "Beef stewed with coconut milk lemon grass and spices",
    "meal": "Dinner",
    "date": "2026-11-07",
    "dietary_tags": [],
    "allergens": null,
-   "allergen_status": "explicitly_unavailable",
    "serving_size": "4 Ounce",
    "calories": 140,
    "total_fat_g": 6,
@@ -411,17 +266,13 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-07-dinner-1cf0f02cfe68",
-   "source_recipe_id": null,
    "name": "Tomato Basil Soup",
    "dining_hall": "Warren Towers",
    "station": "Soup",
-   "description": "Fresh pack tomatoes, tomato paste and tomato puree with sauteed garlic & onion, finished with touch of heavy cream and basil",
    "meal": "Dinner",
    "date": "2026-11-07",
    "dietary_tags": [],
    "allergens": null,
-   "allergen_status": "missing_nutrition_wrapper",
    "serving_size": null,
    "calories": null,
    "total_fat_g": null,
@@ -441,17 +292,13 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-07-dinner-231f7608ffa0",
-   "source_recipe_id": null,
    "name": "Tomato Basil Soup",
    "dining_hall": "Warren Towers",
    "station": "Deli",
-   "description": "Fresh pack tomatoes, tomato paste and tomato puree with sauteed garlic & onion, finished with touch of heavy cream and basil",
    "meal": "Dinner",
    "date": "2026-11-07",
    "dietary_tags": [],
    "allergens": null,
-   "allergen_status": "missing_nutrition_wrapper",
    "serving_size": null,
    "calories": null,
    "total_fat_g": null,
@@ -471,12 +318,9 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-08-brunch-1e59b1aae6cc",
-   "source_recipe_id": null,
    "name": "Scrambled Eggs",
    "dining_hall": "Warren Towers",
    "station": "Grill",
-   "description": "Cage Free eggs scrambled with salt and pepper",
    "meal": "Brunch",
    "date": "2026-11-08",
    "dietary_tags": [
@@ -486,7 +330,6 @@
    "allergens": [
     "Egg"
    ],
-   "allergen_status": "allergens_listed",
    "serving_size": "1/2 cup",
    "calories": 140,
    "total_fat_g": 9,
@@ -506,17 +349,13 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-08-brunch-c3cd43f06282",
-   "source_recipe_id": null,
    "name": "Chive Cream Cheese",
    "dining_hall": "Warren Towers",
    "station": "Pizza",
-   "description": "Cream cheese blended with fresh chives",
    "meal": "Brunch",
    "date": "2026-11-08",
    "dietary_tags": [],
    "allergens": null,
-   "allergen_status": "explicitly_unavailable",
    "serving_size": "26 ozw",
    "calories": 1890,
    "total_fat_g": 156,
@@ -536,12 +375,9 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-08-brunch-58f376a9bd4d",
-   "source_recipe_id": null,
    "name": "Chive Cream Cheese",
    "dining_hall": "Warren Towers",
    "station": "Pizza",
-   "description": "Cream cheese blended with fresh chives",
    "meal": "Brunch",
    "date": "2026-11-08",
    "dietary_tags": [
@@ -551,7 +387,6 @@
    "allergens": [
     "Milk"
    ],
-   "allergen_status": "allergens_listed",
    "serving_size": "1 Ounce",
    "calories": 95,
    "total_fat_g": 9,
@@ -571,17 +406,13 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-08-brunch-d3348b70a1c3",
-   "source_recipe_id": null,
    "name": "Singaporean Beef Rendang",
    "dining_hall": "Warren Towers",
    "station": "World",
-   "description": "Beef stewed with coconut milk lemon grass and spices",
    "meal": "Brunch",
    "date": "2026-11-08",
    "dietary_tags": [],
    "allergens": null,
-   "allergen_status": "explicitly_unavailable",
    "serving_size": "4 Ounce",
    "calories": 140,
    "total_fat_g": 6,
@@ -601,17 +432,13 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-warren-2026-11-08-dinner-55805464397c",
-   "source_recipe_id": null,
    "name": "Singaporean Beef Rendang",
    "dining_hall": "Warren Towers",
    "station": "World",
-   "description": "Beef stewed with coconut milk lemon grass and spices",
    "meal": "Dinner",
    "date": "2026-11-08",
    "dietary_tags": [],
    "allergens": null,
-   "allergen_status": "explicitly_unavailable",
    "serving_size": "4 Ounce",
    "calories": 140,
    "total_fat_g": 6,
@@ -631,12 +458,9 @@
    "source_url": "https://www.bu.edu/dining/location/warren/"
   },
   {
-   "occurrence_id": "bu-marciano-2026-11-07-breakfast-acd4d8bba856",
-   "source_recipe_id": null,
    "name": "Create Your Own Omelet Station",
    "dining_hall": "Marciano Commons",
    "station": "Saute",
-   "description": "Create Your Own Omelet Station",
    "meal": "Breakfast",
    "date": "2026-11-07",
    "dietary_tags": [
@@ -646,7 +470,6 @@
     "Coolfood"
    ],
    "allergens": null,
-   "allergen_status": "empty_allergen_list",
    "serving_size": "4 Ounce",
    "calories": 20,
    "total_fat_g": 0,
@@ -666,12 +489,9 @@
    "source_url": "https://www.bu.edu/dining/location/marciano/"
   },
   {
-   "occurrence_id": "bu-marciano-2026-11-08-brunch-34d2243fdd6a",
-   "source_recipe_id": null,
    "name": "Create Your Own Omelet Station",
    "dining_hall": "Marciano Commons",
    "station": "Saute",
-   "description": "Create Your Own Omelet Station",
    "meal": "Brunch",
    "date": "2026-11-08",
    "dietary_tags": [
@@ -680,7 +500,6 @@
     "Vegan"
    ],
    "allergens": null,
-   "allergen_status": "empty_allergen_list",
    "serving_size": "4 Ounce",
    "calories": 20,
    "total_fat_g": 0,

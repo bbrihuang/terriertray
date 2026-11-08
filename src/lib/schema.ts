@@ -6,28 +6,22 @@ const amount = z.number().finite().nonnegative().nullable();
 export const AllergenStatus = z.enum([
   "allergens_listed",
   "explicitly_none_listed",
-  "empty_allergen_list",
-  "explicitly_unavailable",
-  "missing_allergen_section",
-  "ambiguous_allergen_labels",
   "missing_nutrition_wrapper",
+  /** The source gave no allergen list; the upstream scraper does not record why. */
+  "reason_not_recorded",
 ]);
 export type AllergenStatus = z.infer<typeof AllergenStatus>;
 
-// ---------- scraper output (collector/scripts/scrape_bu_menus.py, schema 1.1) ----------
+// ---------- upstream scraper output (aladincrnolic/bumenuscraper, data/current/menus.json, schema 1.0) ----------
 
 export const ScraperRecord = z.object({
-  occurrence_id: z.string().min(1),
-  source_recipe_id: z.string().nullable(),
   name: z.string().min(1),
   dining_hall: z.string(),
   station: z.string().nullable(),
-  description: z.string().nullable(),
   meal: z.string(),
   date: z.iso.date(),
   dietary_tags: z.array(z.string()),
   allergens: z.array(z.string()).nullable(),
-  allergen_status: AllergenStatus,
   serving_size: z.string().nullable(),
   calories: amount,
   total_fat_g: amount,
@@ -49,22 +43,24 @@ export const ScraperRecord = z.object({
 export type ScraperRecord = z.infer<typeof ScraperRecord>;
 
 export const ScraperEnvelope = z.object({
-  schema_version: z.literal("1.1"),
+  schema_version: z.literal("1.0"),
+  run_id: z.string().min(1),
+  /** Upstream stamps this at parse time; freshness uses the refresh run's start instead. */
   generated_at_utc: z.string(),
   snapshot_date: z.iso.date(),
-  status: z.enum(["passed", "partial"]),
   menu_dates: z.array(z.iso.date()),
   dining_halls: z.array(z.string()),
-  failed_halls: z.array(z.string()),
+  total_records: z.number().int(),
   allergy_notice: z.string(),
-  sources: z.record(
-    z.string(),
-    z.object({ url: z.url(), raw_html_sha256: z.string(), fetched_at_utc: z.string().nullable() }),
-  ),
-  meal_hours: z.record(z.string(), z.record(z.string(), z.record(z.string(), z.string()))),
+  validation_status: z.literal("passed"),
+  sources: z.record(z.string(), z.object({ url: z.url(), raw_html_path: z.string(), raw_html_sha256: z.string() })),
   records: z.array(ScraperRecord),
 });
 export type ScraperEnvelope = z.infer<typeof ScraperEnvelope>;
+
+/** collector/scripts/meal_hours.py output: hall -> date -> meal -> hours text. */
+export const MealHours = z.record(z.string(), z.record(z.string(), z.record(z.string(), z.string())));
+export type MealHours = z.infer<typeof MealHours>;
 
 // ---------- public app contract (public/menus) ----------
 
@@ -141,7 +137,7 @@ export type HallEntry = z.infer<typeof HallEntry>;
 
 /** Output of collector/scripts/freshness_gate.py (upstream validator) for the BU halls. */
 export const Freshness = z.object({
-  basis: z.literal("oldest_hall_fetch"),
+  basis: z.enum(["refresh_run_start", "oldest_hall_fetch"]),
   basisAt: z.string().nullable(),
   checkedAt: z.string().nullable(),
   validatorStatus: z.enum(["fresh", "stale", "expired", "missing_dates", "invalid"]),

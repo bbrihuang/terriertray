@@ -58,15 +58,21 @@ jobs:
       - name: Collect BU menus (live)
         id: bu
         env:
-          COLLECTOR_CONTACT: ${{ vars.COLLECTOR_CONTACT }}
           INPUT_DATE: ${{ inputs.date }}
         run: |
           DATE="${INPUT_DATE:-$(date +%F)}"
           [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "Bad date"; exit 1; }
           echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          # Upstream stamps its output at parse time, so record when this live fetch began.
+          echo "fetch_start=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
           set +e
+          # Finalized upstream scraper, unchanged: all three halls or nothing -> data/current/menus.json
           (cd collector && python scripts/scrape_bu_menus.py --refresh --snapshot-date "$DATE")
           echo "code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Read meal hours from this run's archived pages
+        if: steps.bu.outputs.code == '0'
+        run: (cd collector && python scripts/meal_hours.py --input data/current/menus.json --out data/current/hours.json)
 
       - name: Validate freshness (upstream validator)
         id: gate
@@ -75,11 +81,11 @@ jobs:
         run: |
           set +e
           (cd collector && python scripts/freshness_gate.py \
-            --input "data/processed/terrier_trays_menus_${{ steps.bu.outputs.date }}.json" \
-            --out data/processed/freshness.json --start "${{ steps.bu.outputs.date }}")
+            --input data/current/menus.json --fetched-after "${{ steps.bu.outputs.fetch_start }}" \
+            --out data/current/freshness.json --start "${{ steps.bu.outputs.date }}")
           code=$?
           echo "code=$code" >> "$GITHUB_OUTPUT"
-          echo "status=$(jq -r .validatorStatus collector/data/processed/freshness.json 2>/dev/null || echo unknown)" >> "$GITHUB_OUTPUT"
+          echo "status=$(jq -r .validatorStatus collector/data/current/freshness.json 2>/dev/null || echo unknown)" >> "$GITHUB_OUTPUT"
 
       # Fenway (Sodexo API) is deferred until its API-key requirement is resolved: no routine
       # collection. The client stays in scripts/collect-fenway.ts for manual checks.
@@ -89,8 +95,8 @@ jobs:
         run: |
           args=(--coverage docs/data-coverage.md)
           if [ "${{ steps.gate.outputs.code }}" = "0" ]; then
-            args+=(--bu "collector/data/processed/terrier_trays_menus_${{ steps.bu.outputs.date }}.json" \
-                   --freshness collector/data/processed/freshness.json)
+            args+=(--bu collector/data/current/menus.json --hours collector/data/current/hours.json \
+                   --freshness collector/data/current/freshness.json)
             echo "published=new" >> "$GITHUB_OUTPUT"
           else
             echo "New BU data not published; keeping the previous snapshot and its original age."
@@ -111,8 +117,8 @@ jobs:
           name: refresh-reports-${{ github.run_id }}
           # Small JSON reports only; raw HTML (12-16 MB per hall) is not kept.
           path: |
-            collector/data/processed/validation_*.json
-            collector/data/processed/freshness.json
+            collector/data/archive/*/validation.json
+            collector/data/current/freshness.json
           if-no-files-found: ignore
           retention-days: 30
 
@@ -128,7 +134,7 @@ jobs:
           tmp="$(mktemp -d)"
           cp -r public/menus "$tmp/menus"
           cp docs/data-coverage.md "$tmp/"
-          cp collector/data/processed/validation_*.json collector/data/processed/freshness.json "$tmp/" 2>/dev/null || true
+          cp collector/data/archive/*/validation.json collector/data/current/freshness.json "$tmp/" 2>/dev/null || true
           cd "$tmp"
           git init -q -b menu-data
           git config user.name "terriertray-bot"
@@ -168,8 +174,7 @@ jobs:
         run: |
           case "${{ steps.bu.outputs.code }}" in
             0) collection="passed (all three halls, live)";;
-            2) collection="partial: some halls failed, so nothing new is published (all-or-nothing)";;
-            1) collection="failed for every hall";;
+            1) collection="failed: upstream publishes all three halls or nothing";;
             *) collection="did not run";;
           esac
           {

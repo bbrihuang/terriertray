@@ -55,7 +55,7 @@ describe("restriction gate", () => {
   });
 
   it("unknown allergen info is excluded in strict mode only", () => {
-    const unknown = item({ allergens: null, allergenStatus: "empty_allergen_list" });
+    const unknown = item({ allergens: null, allergenStatus: "reason_not_recorded" });
     expect(checkRestrictions(unknown, avoid(["Milk"])).allowed).toBe(false);
     expect(checkRestrictions(unknown, avoid(["Milk"], false))).toMatchObject({ allowed: true, allergen: "unknown" });
   });

@@ -39,8 +39,11 @@ cd collector && python -m venv .venv && .venv/bin/pip install -r requirements-de
 python scripts/scrape_bu_menus.py --refresh          # live (3 requests, robots-checked)
 python scripts/scrape_bu_menus.py --offline          # re-parse cached HTML
 python -m pytest tests
-cd .. && npx tsx scripts/build-menus.ts --bu collector/data/processed/terrier_trays_menus_<date>.json \
-  --freshness collector/data/processed/freshness.json --coverage docs/data-coverage.md
+python scripts/meal_hours.py --input data/current/menus.json --out data/current/hours.json
+python scripts/freshness_gate.py --input data/current/menus.json --fetched-after <time the --refresh run started> \
+  --out data/current/freshness.json
+cd .. && npx tsx scripts/build-menus.ts --bu collector/data/current/menus.json --hours collector/data/current/hours.json \
+  --freshness collector/data/current/freshness.json --coverage docs/data-coverage.md
 ```
 
 ## How data flows
@@ -62,7 +65,7 @@ profile (allergens, targets) ── stays in the browser ──▶ local planner
 `vercel.json` sets framework `vite`, output `dist`, and security headers (CSP `default-src 'self'`, no framing, `nosniff`, `no-referrer`). Still required from the team:
 
 1. Import the repo in Vercel (git integration). Builds run `prebuild`, which pulls the latest `menu-data` branch if it exists.
-2. Optional repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` for redeploys after each refresh. Repository variable: `COLLECTOR_CONTACT` (email or URL for the scraper's user agent).
+2. Optional repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` for redeploys after each refresh.
 3. Run `refresh-menus` once manually; it creates the `menu-data` branch.
 
 Nothing has been deployed yet.
@@ -78,11 +81,16 @@ To resume, `npm run collect:fenway` (manual only) reads `SODEXO_API_KEY` from th
 - [docs/SECURITY.md](docs/SECURITY.md): threat model and implemented controls
 - [docs/REFERENCE_DATA.md](docs/REFERENCE_DATA.md): what the nutrition and activity datasets are, and why they are not used yet
 - [collector/README.md](collector/README.md): scraper provenance and changes made for integration
-- Research files are preserved in data/reference and research/ on main; the optional experimental calculator uses only the text-exported regression coefficients.
+- Research files are preserved in data/reference and research/ on main. The calorie estimator uses the team's trained model only (see below).
 
-## Optional target calculator
+## Calorie estimate from our model
 
-In Settings → Daily targets, open “Help me estimate my daily targets.” Enter metric or imperial measurements, age, equation category, usual activity and goal. Preview and explicitly apply the estimate; every target remains editable. Standard Mifflin–St Jeor is the default; the team dataset regression is a separate experimental option with input-range checks and unverified provenance. Activity factors, ±10% goal adjustments and a 20/50/30 macro split are editable app assumptions, not medical prescriptions. Measurement inputs stay temporary and are never stored or sent. Only resulting targets can be saved through the existing opt-in setting.
+Plan → “Estimate my calories”, or Settings → “Estimate calories with our model”. Flow: measurements → our model’s prediction → review → **Apply** → Plan and Week use it.
+
+- **Model:** the team’s trained regression (`research/scripts/dietary_database.py` → `research/models/dietary_cal_model.joblib`, SHA-256 `60ef9abb…`, sklearn 1.9.1). Inputs: age, gender (Female or Male, as the dataset records them), height, weight and the dataset’s five activity levels. It predicts **daily calories only**.
+- **Export:** `python scripts/export-calorie-model.py` (needs `research/requirements.txt`) writes every fitted parameter at full precision to `src/lib/calorie-model.json` and the original pipeline’s own predictions to `tests/fixtures/calorie-model-parity.json`. The browser matches those within 1e-6 kcal. Re-running the training script reproduces the committed model exactly.
+- **Limits:** inputs outside the dataset’s observed ranges are refused (no extrapolation); manual entry is always available. The dataset’s “Other” category is not applied (team decision, explained in the UI). On held-out rows of its own dataset the model’s MAE is about 111 kcal; that is not clinical validation.
+- **Applying:** only daily calories change; manual protein, carb and fat targets are kept. An optional ±10% is shown as the user’s own adjustment, separate from the prediction. Measurements stay in component memory: never saved, sent or put in the URL.
 
 The data branch is preserved under data/reference and research/ on main. src/lib/calorie-model.json contains only the coefficient export, dataset bounds and provenance; raw CSV/model artifacts stay outside public/ and dist. See docs/REFERENCE_DATA.md.
 

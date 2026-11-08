@@ -1,69 +1,50 @@
 # BU menu collector
 
-`scripts/scrape_bu_menus.py` is the teammate scraper from
-<https://github.com/aladincrnolic/bumenuscraper>, vendored at commit
-`31ae28101ec88794ec6ec927e460fa814d6c5193` with the integration fixes below. That
-repository has no license file; it is reused here with the team's approval. Add a license
-or attribution note there before publishing more widely.
+## Exact versions
 
-## Usage
+| File | Source |
+| --- | --- |
+| `scripts/scrape_bu_menus.py` | [aladincrnolic/bumenuscraper](https://github.com/aladincrnolic/bumenuscraper) at `90c2ca63fd93fefbb6f861ef7851172f2bc250e6`, **unchanged** (content last changed in `7b28eb4`) |
+| `scripts/validate_freshness.py`, `tests/test_freshness.py` | same repository and revision, **unchanged** (content from `6b61692`) |
+| `scripts/meal_hours.py`, `scripts/freshness_gate.py` | TerrierTray adapters (below) |
+
+The upstream repository has no license file; reuse here is with the team's approval. Its
+`.github/workflows/update_menus.yml` (added in `90c2ca6`) is empty, so upstream publishes nothing
+that TerrierTray could consume instead of running the scraper.
+
+## Pipeline
 
 ```bash
 pip install -r requirements-dev.txt
-python scripts/scrape_bu_menus.py --refresh                       # download (robots.txt honoured, 2 s between pages)
-python scripts/scrape_bu_menus.py --offline --snapshot-date 2026-11-07
+START=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+python scripts/scrape_bu_menus.py --refresh --snapshot-date 2026-11-08    # -> data/current/menus.json (all 3 halls or nothing)
+python scripts/meal_hours.py --input data/current/menus.json --out data/current/hours.json
+python scripts/freshness_gate.py --input data/current/menus.json --fetched-after "$START" --out data/current/freshness.json
 python -m pytest tests
 ```
 
-Exit codes: `0` all halls passed, `2` partial (some halls published), `1` every hall failed (nothing written).
-Set `COLLECTOR_CONTACT` to put a contact address in the user agent.
+`.github/workflows/refresh-menus.yml` runs exactly this daily at 05:30 New York time, then
+`scripts/build-menus.ts` turns the three files into `public/menus/`.
 
-## Verified against the upstream snapshot
+## Adapters (why, and what they do)
 
-Running the upstream script and this version `--offline` on the same saved HTML produced
-identical records for all 2,404 occurrences (998 West, 712 Warren, 694 Marciano). The only
-differences are the added fields below. A live refresh on 2026-11-07 22:28 UTC also passed
-(996 / 712 / 694).
+Upstream publishes the 24 label fields per dish. It has no IDs, allergen-status reasons, descriptions,
+meal hours or fetch time, and it stamps `generated_at_utc` when it **parses**, so an `--offline`
+re-run of old HTML looks new.
 
-## Changes from upstream
+- **Fetch time:** the workflow records when its `--refresh` run starts. `freshness_gate.py` starts the
+  validator's clock there and rejects data generated before it. Without that time the data is never
+  "fresh". The validator itself is unchanged.
+- **Hours:** `meal_hours.py` reads only the "Upcoming Hours" block from the raw HTML that upstream
+  archived for the same run, after matching its SHA-256 to the run's record. Dishes are never re-extracted.
+- **IDs and allergen status** are derived in `src/lib/adapter.ts`. IDs are a hash of hall, date, meal,
+  station and name plus a duplicate index. Allergen status is an explicit list, an explicit empty
+  list, a missing nutrition panel, or "reason not recorded".
+- **Descriptions:** not captured upstream, so the app shows none.
 
-1. **Fetch time:** written to `<raw>.fetch.json` at download, with the response's SHA-256.
-   `fetched_at_utc` comes only from a sidecar matching the exact bytes, otherwise `null`. File
-   modification time is no longer used (a git checkout changed it to the clone time).
-2. **Menu windows:** no longer require exactly 7 consecutive dates or identical dates across halls.
-   At least one valid date is required; gaps, very long windows and dates far from the snapshot
-   become warnings.
-3. **Partial failure:** each valid hall is written even if another fails. The combined file lists only
-   published halls, with `status: "partial"` and `failed_halls`. Failed halls' earlier files are untouched.
-4. **Per-item evidence:** `occurrence_id` (from date/meal/station/name, plus an order index for
-   same-scope duplicates), `source_recipe_id` (BU's `data-menu-id` is empty on every observed item,
-   so it is `null`), `description` and `allergen_status` on every record. `meal_hours` comes from
-   the page's "Upcoming Hours" block, matched to service dates by month and day.
-5. **HTTP:** up to 3 attempts for connection errors, 429 and 5xx, honouring `Retry-After` (capped at 120 s).
-   Requires `text/html`, rejects off-site redirects and responses over 40 MB, streams the body, and
-   keeps at most 6 raw snapshots per hall.
-6. **Default snapshot date** is today's date in America/New_York, not the runner's timezone.
-7. Pinned `requirements.txt`, tests in `tests/` (a real-HTML excerpt cut by `tests/make_fixture.py`
-   plus synthetic edge cases).
+## What changed from TerrierTray's earlier modified copy (and why)
 
-## Freshness validation (upstream, unchanged)
-
-`scripts/validate_freshness.py` and `tests/test_freshness.py` are copied unchanged from upstream
-`379641d`. `tests/conftest.py` only puts `scripts/` on the import path so they run as-is.
-`scripts/freshness_gate.py` adapts our envelope to the validator's input:
-
-- The freshness clock starts at the **oldest real hall fetch time** from the `.fetch.json` sidecars,
-  never at parse time. Re-parsing old HTML offline cannot look fresh, and an unknown fetch time is invalid.
-- `validation_status` is `passed` only when all three halls passed, keeping upstream's all-or-nothing rule.
-- `tests/fixtures/freshness-cases.json` is run by both `tests/test_freshness_gate.py` and the browser
-  copy in `src/lib/freshness.ts`, so the two age calculations stay identical.
-
-## Not adopted from upstream (and why)
-
-- **Rewritten `scrape_bu_menus.py` (7b28eb4 and later).** It drops per-item IDs, allergen status,
-  descriptions, meal hours, fetch-time provenance (its `generated_at_utc` is parse time) and HTTP retries,
-  and it requires exactly seven consecutive dates. The app depends on the first four, and freshness
-  depends on provenance. Keeping our integrated copy is the smaller, safer change.
-- **`cleanup_archives.py`.** It prunes upstream's `data/archive/<run_id>/` folders, which this pipeline
-  never creates. Our raw cache is already bounded (6 snapshots per hall), the CI runner is ephemeral,
-  `menu-data` is a single force-pushed commit, and run reports are artifacts with 30-day retention.
+The earlier copy (upstream `31ae281` plus local fixes) has been replaced by the finalized upstream
+scraper, as the team requested. That gives up partial-hall publication, bounded retries with
+`Retry-After`, response size and content-type checks, the contact in the user agent, and per-dish
+descriptions. The provenance, ID, allergen-status and hours behaviours are kept through the adapters above.

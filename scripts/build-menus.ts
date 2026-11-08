@@ -1,7 +1,8 @@
 /**
  * Publish phone-sized public menu data from collector output.
  *
- *   tsx scripts/build-menus.ts --bu collector/data/processed/terrier_trays_menus_2026-11-07.json \
+ *   tsx scripts/build-menus.ts --bu collector/data/current/menus.json --hours collector/data/current/hours.json \
+ *     --freshness collector/data/current/freshness.json \
  *     [--fenway collector/data/processed/fenway_status.json] [--out public/menus] [--today 2026-11-07] \
  *     [--coverage docs/data-coverage.md]
  *
@@ -16,13 +17,15 @@ import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { z } from "zod";
 import { BU_HALLS, toDayMenus } from "../src/lib/adapter.ts";
-import { DayMenu, Freshness, MenuIndex, ScraperEnvelope, type HallEntry } from "../src/lib/schema.ts";
+import { DayMenu, Freshness, MealHours, MenuIndex, ScraperEnvelope, type HallEntry } from "../src/lib/schema.ts";
 import { nyDate } from "../src/lib/time.ts";
 import { FenwayStatus, FENWAY } from "./sodexo.ts";
 
 const KEEP_STALE_DAYS = 7;
 
 export type BuildInput = {
+  /** collector/scripts/meal_hours.py output for the same run. */
+  hours?: MealHours;
   bu: ScraperEnvelope | null;
   fenway: FenwayStatus | null;
   /** freshness_gate.py result for this run's BU data; required for suggestions. */
@@ -41,10 +44,10 @@ const addDays = (iso: string, n: number) => {
 };
 
 /** Pure merge step (tested); I/O lives in main(). */
-export function buildMenus({ bu, fenway, freshness = null, prior, attemptedAt, today }: BuildInput): BuildOutput {
+export function buildMenus({ bu, hours = {}, fenway, freshness = null, prior, attemptedAt, today }: BuildInput): BuildOutput {
   const files = new Map<string, DayMenu>();
   const halls: HallEntry[] = [];
-  const fresh = bu ? toDayMenus(bu) : [];
+  const fresh = bu ? toDayMenus(bu, hours) : [];
 
   for (const [name, { id, url }] of Object.entries(BU_HALLS)) {
     const published = bu?.dining_halls.includes(name) ?? false;
@@ -52,7 +55,8 @@ export function buildMenus({ bu, fenway, freshness = null, prior, attemptedAt, t
 
     if (published) {
       const days = fresh.filter((d) => d.hallId === id);
-      const fetchedAt = bu!.sources[name]?.fetched_at_utc ?? null;
+      // Upstream records no fetch time; the refresh run start (checked by freshness_gate.py) stands in for it.
+      const fetchedAt = freshness?.basisAt ?? null;
       for (const day of days) files.set(`${id}/${day.date}.json`, day);
       halls.push({
         id,
@@ -62,7 +66,7 @@ export function buildMenus({ bu, fenway, freshness = null, prior, attemptedAt, t
         status: "ok",
         lastAttemptAt: attemptedAt,
         lastSuccessfulFetchAt: fetchedAt,
-        note: fetchedAt ? null : "The fetch time was not recorded for this snapshot. Service dates come from the page itself.",
+        note: fetchedAt ? null : "The fetch time was not established for this snapshot. Service dates come from the page itself.",
         dates: days.map((d) => ({
           date: d.date,
           file: `${id}/${d.date}.json`,
@@ -175,6 +179,7 @@ function main() {
     options: {
       bu: { type: "string" },
       fenway: { type: "string" },
+      hours: { type: "string" },
       freshness: { type: "string" },
       out: { type: "string", default: "public/menus" },
       today: { type: "string" },
@@ -206,7 +211,8 @@ function main() {
   }
 
   const freshness = values.freshness && existsSync(values.freshness) ? Freshness.parse(readJson(values.freshness)) : null;
-  const { index, files } = buildMenus({ bu, fenway, freshness, prior, attemptedAt, today });
+  const hours = values.hours && existsSync(values.hours) ? MealHours.parse(readJson(values.hours)) : {};
+  const { index, files } = buildMenus({ bu, hours, fenway, freshness, prior, attemptedAt, today });
 
   if (!bu && !prior) throw new Error("Nothing to publish: no collector output and no prior data.");
 

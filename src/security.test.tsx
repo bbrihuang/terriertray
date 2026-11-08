@@ -27,7 +27,7 @@ const item: MenuItem = {
   labelDvPercent: { vitaminD: null, potassium: null, calcium: null, iron: null },
   dietTags: [],
   allergens: null,
-  allergenStatus: "empty_allergen_list",
+  allergenStatus: "reason_not_recorded",
   ingredients: hostile,
   sourceUrl: "https://www.bu.edu/dining/location/warren/",
   issues: [],

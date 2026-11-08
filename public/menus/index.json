@@ -1,27 +1,26 @@
 {
  "schemaVersion": 1,
- "dataVersion": "ef3fed837e30bc48",
- "generatedAt": "2026-11-07T23:34:33.384Z",
+ "dataVersion": "bfc96043250719ea",
+ "generatedAt": "2026-11-08T01:07:23.750Z",
  "timezone": "America/New_York",
  "allergyNotice": "BU Dining warns that ingredient substitutions, formulation changes and kitchen cross-contact can occur, and no menu item is guaranteed allergen-free. If you have a food allergy, talk with BU Dining staff before eating.",
  "freshness": {
-  "basis": "oldest_hall_fetch",
-  "basisAt": "2026-11-07T22:28:07.325628+00:00",
-  "checkedAt": "2026-11-07T23:32:48.420288+00:00",
-  "validatorStatus": "fresh",
+  "basis": "refresh_run_start",
+  "basisAt": "2026-11-08T01:03:52+00:00",
+  "checkedAt": "2026-11-08T01:05:57.172129+00:00",
+  "validatorStatus": "missing_dates",
   "maxAgeHours": 24,
   "expiryHours": 48,
   "requestedDates": [
-   "2026-11-07",
    "2026-11-08",
    "2026-11-09",
    "2026-11-10",
    "2026-11-11",
    "2026-11-12",
-   "2026-11-13"
+   "2026-11-13",
+   "2026-11-14"
   ],
   "availableDates": [
-   "2026-11-07",
    "2026-11-08",
    "2026-11-09",
    "2026-11-10",
@@ -29,8 +28,12 @@
    "2026-11-12",
    "2026-11-13"
   ],
-  "missingDates": [],
-  "warnings": [],
+  "missingDates": [
+   "2026-11-14"
+  ],
+  "warnings": [
+   "Menu information is missing for: 2026-11-14."
+  ],
   "errors": []
  },
  "halls": [
@@ -40,8 +43,8 @@
    "source": "bu-html",
    "sourceUrl": "https://www.bu.edu/dining/location/west/",
    "status": "ok",
-   "lastAttemptAt": "2026-11-07T23:34:33.384Z",
-   "lastSuccessfulFetchAt": "2026-11-07T22:28:07.325628+00:00",
+   "lastAttemptAt": "2026-11-08T01:07:23.750Z",
+   "lastSuccessfulFetchAt": "2026-11-08T01:03:52+00:00",
    "note": null,
    "dates": [
     {
@@ -122,8 +125,8 @@
    "source": "bu-html",
    "sourceUrl": "https://www.bu.edu/dining/location/warren/",
    "status": "ok",
-   "lastAttemptAt": "2026-11-07T23:34:33.384Z",
-   "lastSuccessfulFetchAt": "2026-11-07T22:28:46.290552+00:00",
+   "lastAttemptAt": "2026-11-08T01:07:23.750Z",
+   "lastSuccessfulFetchAt": "2026-11-08T01:03:52+00:00",
    "note": null,
    "dates": [
     {
@@ -204,8 +207,8 @@
    "source": "bu-html",
    "sourceUrl": "https://www.bu.edu/dining/location/marciano/",
    "status": "ok",
-   "lastAttemptAt": "2026-11-07T23:34:33.384Z",
-   "lastSuccessfulFetchAt": "2026-11-07T22:29:45.127211+00:00",
+   "lastAttemptAt": "2026-11-08T01:07:23.750Z",
+   "lastSuccessfulFetchAt": "2026-11-08T01:03:52+00:00",
    "note": null,
    "dates": [
     {

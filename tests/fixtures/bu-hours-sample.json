@@ -1,0 +1,35 @@
+{
+ "West Campus": {
+  "2026-11-07": {
+   "Breakfast": "9:00 AM - 11:00 AM",
+   "Lunch": "11:00 AM - 5:00 PM",
+   "Dinner": "5:00 PM - 9:00 PM"
+  },
+  "2026-11-08": {
+   "Brunch": "10:00 AM - 4:00 PM",
+   "Dinner": "4:00 PM - 9:00 PM"
+  }
+ },
+ "Warren Towers": {
+  "2026-11-07": {
+   "Breakfast": "9:00 AM - 11:00 AM",
+   "Lunch": "11:00 AM - 5:00 PM",
+   "Dinner": "5:00 PM - 9:00 PM"
+  },
+  "2026-11-08": {
+   "Brunch": "10:00 AM - 4:00 PM",
+   "Dinner": "4:00 PM - 9:00 PM"
+  }
+ },
+ "Marciano Commons": {
+  "2026-11-07": {
+   "Breakfast": "9:00 AM - 11:00 AM",
+   "Lunch": "11:00 AM - 5:00 PM",
+   "Dinner": "5:00 PM - 9:00 PM"
+  },
+  "2026-11-08": {
+   "Brunch": "10:00 AM - 4:00 PM",
+   "Dinner": "4:00 PM - 9:00 PM"
+  }
+ }
+}
