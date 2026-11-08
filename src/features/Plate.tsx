@@ -86,7 +86,7 @@ function PlateBar({ entries }: { entries: TrayEntry[] }) {
   const parts = [
     { key: "protein", label: "Protein", share: shares.protein, fill: "var(--ink)" },
     { key: "carbs", label: "Carbs", share: shares.carbs, fill: "var(--brand)" },
-    { key: "fat", label: "Fat", share: shares.fat, fill: "#cb9095" },
+    { key: "fat", label: "Fat", share: shares.fat, fill: "var(--macro-fat)" },
   ];
   let x = 0;
   return (

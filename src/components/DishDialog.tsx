@@ -67,7 +67,7 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
       onClose={handleClose}
       onClick={(e) => e.target === ref.current && ref.current?.close()}
       aria-labelledby="dish-title"
-      className="m-auto max-h-[90dvh] w-[min(36rem,calc(100vw-1.5rem))] overflow-y-auto overscroll-contain rounded-[var(--radius-card)] border border-rim bg-surface-solid p-0 text-ink shadow-[0_24px_60px_rgb(30_20_60/0.18)]"
+      className="m-auto max-h-[90dvh] w-[min(36rem,calc(100vw-1.5rem))] overflow-y-auto overscroll-contain rounded-[var(--radius-card)] border border-rim bg-surface-solid p-0 text-ink shadow-[var(--dialog-shadow)]"
     >
       {item && verdict && (
         <div className="p-5">

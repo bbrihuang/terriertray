@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { DishDialog } from "./components/DishDialog";
+import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { Button, Headline, Icon, Notice, Pill, Section } from "./components/ui";
 import { useDayMenu, useMenuIndex, useNow } from "./data";
 import { MenuList } from "./features/MenuList";
@@ -192,6 +193,7 @@ export default function App() {
             </button>
           ))}
         </nav>
+        <ThemeSwitcher />
       </header>
   );
 

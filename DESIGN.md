@@ -57,7 +57,13 @@ Visual inspiration: [AI Healthcare Assistant App](https://dribbble.com/shots/278
 
 Observed reference traits: broad rounded white panels, large two-tone headings, circular line-icon controls, compact numeric summaries, generous grouping, and a soft multicolor gradient material.
 
-Adaptation choices: the user explicitly requested the gradient quality alongside BU scarlet and white. Confine the blush, peach, and ice-blue wash to the meal-context hero. Working surfaces stay opaque white; scarlet marks actions, selection, and calorie progress. There are no drifting blobs, frosted cards, or automatic dark-mode overrides.
+Adaptation choices: the user explicitly requested the gradient quality alongside BU scarlet and white. Confine the blush, peach, and ice-blue wash to the meal-context hero. Working surfaces stay opaque; scarlet marks primary actions. There are no drifting blobs or frosted cards.
+
+## Appearance
+
+The header offers Light, Dark, and System. System is the default and follows OS appearance changes. Explicit choices persist under `terriertray-theme`, independently of personal profile storage. The small `public/theme.js` script resolves appearance before the app paints and updates native control color-scheme and browser theme color. Storage failures fall back gracefully; appearance changes never read or store measurements.
+
+Dark mode uses a charcoal page (#171619), raised panels (#242227), light ink (#f6f2f5), and muted labels (#beb6c2). The hero uses plum, scarlet, and warm charcoal gradients. Primary buttons stay scarlet with white text; links and progress use brighter rose tones for contrast. Theme switches suppress color transitions so surfaces change together.
 
 ## Composition
 
