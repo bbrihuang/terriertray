@@ -88,7 +88,7 @@ export function MenuList({ items, restrictions, onPlate, onAdd, onOpen }: Props)
             return (
               <li key={item.id} className="flex items-start gap-3 p-4 [contain-intrinsic-size:auto_6rem] [content-visibility:auto]">
                 <div className="min-w-0 flex-1">
-                  <button type="button" onClick={() => onOpen(item)} className="text-left font-semibold break-words underline decoration-line underline-offset-4 hover:decoration-current">
+                  <button type="button" onClick={() => onOpen(item)} className="dish-name text-left font-medium break-words">
                     {item.name}
                   </button>
                   <p className="text-sm text-muted tnum">

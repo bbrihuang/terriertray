@@ -61,26 +61,20 @@ export function Suggestions({ result, target, targetLabel, restrictions, freshne
         result.options.map((option, n) => {
           const t = totals(option.entries);
           return (
-            <article key={option.entries.map((e) => e.item.id).join()} className="fade-in glass p-5" aria-labelledby={`opt-${n}`}>
-              <h4 id={`opt-${n}`} className="font-semibold">
-                {n === 0 ? "Closest match" : `Option ${n + 1}`}
-                <span className="font-normal text-muted tnum">
-                  {" "}
-                  · {formatAmount(t.caloriesKcal.value, " kcal")}, {formatAmount(t.proteinG.value, " g")} protein
-                </span>
-              </h4>
+            <article key={option.entries.map((e) => e.item.id).join()} className="suggestion-card glass" aria-labelledby={`opt-${n}`}>
+              <div className="suggestion-heading">
+                <h4 id={`opt-${n}`} className="font-medium">{n === 0 ? "Closest match" : `Option ${n + 1}`}</h4>
+                <p className="suggestion-nutrition tnum"><span>{formatAmount(t.caloriesKcal.value, "")}<small> kcal</small></span><span>{formatAmount(t.proteinG.value, " g")} protein</span></p>
+              </div>
               {option.far && <p className="mt-1 font-semibold text-danger">Still far from your targets; this is the nearest available.</p>}
-              <ul className="mt-2 space-y-2">
+              <ul className="suggestion-dishes">
                 {option.entries.map(({ item, servings }) => (
                   <li key={item.id} className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-bold tnum">
-                        {servings} × {item.servingText ?? "serving"}
-                      </p>
-                      <button type="button" onClick={() => onOpen(item)} className="text-left break-words underline decoration-line underline-offset-4 hover:decoration-current">
+                      <button type="button" onClick={() => onOpen(item)} className="dish-name text-left font-medium break-words">
                         {item.name}
                       </button>
-                      <span className="text-sm text-muted"> · {item.station}</span>
+                      <p className="text-sm text-muted tnum">{servings} × {item.servingText ?? "serving"}{item.station ? ` · ${item.station}` : ""}</p>
                     </div>
                     <Button variant="quiet" className="shrink-0 px-2 text-sm" onClick={() => onNotThis(item)} aria-label={`Not ${item.name}: suggest without it`}>
                       Not this

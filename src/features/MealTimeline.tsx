@@ -21,8 +21,8 @@ type Props = {
 /** The day's meals as a timeline: what's served when, and what you've planned for each. */
 export function MealTimeline({ meals, selected, liveIndex, nextIndex, planned, onSelect }: Props) {
   return (
-    <div className="glass overflow-hidden p-1.5" role="group" aria-label="Meal">
-      <ul className="divide-y divide-line">
+    <div className="meal-timeline" role="group" aria-label="Meal">
+      <ul className="space-y-1">
         {meals.map((m, i) => {
           const on = m === selected;
           const p = planned(m);
@@ -32,15 +32,16 @@ export function MealTimeline({ meals, selected, liveIndex, nextIndex, planned, o
               <button
                 type="button"
                 aria-pressed={on}
+                data-selected={on}
                 onClick={() => onSelect(m)}
-                className={`press flex min-h-16 w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-[var(--radius-inner)] px-3 py-2.5 text-left ${on ? "bg-brand-soft" : "hover:bg-sunken"}`}
+                className={`meal-row press flex min-h-20 w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-[var(--radius-inner)] px-3 py-3 text-left ${on ? "bg-brand-soft" : "hover:bg-sunken"}`}
               >
-                <span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${on ? "bg-action text-on-action" : "bg-sunken text-ink"}`}>
+                <span className={`meal-icon flex size-11 shrink-0 items-center justify-center rounded-full ${on ? "bg-action text-on-action" : "bg-sunken text-ink"}`}>
                   <Icon name={ICONS[m.name] ?? "sun"} />
                 </span>
-                <span className="min-w-[min(9rem,100%)] flex-1">
+                <span className="meal-copy min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-x-2">
-                    <span className="font-semibold">{m.name}</span>
+                    <span className="font-medium">{m.name}</span>
                     {status && <span className="text-sm font-semibold text-brand-ink">· {status}</span>}
                   </span>
                   <span className="block text-sm text-muted tnum">
@@ -49,7 +50,7 @@ export function MealTimeline({ meals, selected, liveIndex, nextIndex, planned, o
                       : `${p.dishes} ${p.dishes === 1 ? "dish" : "dishes"} planned · ${p.complete ? "" : "at least "}${formatAmount(p.kcal, " kcal")}`}
                   </span>
                 </span>
-                <span className="ml-auto text-right text-sm text-muted tnum">{formatHours(m.hours) ?? "Hours not listed"}</span>
+                <span className="meal-hours ml-auto text-right text-sm text-muted tnum">{formatHours(m.hours) ?? "Hours not listed"}</span>
               </button>
             </li>
           );

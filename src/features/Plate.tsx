@@ -8,7 +8,7 @@ export const MAX_SERVINGS = 6;
 const R = 54;
 const CIRC = 2 * Math.PI * R;
 
-/** The signature: planned calories as a pastel ring around the plate. Planned, never eaten. */
+/** Planned calories form the plate's rim. Planned, never eaten. */
 function PlateRing({ total, target }: { total: Total; target: number | null }) {
   const complete = isComplete(total);
   const share = target ? Math.min(1, total.value / target) : 0;
@@ -18,17 +18,10 @@ function PlateRing({ total, target }: { total: Total; target: number | null }) {
       ? `${complete ? "" : "At least "}${Math.round(total.value)} calories planned; no calorie target set`
       : `${complete ? "" : "At least "}${Math.round(total.value)} of ${target} calories planned`;
   return (
-    <div className="flex flex-wrap items-center gap-4">
-      <div className="relative aspect-square w-36 max-w-full shrink-0" role="img" aria-label={label}>
+    <div className="plate-summary flex flex-wrap items-center gap-5">
+      <div className="plate-ring relative aspect-square w-40 max-w-full shrink-0" role="img" aria-label={label}>
         <svg viewBox="0 0 128 128" className="size-full -rotate-90" aria-hidden="true">
-          <defs>
-            <linearGradient id="plate-ring" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="var(--blob-peach)" />
-              <stop offset="0.5" stopColor="var(--blob-pink)" />
-              <stop offset="1" stopColor="var(--blob-lavender)" />
-            </linearGradient>
-          </defs>
-          <circle cx="64" cy="64" r={R} fill="none" stroke="var(--line)" strokeWidth="11" />
+          <circle cx="64" cy="64" r={R} fill="none" stroke="var(--brand-soft)" strokeWidth="8" />
           {target !== null && (
             <circle
               className="ring-progress"
@@ -36,8 +29,8 @@ function PlateRing({ total, target }: { total: Total; target: number | null }) {
               cy="64"
               r={R}
               fill="none"
-              stroke="url(#plate-ring)"
-              strokeWidth="11"
+              stroke="var(--brand)"
+              strokeWidth="8"
               strokeLinecap="round"
               strokeDasharray={CIRC}
               strokeDashoffset={CIRC * (1 - share)}
@@ -46,11 +39,11 @@ function PlateRing({ total, target }: { total: Total; target: number | null }) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center" aria-hidden="true">
           {!complete && <span className="text-xs font-semibold text-muted">at least</span>}
-          <span className="text-[2.125rem] leading-none font-semibold tracking-[-0.03em] tnum">{Math.round(total.value).toLocaleString("en-US")}</span>
+          <span className="text-[2.5rem] leading-none font-medium tracking-[-0.02em] tnum">{Math.round(total.value).toLocaleString("en-US")}</span>
           <span className="mt-0.5 text-xs font-semibold text-muted">kcal planned</span>
         </div>
       </div>
-      <div className="min-w-0 text-sm">
+      <div className="min-w-0 flex-1 text-sm">
         {target === null ? (
           <p className="text-muted">No calorie target set.</p>
         ) : (
@@ -69,11 +62,11 @@ function PlateRing({ total, target }: { total: Total; target: number | null }) {
 function MacroCell({ label, total, target }: { label: string; total: Total; target: number | null }) {
   const complete = isComplete(total);
   return (
-    <div className="rounded-[var(--radius-inner)] bg-sunken px-3 py-2.5">
+    <div className="macro-cell min-w-0 rounded-[var(--radius-inner)] bg-sunken px-3 py-3">
       <dt className="text-sm text-muted">{label}</dt>
       <dd className="tnum">
         {!complete && <span className="text-xs font-semibold text-muted">at least </span>}
-        <span className="text-xl font-semibold tracking-[-0.02em]">{formatAmount(total.value, "")}</span>
+        <span className="text-2xl font-medium">{formatAmount(total.value, "")}</span>
         <span className="text-sm text-muted"> g</span>
         {target !== null && <span className="block text-sm text-muted">of {formatAmount(target, " g")}</span>}
         {!complete && (
@@ -92,8 +85,8 @@ function PlateBar({ entries }: { entries: TrayEntry[] }) {
   if (!shares) return null;
   const parts = [
     { key: "protein", label: "Protein", share: shares.protein, fill: "var(--ink)" },
-    { key: "carbs", label: "Carbs", share: shares.carbs, fill: "var(--blob-lavender)" },
-    { key: "fat", label: "Fat", share: shares.fat, fill: "var(--blob-peach)" },
+    { key: "carbs", label: "Carbs", share: shares.carbs, fill: "var(--brand)" },
+    { key: "fat", label: "Fat", share: shares.fat, fill: "#cb9095" },
   ];
   let x = 0;
   return (
@@ -134,32 +127,33 @@ export function Plate({ meal, entries, target, targetLabel, onServings, onOpen }
       : `${meal} plate: ${entries.length} dishes, ${isComplete(sum.caloriesKcal) ? "" : "at least "}${Math.round(sum.caloriesKcal.value)} calories, ${Math.round(sum.proteinG.value)} grams protein`;
 
   return (
-    <div className="glass p-5">
+    <div className="plate-card glass p-6">
       <p className="sr-only" aria-live="polite">
         {announce}
       </p>
 
       <PlateRing total={sum.caloriesKcal} target={target?.caloriesKcal ?? null} />
 
-      <dl className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(5.25rem,100%),1fr))] gap-2">
+      <dl className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(min(5.25rem,100%),1fr))] gap-2">
         <MacroCell label="Protein" total={sum.proteinG} target={target?.proteinG ?? null} />
         <MacroCell label="Carbs" total={sum.carbsG} target={target?.carbsG ?? null} />
         <MacroCell label="Fat" total={sum.fatG} target={target?.fatG ?? null} />
       </dl>
 
       {entries.length === 0 ? (
-        <p className="mt-4 text-muted">Nothing on your {meal.toLowerCase()} plate yet. Use a suggested plate, or add dishes from the Menu tab.</p>
+        <div className="plate-empty mt-6">
+          <p className="font-medium">Your next plate starts here</p>
+          <p className="mt-1 text-sm text-muted">Nothing on your {meal.toLowerCase()} plate yet. Use a suggested plate, or add dishes from the Menu tab.</p>
+        </div>
       ) : (
         <ul className="mt-4 divide-y divide-line border-t border-line">
           {entries.map(({ item, servings }) => (
-            <li key={item.id} className="fade-in flex items-center gap-3 py-3">
+            <li key={item.id} className="plate-dish flex flex-wrap items-center gap-3 py-4">
               <div className="min-w-0 flex-1">
-                <p className="font-semibold tnum">
-                  {servings} × {item.servingText ?? "serving"}
-                </p>
-                <button type="button" onClick={() => onOpen(item)} className="text-left break-words underline decoration-control/50 underline-offset-4 hover:decoration-current">
+                <button type="button" onClick={() => onOpen(item)} className="dish-name text-left font-medium break-words">
                   {item.name}
                 </button>
+                <p className="text-sm text-muted tnum">{servings} × {item.servingText ?? "serving"}</p>
                 <p className="text-sm text-muted tnum">
                   {item.station ?? "Station not listed"} · {item.caloriesKcal === null ? "calories unknown" : formatAmount(item.caloriesKcal * servings, " kcal")}
                 </p>

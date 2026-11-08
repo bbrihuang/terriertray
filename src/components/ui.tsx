@@ -1,6 +1,14 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 const paths = {
+  plate: "M4 3v7m3-7v7m-6-7v7m0-2c0 4 6 4 6 0m-3 5v8M21 3v18m0-18c-4 2-4 9 0 9M17 12a5 5 0 1 1-8-4",
+  calendar: "M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2M7 14h2M15 14h2M7 18h2",
+  menu: "M8 6h12M8 12h12M8 18h12M3 6h.01M3 12h.01M3 18h.01",
+  settings: "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8M10 2h4l.6 3 2 .9 2.8-.9 2 3.5-2.2 2v3l2.2 2-2 3.5-2.8-.9-2 .9-.6 3h-4l-.6-3-2-.9-2.8.9-2-3.5 2.2-2v-3l-2.2-2 2-3.5 2.8.9 2-.9.6-3z",
+  arrow: "M5 12h14m-5-5 5 5-5 5",
+  shield: "M12 3 4 6v6c0 4 4 7 8 9 4-2 8-5 8-9V6l-8-3M8.5 12l2.5 2.5 4.5-5",
+  pin: "M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6",
+  sliders: "M4 7h6m4 0h6M4 17h10m4 0h2M10 4v6m4 4v6",
   plus: "M12 5v14M5 12h14",
   minus: "M5 12h14",
   close: "M6 6l12 12M18 6L6 18",
@@ -32,9 +40,9 @@ type Variant = "primary" | "secondary" | "quiet";
 
 const variants: Record<Variant, string> = {
   // Red identifies the primary action.
-  primary: "bg-action text-on-action font-semibold hover:brightness-125 dark:hover:brightness-95",
-  secondary: "bg-field text-ink font-semibold border border-rim shadow-[var(--shadow)] hover:bg-surface-solid",
-  quiet: "text-brand-ink font-semibold hover:bg-brand-soft",
+  primary: "button-primary bg-action text-on-action font-medium",
+  secondary: "button-secondary bg-sunken text-ink font-medium hover:bg-brand-soft",
+  quiet: "text-brand-ink font-medium hover:bg-brand-soft",
 };
 
 export function Button({ variant = "secondary", className = "", ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
@@ -42,7 +50,7 @@ export function Button({ variant = "secondary", className = "", ...props }: Butt
     <button
       type="button"
       {...props}
-      className={`press inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-base disabled:cursor-not-allowed disabled:opacity-45 ${variants[variant]} ${className}`}
+      className={`press inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-base disabled:cursor-not-allowed disabled:opacity-45 ${variants[variant]} ${className}`}
     />
   );
 }
@@ -54,7 +62,7 @@ export function IconButton({ label, icon, className = "", ...props }: ButtonHTML
       aria-label={label}
       title={label}
       {...props}
-      className={`press inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-rim bg-field text-ink shadow-[var(--shadow)] hover:bg-surface-solid disabled:cursor-not-allowed disabled:opacity-40 ${className}`}
+      className={`press inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-sunken text-ink hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-40 ${className}`}
     >
       <Icon name={icon} />
     </button>
@@ -95,7 +103,7 @@ export function Pill({ tone = "neutral", children }: { tone?: "neutral" | "ok" |
 /** Two-tone headline: a statement, then a quieter line in the same size. */
 export function Headline({ id, statement, feeling, as: Tag = "h2" }: { id?: string; statement: ReactNode; feeling: ReactNode; as?: "h1" | "h2" }) {
   return (
-    <Tag id={id} className="text-[1.6875rem] leading-[1.15] font-medium tracking-[-0.02em] text-balance lg:text-[2.5rem]">
+    <Tag id={id} className="page-headline">
       <span className="block">{statement}</span>
       <span className="block text-muted">{feeling}</span>
     </Tag>
