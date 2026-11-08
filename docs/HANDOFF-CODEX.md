@@ -3,11 +3,11 @@
 Repository: `C:\Users\Brian\code\terriertrays` (GitHub `bbrihuang/terriertrays`), branch `main`.
 Stack: React 19 + TypeScript + Vite + Tailwind 4, static on Vercel. All planning and calorie inference run in the browser; there is no backend, account system or database.
 
-Read first: `PRODUCT.md`, `DESIGN.md`, `README.md`, `docs/REFERENCE_DATA.md`.
+Read first: `PRODUCT.md`, `DESIGN.md`, `docs/DEVELOPMENT.md` (developer guide), `docs/REFERENCE_DATA.md`. `README.md` is the user-facing guide.
 
 ## State at handoff
 
-`main` is **7 commits ahead of `origin/main`. Nothing is pushed.** Do not push, amend or rewrite these unless the user asks.
+All commits below are **pushed to `origin/main`**. Do not amend or rewrite them, and push new work only when the user asks.
 
 | Commit | What it did |
 | --- | --- |
@@ -18,6 +18,8 @@ Read first: `PRODUCT.md`, `DESIGN.md`, `README.md`, `docs/REFERENCE_DATA.md`.
 | `7306e59` | Editable kcal/day adjustment UI for Cutting/Bulking; old % presets removed |
 | `41dadd6` | Fix: hero headline flashed "Your next BU meal…" before "Dinner at <hall>" on reload |
 | `10fba51` | Copy declutter (impeccable critique), removed "BU dining, planned" tagline, sun/moon icon theme toggle |
+| `4e97374` | This handoff |
+| (latest) | User-facing README; old developer README moved to `docs/DEVELOPMENT.md` |
 
 A local, untracked `.claude/launch.json` exists so Claude's browser pane can run `npx vite`. It is not part of the project. Ignore it or delete it.
 
@@ -50,7 +52,13 @@ A local, untracked `.claude/launch.json` exists so Claude's browser pane can run
 ### 2. Hero headline flash
 `src/App.tsx`: `heroLoading = tab === "plan" && day?.state === "loading"`. While it is true, the headline is wrapped in `invisible`, which keeps the space and avoids layout shift. The index-loading state was already covered by a skeleton early return.
 
-### 3. Declutter, tagline and theme toggle
+### 3. README rewrite
+- `README.md` is now written for students using the app: what it does, getting started, the calorie estimate and its limits, an allergy warning, data freshness, and privacy. It avoids developer detail.
+- All previous developer content (commands, data flow, deployment, Fenway, model export) moved unchanged to `docs/DEVELOPMENT.md`. Relative links were fixed, and `docs/REFERENCE_DATA.md` now points there.
+- The README links to BU Dining, not to a deployed URL, because none was confirmed. Add the live Vercel URL once the user gives it.
+- Keep the README's claims in sync with the UI copy: the 10% default, the ~111 kcal error, diet tags (`DIET_TAGS` in `src/lib/restrictions.ts`), strict handling of unknown allergens, and the 24-hour freshness rule.
+
+### 4. Declutter, tagline and theme toggle
 - The `impeccable` critique ran as two isolated reviews:
   - The design review scored 25/40, with "Aesthetic & minimalist" at 1/4.
   - The detector found that 56–80% of visible words were muted subtext.
@@ -110,4 +118,4 @@ git diff --check
    - Six colors and seven radii in `src/index.css` aren't in `DESIGN.md` (mostly dark-theme tones and pill radii). Decide whether to add them to DESIGN.md or remap them.
    - The `radial-halo` and nested `context-card` findings are intentional per DESIGN.md.
 6. **Test gaps.** There is no UI test for the hero-loading `invisible` wrapper or for `ThemeSwitcher`. `tests/theme.test.ts` covers `public/theme.js` only.
-7. **Push.** Push the 7 local commits only when the user says so.
+7. **README live link.** Add the deployed app URL to the top of `README.md` once the user confirms it.

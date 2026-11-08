@@ -1,97 +1,54 @@
 # TerrierTray
 
-Plan practical portions from Boston University dining-hall menus. Pick a hall and meal, enter your own daily targets and allergens, and TerrierTray suggests plates built from that meal's real dishes, in whole dining-hall servings, with every number traceable to the official label.
+**Know what to put on your tray before you get to the dining hall.**
 
-Unofficial student project for Hackcessability (Information Access track). Not affiliated with Boston University.
+TerrierTray reads the real menus from Boston University's dining halls and helps you build a plate that fits your calories, your allergies and your diet. It runs in your browser. You don't need an account.
 
-## What works
+> Unofficial student project. Not affiliated with or endorsed by Boston University.
 
-| Feature | Status |
-| --- | --- |
-| West, Warren, Marciano menus (7 days, ~2,400 dish occurrences) | Collected from bu.edu by the teammate scraper in `collector/` |
-| Manual meal builder | Whole-serving amounts, totals vs your meal target, incomplete totals shown as "at least X, known for N of M dishes" |
-| Local suggestions | Deterministic search over 2–3-dish plates, up to 3 distinct options, "Not this" swaps, "Why this plan?". Off until the allergy question is answered and while menu data fails the freshness check |
-| Week view | Seven calendar days for one hall from the selected date, using the same planner, gate and per-day freshness; incomplete or unposted days are labelled |
-| Restrictions | One shared gate for menu, add, swap and suggestions. Unknown allergen info is excluded in strict mode (default) |
-| Dish details | Accessible `<dialog>`: restrictions first, then the label, ingredients, cross-contact notes and the official source link |
-| Privacy | Profile stays in the browser; saving to `localStorage` is opt-in, with a delete control |
-| Fenway (Sodexo API) | **Deferred.** Client code and tests are kept, but Fenway is hidden from the hall picker and not collected on schedule (see below) |
-| Scheduled refresh | `.github/workflows/refresh-menus.yml`, daily at 05:30 New York and on demand (not yet run on GitHub) |
-| Freshness gate | The upstream `validate_freshness.py` checks each refresh; suggestions need data under 24 hours old with all three halls posted for that day |
+## What you can do
 
-## Commands
+- **See what's being served.** West Campus, Warren Towers and Marciano Commons, up to a week ahead, meal by meal, with posted hours.
+- **Get suggested plates.** Set a daily calorie target and TerrierTray suggests up to three plates from the current meal, using whole dining-hall servings. Don't like a dish? Tap **Not this** and it finds another. **Why this plan?** shows how it chose.
+- **Build your own plate.** Add dishes from the Menu tab and watch the totals add up against your meal's share of the day.
+- **Plan the week.** The Week tab lays out suggested meals for the next seven days at one hall.
+- **Filter for allergies and diets.** Avoid specific allergens, or show only dishes labelled vegetarian, vegan, halal or gluten-free.
+- **Light or dark.** Tap the sun/moon button in the top corner.
 
-Node 24 LTS (`.nvmrc`) and Python 3.10+.
+## Getting started
 
-```bash
-npm ci
-npm run dev            # http://localhost:5173
-npm test               # Vitest: adapter, planner, restrictions, storage, merge, Sodexo client, XSS rendering
-npm run typecheck
-npm run build          # dist/ for Vercel
-npm run check:secrets  # fails if dist/ contains key names, the Sodexo host, or research files
-```
+1. **Pick your dining hall and day** in the card at the top of the Plan tab.
+2. **Set a calorie target.** Tap **Estimate my calories** to use our model, or type your own numbers in **Settings → Daily targets**. Protein, carbs and fat are optional.
+3. **Answer the allergy question** in Settings. Suggestions stay off until you do, so nothing is recommended before your restrictions are known.
+4. **Go to Plan** and choose a suggested plate, or add dishes yourself from **Menu**.
 
-Collect and publish menu data:
+## The calorie estimate
 
-```bash
-cd collector && python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-python scripts/scrape_bu_menus.py --refresh          # live (3 requests, robots-checked)
-python scripts/scrape_bu_menus.py --offline          # re-parse cached HTML
-python -m pytest tests
-python scripts/meal_hours.py --input data/current/menus.json --out data/current/hours.json
-python scripts/freshness_gate.py --input data/current/menus.json --fetched-after <time the --refresh run started> \
-  --out data/current/freshness.json
-cd .. && npx tsx scripts/build-menus.ts --bu collector/data/current/menus.json --hours collector/data/current/hours.json \
-  --freshness collector/data/current/freshness.json --coverage docs/data-coverage.md
-```
+Our team trained a model that estimates daily calories from your age, gender, height, weight and activity level.
 
-## How data flows
+- **You stay in control.** Nothing changes until you tap **Apply**, and only your calorie target changes.
+- **Cutting or bulking?** Choose a goal and enter how many calories to subtract or add each day. It starts at 10% of the estimate, and you can change it. The model estimate, your adjustment and the final target are shown together.
+- **It's an estimate, not advice.** It is typically off by about 111 kcal, and it can't predict weight change. If you're pregnant or breastfeeding, or you follow a medically prescribed diet, skip it and enter your own target.
+- **Outside the model's range?** If your inputs fall outside the data it was trained on, it says so instead of guessing. You can always type a target yourself.
 
-```text
-bu.edu menu pages ──(collector/scripts/scrape_bu_menus.py, Actions only)──▶ snake_case JSON
-   ──(scripts/build-menus.ts + src/lib/adapter.ts)──▶ public/menus/index.json + <hall>/<date>.json (~25 KB gzipped each)
-   ──(static Vercel site)──▶ browser loads the index, then only the selected hall-day
-profile (allergens, targets) ── stays in the browser ──▶ local planner
-```
+## Allergies: please read
 
-- Raw HTML (12–16 MB per hall) and collector output stay in `collector/data/` (git-ignored), never in `public/`.
-- New BU data is published only if all three halls collect and the upstream validator says it is fresh (all-or-nothing). Otherwise the previous snapshot stays, with its original fetch time, and ages into "stale". Each run writes a summary, keeps its JSON reports as 30-day artifacts, and opens (or updates) one `menu-refresh` issue on failure. That issue closes after the next full success; delivery follows your GitHub notification settings.
-- `index.json` carries a content-hash `dataVersion`; day files are requested with `?v=dataVersion`, so cached files never mix versions.
-- `docs/data-coverage.md` reports field coverage per hall. BU lists allergens for only about half of dishes; vitamins and minerals appear only as % Daily Value, so they are shown as printed and not scored.
+TerrierTray can only filter on what BU Dining publishes, and **BU leaves the allergen list empty for many dishes**. An empty list does not mean allergen-free. By default, dishes with unknown allergens are left out of suggestions when you filter. Kitchens share equipment and recipes change, so **if you have an allergy, confirm with dining staff before eating.**
 
-## Deployment (Vercel)
+## Good to know
 
-`vercel.json` sets framework `vite`, output `dist`, and security headers (CSP `default-src 'self'`, no framing, `nosniff`, `no-referrer`). Still required from the team:
+- **Menus update a few times a day.** Each menu shows when it was last fetched. If it's more than a day old, it's labelled and suggestions pause until fresh data arrives. You can still browse the menu.
+- **Some nutrition is missing.** When a dish has no calorie data, totals read "at least" and say how many dishes they include.
+- **Planned, not eaten.** Totals are what you planned, not a food log.
 
-1. Import the repo in Vercel (git integration). Builds run `prebuild`, which pulls the latest `menu-data` branch if it exists.
-2. Optional repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` for redeploys after each refresh.
-3. Run `refresh-menus` once manually; it creates the `menu-data` branch.
+## Your privacy
 
-Nothing has been deployed yet.
+- Your measurements for the calorie estimate are **never saved or sent anywhere**.
+- Your allergies and targets stay in your browser. They're only remembered if you turn on **Remember my settings on this device**, and you can delete them anytime in Settings.
+- No accounts and no tracking.
 
-## Fenway (deferred)
+## About
 
-**Open question for the team:** the organisers asked for at least one API key, and the only keyed source here is Sodexo's Fenway menu API. No authorised `SODEXO_API_KEY` has been available, so its response format has never been verified. Until that is resolved, Fenway is not offered in the app and the scheduled refresh does not call Sodexo. Nothing else has replaced it.
+Built by BU students for Hackcessability (Information Access track). Menu facts come from [BU Dining](https://www.bu.edu/dining/). Fenway isn't included yet.
 
-To resume, `npm run collect:fenway` (manual only) reads `SODEXO_API_KEY` from the environment only. It calls the fixed Sodexo URL with the key in a header, and classifies the result (auth failure, unavailable, empty/closed, malformed, ok). With `--inspect` it writes a **keys-and-types-only** shape file, so the response can be mapped to `MenuItem` without exposing data or the key. Until that mapping is written from a real response, Fenway shows as "not connected yet" and no dishes are invented.
-
-## More
-
-- [docs/SECURITY.md](docs/SECURITY.md): threat model and implemented controls
-- [docs/REFERENCE_DATA.md](docs/REFERENCE_DATA.md): what the nutrition and activity datasets are, and why they are not used yet
-- [collector/README.md](collector/README.md): scraper provenance and changes made for integration
-- Research files are preserved in data/reference and research/ on main. The calorie estimator uses the team's trained model only (see below).
-
-## Calorie estimate from our model
-
-Plan → “Estimate my calories”, or Settings → “Estimate calories with our model”. Flow: measurements → our model’s prediction → review → **Apply** → Plan and Week use it.
-
-- **Model:** the team’s trained regression (`research/scripts/dietary_database.py` → `research/models/dietary_cal_model.joblib`, SHA-256 `60ef9abb…`, sklearn 1.9.1). Inputs: age, gender (Female or Male, as the dataset records them), height, weight and the dataset’s five activity levels. It predicts **daily calories only**.
-- **Export:** `python scripts/export-calorie-model.py` (needs `research/requirements.txt`) writes every fitted parameter at full precision to `src/lib/calorie-model.json` and the original pipeline’s own predictions to `tests/fixtures/calorie-model-parity.json`. The browser matches those within 1e-6 kcal. Re-running the training script reproduces the committed model exactly.
-- **Limits:** inputs outside the dataset’s observed ranges are refused (no extrapolation); manual entry is always available. The dataset’s “Other” category is not applied (team decision, explained in the UI). On held-out rows of its own dataset the model’s MAE is about 111 kcal; that is not clinical validation.
-- **Applying:** only daily calories change; manual protein, carb and fat targets are kept. Planning goals go through one helper, `planTarget()`: Maintaining applies no adjustment; Cutting subtracts and Bulking adds an editable kcal/day amount (starting at 10% of the estimate). The UI shows the model estimate, the signed adjustment and the proposed target together, and blocks Apply for blank, negative, fractional or non-numeric amounts or a nonpositive target. These are explicit planning adjustments, not goal-specific trained models or validated maintenance/weight-change predictions. Measurements stay in component memory: never saved, sent or put in the URL.
-
-The data branch is preserved under data/reference and research/ on main. src/lib/calorie-model.json contains only the coefficient export, dataset bounds and provenance; raw CSV/model artifacts stay outside public/ and dist. See docs/REFERENCE_DATA.md.
-
-Regenerate the browser model export without loading joblib: python scripts/export-calorie-model.py (standard-library Python). Original research scripts are preserved snapshots; they are not part of app startup.
+Want to run or contribute to the code? See the [developer guide](docs/DEVELOPMENT.md).

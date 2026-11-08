@@ -1,6 +1,6 @@
 # Reference data inventory
 
-Inspected on 2026-11-07. The data branch has been integrated into main: CSVs live in data/reference, scripts in research/scripts, and model artifacts in research/models. IMPORT.json records the source revision and file checksums. The calorie estimator uses the trained regression exclusively, via a full-precision export of its fitted parameters (see the README); raw CSVs and binary models are not bundled. Each would need a documented source and licence first, and the reasons below would need resolving.
+Inspected on 2026-11-07. The data branch has been integrated into main: CSVs live in data/reference, scripts in research/scripts, and model artifacts in research/models. IMPORT.json records the source revision and file checksums. The calorie estimator uses the trained regression exclusively, via a full-precision export of its fitted parameters (see [DEVELOPMENT.md](DEVELOPMENT.md)); raw CSVs and binary models are not bundled. Each would need a documented source and licence first, and the reasons below would need resolving.
 
 | File | What it is | Source / licence | Why it is not used yet |
 | --- | --- | --- | --- |
