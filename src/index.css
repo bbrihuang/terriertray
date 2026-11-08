@@ -154,15 +154,21 @@
   ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 20px; border: 3px solid var(--page); }
 }
 
-/* Only a background layer changes opacity; content never pans, scales or shifts. */
-body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: var(--ambient-background); opacity: .55; }
+/* The gradients themselves drift on separate layers; content stays stationary. */
+body::before { content: ""; position: fixed; inset: -10%; z-index: -1; pointer-events: none; background: var(--ambient-background); opacity: .55; }
+.planner-hero::before { content: ""; position: absolute; inset: -10%; z-index: -1; pointer-events: none; background: var(--hero-background); }
 @media (prefers-reduced-motion: no-preference) {
-  body::before { animation: ambient-color 32s ease-in-out infinite alternate; }
-  @keyframes ambient-color { from { opacity: .35; } to { opacity: .7; } }
+  body::before, .planner-hero::before { animation: ambient-drift 28s ease-in-out -7s infinite alternate; }
+  @keyframes ambient-drift {
+    from { transform: translate3d(-3%, -1.5%, 0); }
+    to { transform: translate3d(3%, 1.5%, 0); }
+  }
 }
 body:has(input:focus, select:focus)::before,
-html:has(dialog[open]) body::before { animation-play-state: paused; }
-@media (forced-colors: active) { body::before { display: none; } }
+body:has(input:focus, select:focus) .planner-hero::before,
+html:has(dialog[open]) body::before,
+html:has(dialog[open]) .planner-hero::before { animation-play-state: paused; }
+@media (forced-colors: active) { body::before, .planner-hero::before { display: none; } }
 
 @utility tnum { font-variant-numeric: tabular-nums; }
 /* Shared primitive for existing feature screens, now an opaque white surface. */
@@ -182,8 +188,8 @@ html:has(dialog[open]) body::before { animation-play-state: paused; }
 
 .planner-hero {
   display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 48px; align-items: center;
-  padding: 32px 40px; border-radius: 36px; isolation: isolate;
-  background: var(--hero-background);
+  position: relative; overflow: hidden; padding: 32px 40px; border-radius: 36px; isolation: isolate;
+  background: var(--surface);
 }
 .hero-copy { min-width: 0; }
 .hero-date { color: var(--hero-copy); font-size: 14px; margin-bottom: 16px; }

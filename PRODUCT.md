@@ -40,7 +40,7 @@ WCAG 2.2 AA: measured contrast, 44 px targets, 16 px inputs, keyboard and screen
 
 A gentle introduction and deliberate navigation, dialog, plate and ring transitions explain arrival and change. Typing and field focus never replay page animation, and plate optimization does not run in Settings. No decorative loops; reduced motion preserves the same information without movement.
 
-The user's explicit background-animation request permits one quiet exception: a fixed, low-contrast gradient layer that changes opacity over a 64-second round trip. Content stays stationary, form focus/dialogs pause it, and reduced motion keeps it static.
+The user clarified that background animation means actual gradient movement, not color fading. Low-contrast gradient layers behind the page and hero slowly drift over a 56-second round trip at fixed colors/opacity. Content stays stationary, form focus/dialogs pause the layers, and reduced motion keeps them static.
 
 ## Optional target estimates
 The team's unchanged trained calorie regression is the only calorie estimator: measurements → prediction → planning adjustment → review → explicit Apply. Feet, inches and pounds appear first; unit changes convert existing values. Runs on the device; inputs are temporary; out-of-range inputs are refused. No clinical accuracy claim.
