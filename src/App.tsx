@@ -97,14 +97,6 @@ export default function App() {
   const ctx = `${hall?.id}/${activeDate}/${meal?.name}`;
 
   useEffect(() => {
-    const keyboard = () => { document.documentElement.dataset.input = "keyboard"; };
-    const pointer = () => { document.documentElement.dataset.input = "pointer"; };
-    document.addEventListener("keydown", keyboard);
-    document.addEventListener("pointerdown", pointer);
-    return () => { document.removeEventListener("keydown", keyboard); document.removeEventListener("pointerdown", pointer); };
-  }, []);
-
-  useEffect(() => {
     if (!focusHome || tab !== "plan" || day?.state === "loading") return;
     const heading = document.getElementById("page-title");
     if (!heading) return;
@@ -178,9 +170,9 @@ export default function App() {
   // Checked again at click time, since a tab can sit open past the freshness limit.
   const stillEligible = () => !!(data && hall && activeDate && eligibility(data, hall.id, activeDate, new Date()).canRecommend);
   const plan = useMemo(
-    () => (meal && hasTarget && canSuggest ? planMeal(meal.items, target, profile.restrictions, { exclude }) : null),
+    () => (tab === "plan" && meal && hasTarget && canSuggest ? planMeal(meal.items, target, profile.restrictions, { exclude }) : null),
     // target derives from profile
-    [meal, hasTarget, canSuggest, profile, exclude],
+    [tab, meal, hasTarget, canSuggest, profile, exclude],
   );
 
   const setTray = (next: Picked[]) => setTrays((t) => ({ ...t, [ctx]: next }));

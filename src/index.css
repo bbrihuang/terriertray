@@ -251,8 +251,6 @@ button, .plate-ring .tnum, .macro-cell .text-2xl { font-weight: 600; }
   }
   @keyframes surface-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 }
-:root[data-input="keyboard"] .view-enter { animation: none; }
-:root[data-input="keyboard"] .view-indicator, :root[data-input="keyboard"] .macro-segment { transition: none; }
 
 @media (hover: hover) {
   .dish-name:hover { text-decoration: underline; text-underline-offset: 4px; }

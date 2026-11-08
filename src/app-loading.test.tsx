@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { Load } from "./data";
 import type { DayMenu, MenuIndex } from "./lib/schema";
 import type { PlanOption } from "./lib/planner";
+import * as planner from "./lib/planner";
 
 const loads = vi.hoisted(() => ({ index: { state: "loading" } as Load<MenuIndex>, day: { state: "loading" } as Load<DayMenu> }));
 vi.mock("./data", () => ({
@@ -72,6 +73,62 @@ describe("menu headline loading", () => {
       fireEvent.click(screen.getByRole("button", { name: "Settings" }));
       expect(screen.getByLabelText<HTMLInputElement>(/^Calories \(/).value).toBe("2500");
     } finally { HTMLElement.prototype.scrollIntoView = original; }
+  });
+
+  it("keeps Settings mounted and focused without changing page motion when typing and clicking fields", () => {
+    loads.day = { state: "ready", data: day };
+    const initialModality = document.documentElement.dataset.input;
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+      const main = screen.getByRole("main");
+      const age = screen.getByLabelText<HTMLInputElement>(/^Age/);
+      const weight = screen.getByLabelText<HTMLInputElement>(/^Weight/);
+
+      age.focus();
+      fireEvent.keyDown(age, { key: "2" });
+      fireEvent.change(age, { target: { value: "25" } });
+      expect(screen.getByRole("main")).toBe(main);
+      expect(document.activeElement).toBe(age);
+      expect(age.value).toBe("25");
+      expect(document.documentElement.dataset.input).toBe(initialModality);
+
+      fireEvent.pointerDown(weight);
+      weight.focus();
+      fireEvent.keyDown(weight, { key: "7" });
+      fireEvent.change(weight, { target: { value: "175" } });
+      expect(screen.getByRole("main")).toBe(main);
+      expect(document.activeElement).toBe(weight);
+      expect(weight.value).toBe("175");
+      expect(age.value).toBe("25");
+      expect(document.documentElement.dataset.input).toBe(initialModality);
+    } finally {
+      if (initialModality === undefined) delete document.documentElement.dataset.input;
+      else document.documentElement.dataset.input = initialModality;
+    }
+  });
+
+  it("runs plate optimization on Plan rather than while editing daily targets in Settings", () => {
+    const recent = "2026-11-08T00:59:00Z"; // one minute before the mocked useNow timestamp
+    loads.index = { state: "ready", data: { ...index, freshness: {
+      basis: "oldest_hall_fetch", basisAt: recent, checkedAt: recent, validatorStatus: "fresh",
+      maxAgeHours: 24, expiryHours: 48, requestedDates: [day.date], availableDates: [day.date], missingDates: [], warnings: [], errors: [],
+    } } };
+    loads.day = { state: "ready", data: day };
+    const optimize = vi.spyOn(planner, "planMeal");
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    fireEvent.click(screen.getByRole("radio", { name: "No allergens to filter" }));
+    const calories = screen.getByLabelText<HTMLInputElement>(/^Calories \(/);
+    fireEvent.change(calories, { target: { value: "2500" } });
+    optimize.mockClear();
+
+    fireEvent.change(calories, { target: { value: "2600" } });
+    expect(calories.value).toBe("2600");
+    expect(optimize).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Plan" }));
+    expect(optimize).toHaveBeenCalledTimes(1);
   });
 
   it("moves keyboard focus to the plate after applying a weekly meal", () => {
