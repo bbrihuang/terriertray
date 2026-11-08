@@ -197,6 +197,8 @@
 .plate-card { padding: 28px; }
 .plate-summary { gap: 24px; }
 .macro-cell { background: var(--macro-surface); padding: 16px; }
+.plate-card > dl:first-of-type { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.macro-cell dd { overflow-wrap: anywhere; }
 .plate-empty { background: var(--empty-surface); padding: 20px; margin-top: 24px; }
 .target-onboarding { padding: 32px; border-radius: 28px; background: var(--onboarding-background); box-shadow: var(--shadow); }
 .target-symbol { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; color: var(--brand-ink); background: var(--brand-soft); border-radius: 20px; margin-bottom: 24px; }
@@ -269,7 +271,12 @@ button, .plate-ring .tnum, .macro-cell .text-2xl { font-weight: 600; }
   .plate-card { padding: 20px; }
   .macro-cell { padding: 12px; }
 }
-@media (max-width: 350px) { .context-fields { grid-template-columns: 1fr; } }
+@media (max-width: 350px) {
+  .context-fields { grid-template-columns: 1fr; }
+  .plate-summary { flex-direction: column; text-align: center; gap: 12px; }
+  .plate-summary > div:last-child { width: 100%; flex: auto; }
+  .macro-cell { padding-inline: 8px; }
+}
 @media (pointer: coarse) { .dish-name { min-height: 44px; } }
 @media (forced-colors: active) {
   .planner-hero, .target-onboarding { background: Canvas; }
