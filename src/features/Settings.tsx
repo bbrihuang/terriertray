@@ -4,6 +4,7 @@ import type { Profile } from "../lib/profile-storage";
 import { ALLERGENS, DIET_TAGS, type Restrictions } from "../lib/restrictions";
 import { TargetCalculator } from "./TargetCalculator";
 import { Button, Section } from "../components/ui";
+import { AppearanceControl } from "../components/ThemeSwitcher";
 
 type Props = {
   profile: Profile;
@@ -44,6 +45,10 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
 
   return (
     <div>
+      <Section card title="Appearance" id={`${id}-appearance`}>
+        <AppearanceControl />
+      </Section>
+
       <Section card title="Food allergies" id={`${id}-allergy`}>
         <fieldset>
           <legend className="sr-only">Do you need to avoid any allergens?</legend>
