@@ -84,8 +84,8 @@ function PlateBar({ entries }: { entries: TrayEntry[] }) {
   const shares = macroEnergyShares(totals(entries));
   if (!shares) return null;
   const parts = [
-    { key: "protein", label: "Protein", share: shares.protein, fill: "var(--ink)" },
-    { key: "carbs", label: "Carbs", share: shares.carbs, fill: "var(--brand)" },
+    { key: "protein", label: "Protein", share: shares.protein, fill: "var(--brand)" },
+    { key: "carbs", label: "Carbs", share: shares.carbs, fill: "var(--ink)" },
     { key: "fat", label: "Fat", share: shares.fat, fill: "var(--macro-fat)" },
   ];
   let x = 0;

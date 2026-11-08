@@ -131,7 +131,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
       </Section>
 
       <Section card title="Estimate calories with our model" id="calorie-model">
-        <TargetCalculator key={calculatorKey} currentKcal={profile.daily.caloriesKcal} onApply={(kcal) => onChange({ ...profile, daily: { ...profile.daily, caloriesKcal: kcal } })} />
+        <TargetCalculator key={calculatorKey} currentKcal={profile.daily.caloriesKcal} onApply={(kcal, macros) => onChange({ ...profile, daily: { ...profile.daily, ...macros, caloriesKcal: kcal } })} />
       </Section>
 
       <Section card title="Daily targets" id={`${id}-targets`}>
@@ -147,10 +147,10 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
                 type="number"
                 name={`daily-${key}`}
                 autoComplete="off"
-                inputMode="numeric"
-                min={1}
+                inputMode={key === "caloriesKcal" ? "numeric" : "decimal"}
+                min={key === "caloriesKcal" ? 1 : 0.1}
                 max={20000}
-                step={1}
+                step={key === "caloriesKcal" ? 1 : 0.1}
                 value={profile.daily[key] ?? ""}
                 onChange={(e) => setTarget(key, e.target.value)}
                 className="mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink tnum"

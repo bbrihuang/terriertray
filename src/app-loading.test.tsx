@@ -9,6 +9,7 @@ const loads = vi.hoisted(() => ({ index: { state: "loading" } as Load<MenuIndex>
 vi.mock("./data", () => ({
   useMenuIndex: () => loads.index,
   useDayMenu: () => loads.day,
+  useDayMenus: () => ({}),
   useNow: () => new Date("2026-11-08T01:00:00Z"),
 }));
 vi.mock("./features/Week", () => ({
@@ -52,6 +53,25 @@ describe("menu headline loading", () => {
     render(<App />);
     expect(screen.getByRole("alert").textContent).toContain("Menu request failed.");
     expect(screen.getByRole("heading", { name: /Your next BU meal/ })).toBeTruthy();
+  });
+
+  it("returns Home to Plan without discarding targets or reloading the page", () => {
+    loads.day = { state: "ready", data: day };
+    const scroll = vi.fn();
+    const original = HTMLElement.prototype.scrollIntoView;
+    HTMLElement.prototype.scrollIntoView = scroll;
+    try {
+      render(<App />);
+      fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+      fireEvent.change(screen.getByLabelText(/^Calories \(/), { target: { value: "2500" } });
+      const home = screen.getByRole("link", { name: "TerrierTrays home" });
+      expect(home.getAttribute("href")).toBe("?view=plan");
+      fireEvent.click(home);
+      expect(screen.getByRole("button", { name: "Plan" }).getAttribute("aria-current")).toBe("page");
+      expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Dinner at West Campus." }));
+      fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+      expect(screen.getByLabelText<HTMLInputElement>(/^Calories \(/).value).toBe("2500");
+    } finally { HTMLElement.prototype.scrollIntoView = original; }
   });
 
   it("moves keyboard focus to the plate after applying a weekly meal", () => {

@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { DishDialog } from "./components/DishDialog";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { Button, Headline, Icon, Notice, Pill, Section } from "./components/ui";
-import { useDayMenu, useMenuIndex, useNow } from "./data";
+import { useDayMenu, useDayMenus, useMenuIndex, useNow, type Load } from "./data";
+import { DailySummary } from "./features/DailySummary";
+import { aggregateDailyTrays } from "./lib/daily-totals";
 import { MenuList } from "./features/MenuList";
 import { MAX_SERVINGS, Plate } from "./features/Plate";
 import { Settings } from "./features/Settings";
@@ -14,7 +16,7 @@ import type { TrayEntry } from "./lib/nutrition";
 import { mealShare, planMeal, type PlanOption } from "./lib/planner";
 import { clearProfile, DEFAULT_PROFILE, loadProfile, saveProfile, type Profile } from "./lib/profile-storage";
 import { checkRestrictions, type Restrictions } from "./lib/restrictions";
-import type { HallEntry, Meal, MenuIndex, MenuItem } from "./lib/schema";
+import type { DayMenu, HallEntry, Meal, MenuIndex, MenuItem } from "./lib/schema";
 import { formatDate, formatTimestamp, nyDate, nyMinutes, parseHours, pickMealIndex } from "./lib/time";
 
 type Tab = "plan" | "week" | "menu" | "settings";
@@ -57,6 +59,7 @@ export default function App() {
   /** Set when a dish is opened from the week view (another day or meal than the plate). */
   const [openFromWeek, setOpenFromWeek] = useState<string | null>(null);
   const [focusPlateAfterWeek, setFocusPlateAfterWeek] = useState(false);
+  const [focusHome, setFocusHome] = useState(false);
   const today = nyDate();
 
   useEffect(() => {
@@ -71,11 +74,45 @@ export default function App() {
   const activeDate = date && dates.includes(date) ? date : pickDate(dates, today);
   const file = hall?.dates.find((d) => d.date === activeDate)?.file ?? null;
   const day = useDayMenu(file, data?.dataVersion ?? null);
+  const dailyReferences = useMemo(() => {
+    if (tab !== "plan" || !activeDate || !data) return [];
+    const plannedHalls = new Set(Object.entries(trays).flatMap(([context, picks]) => {
+      const [id, date] = context.split("/");
+      return date === activeDate && picks.length > 0 ? [id] : [];
+    }));
+    return data.halls.filter((h) => h.source === "bu-html" && plannedHalls.has(h.id)).flatMap((h) => {
+      const entry = h.dates.find((d) => d.date === activeDate);
+      return entry ? [{ hallId: h.id, file: entry.file }] : [];
+    });
+  }, [tab, activeDate, data, trays]);
+  const dailyLoads = useDayMenus(dailyReferences.map((entry) => entry.file), data?.dataVersion ?? null);
+  const dailyMenus: Record<string, Load<DayMenu> | undefined> = Object.fromEntries(dailyReferences.map((entry) => [
+    entry.hallId, entry.file === file && day ? day : dailyLoads[entry.file] ?? { state: "loading" },
+  ]));
+  const dailySummary = aggregateDailyTrays(trays, activeDate ?? "", dailyMenus);
 
   const meals = day?.state === "ready" ? day.data.meals : [];
   const defaultMeal = activeDate === today ? pickMealIndex(meals, nyMinutes()) : 0;
   const meal = meals.find((m) => m.name === mealName) ?? meals[defaultMeal] ?? null;
   const ctx = `${hall?.id}/${activeDate}/${meal?.name}`;
+
+  useEffect(() => {
+    const keyboard = () => { document.documentElement.dataset.input = "keyboard"; };
+    const pointer = () => { document.documentElement.dataset.input = "pointer"; };
+    document.addEventListener("keydown", keyboard);
+    document.addEventListener("pointerdown", pointer);
+    return () => { document.removeEventListener("keydown", keyboard); document.removeEventListener("pointerdown", pointer); };
+  }, []);
+
+  useEffect(() => {
+    if (!focusHome || tab !== "plan" || day?.state === "loading") return;
+    const heading = document.getElementById("page-title");
+    if (!heading) return;
+    heading.setAttribute("tabindex", "-1");
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({ behavior: "instant", block: "start" });
+    setFocusHome(false);
+  }, [focusHome, tab, ctx, day?.state, index.state]);
 
   useEffect(() => {
     if (!focusPlateAfterWeek) return;
@@ -186,13 +223,19 @@ export default function App() {
 
   const brand = (
       <header className="app-header app-width">
-        <div className="brand-lockup">
-          <PlateMark />
+        <a href="?view=plan" aria-label="TerrierTrays home" className="brand-lockup" onClick={(event) => {
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+          event.preventDefault();
+          setTab("plan");
+          setFocusHome(true);
+        }}>
+          <img src="/brand/terriertrays-logo.png" width="64" height="64" alt="" className="brand-mark" />
           <h1 className="brand-name" translate="no">
-            TerrierTray
+            TerrierTrays
           </h1>
-        </div>
+        </a>
         <nav aria-label="Views" className="view-nav">
+          <span className="view-indicator" aria-hidden="true" style={{ transform: `translateX(${["plan", "week", "menu", "settings"].indexOf(tab) * 100}%)` }} />
           {([
             ["plan", "Plan", "plate"],
             ["week", "Week", "calendar"],
@@ -261,7 +304,7 @@ export default function App() {
             <p className="hero-date">{activeDate ? formatDate(activeDate) : "Boston University dining"}</p>
             {/* Hidden (space kept) until the day menu loads, so the fallback headline doesn't flash before the real one. */}
             <div className={heroLoading ? "invisible" : undefined} aria-hidden={heroLoading || undefined}>
-              <Headline statement={headline[0]} feeling={headline[1]} />
+              <Headline id="page-title" statement={headline[0]} feeling={headline[1]} />
             </div>
             {tab === "menu" && <p className="hero-description">{meal ? `${meal.name} · ${dishCount} ${dishCount === 1 ? "dish" : "dishes"}` : "Choose a day and meal"}</p>}
             {tab === "plan" && <div className="hero-actions">
@@ -341,7 +384,8 @@ export default function App() {
 
       </div>
 
-      <main id="main" key={tab} className={`app-width app-main view-${tab}`}>
+      <main id="main" key={tab === "plan" ? `${tab}/${ctx}` : tab} className={`app-width app-main view-enter view-${tab}`}>
+        {tab === "plan" && activeDate && <DailySummary date={activeDate} summary={dailySummary} targets={profile.daily} />}
         {tab === "settings" ? (
           <div className="rise max-w-2xl">
             <Settings
@@ -501,16 +545,5 @@ export default function App() {
         }}
       />
     </>
-  );
-}
-
-/** A plate and cutlery, in the campus scarlet. */
-function PlateMark() {
-  return (
-    <svg viewBox="0 0 40 40" className="brand-mark" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-      <rect width="40" height="40" rx="14" fill="var(--brand-soft)" stroke="none" />
-      <circle cx="21" cy="20" r="8" /><circle cx="21" cy="20" r="4.5" opacity=".45" />
-      <path d="M8 11v8m3-8v8m-6-8v8m0-2c0 4 6 4 6 0m-3 4v9M34 11v19m0-19c-4 2-4 10 0 10" />
-    </svg>
   );
 }
