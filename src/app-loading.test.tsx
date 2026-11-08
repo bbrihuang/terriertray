@@ -165,6 +165,21 @@ describe("menu headline loading", () => {
     } finally { HTMLElement.prototype.scrollIntoView = original; }
   });
 
+  it("keeps calculator drafts and applied targets when navigating away from Settings", () => {
+    loads.day = { state: "ready", data: day };
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    fireEvent.change(screen.getByLabelText(/^Age/), { target: { value: "21" } });
+    fireEvent.change(screen.getByLabelText(/^Weight/), { target: { value: "185" } });
+    fireEvent.change(screen.getByLabelText(/^Calories \(/), { target: { value: "3000" } });
+    fireEvent.click(screen.getByRole("button", { name: "Plan" }));
+    expect(screen.getByRole("button", { name: "Set allergy preferences" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    expect(screen.getByLabelText<HTMLInputElement>(/^Age/).value).toBe("21");
+    expect(screen.getByLabelText<HTMLInputElement>(/^Weight/).value).toBe("185");
+    expect(screen.getByLabelText<HTMLInputElement>(/^Calories \(/).value).toBe("3000");
+  });
+
   it("can undo a plate replacement including custom portions, but not after a later manual edit", () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-11-08T01:00:00Z"));

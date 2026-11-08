@@ -185,3 +185,9 @@ git diff --check
    - The `radial-halo` and nested `context-card` findings are intentional per DESIGN.md.
 6. **Test gaps.** There is no UI test for the hero-loading `invisible` wrapper or for `ThemeSwitcher`. `tests/theme.test.ts` covers `public/theme.js` only.
 7. **README live link.** Add the deployed app URL to the top of `README.md` once the user confirms it.
+
+## Update 2026-11-08: stats lost / no suggestions
+- Cause 1: Settings unmounted on tab change, so calculator stats reset. `App.tsx` now keeps Settings mounted (`hidden` when not active); `ViewContent` wraps only the other views.
+- Cause 2: suggestions were silently gated on the unanswered allergy question. Plan now shows "Answer the allergy question to see meal suggestions" with a button to that section (the gate itself is unchanged).
+- Verified in the browser: stats → Apply → Plan keeps the target → answer allergies → suggestions appear, stats still filled.
+- Known: `src/theme-ui.test.tsx` fails on Node 26 (`window.localStorage` undefined); it fails without this change too. Check on Node 24.

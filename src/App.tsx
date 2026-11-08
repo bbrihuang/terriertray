@@ -15,7 +15,7 @@ import { eligibility } from "./lib/freshness";
 import type { TrayEntry } from "./lib/nutrition";
 import { mealShare, planMeal, type PlanOption } from "./lib/planner";
 import { clearProfile, DEFAULT_PROFILE, loadProfile, saveProfile, type Profile } from "./lib/profile-storage";
-import { checkRestrictions, type Restrictions } from "./lib/restrictions";
+import { allergyAnswered, checkRestrictions, type Restrictions } from "./lib/restrictions";
 import type { DayMenu, HallEntry, Meal, MenuIndex, MenuItem } from "./lib/schema";
 import { formatDate, formatTimestamp, nyDate, nyMinutes, parseHours, pickMealIndex } from "./lib/time";
 
@@ -33,7 +33,7 @@ const VIEWS = [
 /** Capture the arrival choice once; ordinary form updates never restart motion. */
 function ViewContent({ children, animate, className }: { children: ReactNode; animate: boolean; className: string }) {
   const [arrive] = useState(animate);
-  return <main id="main" className={`${className}${arrive ? " view-enter" : ""}`}>{children}</main>;
+  return <div className={`${className}${arrive ? " view-enter" : ""}`}>{children}</div>;
 }
 
 const initialSaved = loadProfile();
@@ -409,10 +409,8 @@ export default function App() {
 
       </div>
 
-      <ViewContent key={tab === "plan" ? `${tab}/${ctx}` : tab} animate={navigationMotion} className={`app-width app-main view-${tab}`}>
-        {tab === "plan" && activeDate && <DailySummary date={activeDate} summary={dailySummary} targets={profile.daily} />}
-        {tab === "settings" ? (
-          <div className="rise max-w-2xl">
+      <main id="main" className={`app-width app-main view-${tab}`}>
+          <div hidden={tab !== "settings"} className="rise max-w-2xl">
             <Settings
               profile={profile}
               onChange={setProfile}
@@ -428,7 +426,9 @@ export default function App() {
               }}
             />
           </div>
-        ) : !hall || hall.dates.length === 0 ? (
+        <ViewContent key={tab === "plan" ? `${tab}/${ctx}` : tab} animate={navigationMotion} className="view-content">
+        {tab === "plan" && activeDate && <DailySummary date={activeDate} summary={dailySummary} targets={profile.daily} />}
+        {tab === "settings" ? null : !hall || hall.dates.length === 0 ? (
           <div className="max-w-xl">
             <Notice tone="warn" title={hall ? `${hall.name}: no menu yet` : "No menus collected"}>
               {hall?.note ?? "Menus have not been collected yet."} Check the{" "}
@@ -532,6 +532,11 @@ export default function App() {
                           <Button onClick={() => openSettings("daily-targets")}>Type my own targets</Button>
                         </div>
                       </div>
+                    ) : !allergyAnswered(profile.restrictions) ? (
+                      <Notice title="Answer the allergy question to see meal suggestions">
+                        <p>Your daily targets are applied. Choose your allergy preferences, even if you have none.</p>
+                        <Button className="mt-3" onClick={() => openSettings("food-allergies")}>Set allergy preferences</Button>
+                      </Notice>
                     ) : !canSuggest ? (
                       <Notice tone="warn" title="Suggestions are off for this day">
                         <p>{elig?.message}</p>
@@ -565,10 +570,11 @@ export default function App() {
           </>
         )}
 
+        </ViewContent>
         <footer className="mt-14 max-w-[70ch] border-t border-line pt-4 text-sm text-muted">
           <p>{data!.allergyNotice} Not affiliated with Boston University. Suggestions are estimates, not medical or dietary advice.</p>
         </footer>
-      </ViewContent>
+      </main>
 
       <DishDialog
         item={openItem}
