@@ -40,12 +40,12 @@
   --motion-view: 460ms;
   --motion-nav: 480ms;
   --motion-progress: 650ms;
-  --hero-background: radial-gradient(ellipse 60% 80% at 100% 0%, rgb(255 110 96 / .55) 0, transparent 60%), radial-gradient(ellipse 70% 90% at 0% 110%, rgb(110 0 20 / .55) 0, transparent 62%), linear-gradient(125deg, #d40019 0%, #b3001b 55%, #8f0018 100%);
+  --hero-background: radial-gradient(ellipse 45% 80% at 100% 0%, rgb(255 176 140 / .70) 0, transparent 62%), radial-gradient(ellipse 50% 80% at 0% 0%, rgb(214 16 40 / .70) 0, transparent 66%), radial-gradient(ellipse 50% 90% at 70% 120%, rgb(140 70 220 / .45) 0, transparent 62%), linear-gradient(115deg, #c8102e 0%, #b3184c 38%, #8e2468 68%, #62308f 100%);
   --hero-copy: #4d5261;
   --hero-muted: #656978;
   /* Scarlet aurora: BU red carries the light, rose and peach soften its edges. Cards stay opaque, so text contrast never depends on it. */
-  --aurora-a: radial-gradient(40% 36% at 12% 16%, rgb(204 0 0 / .30), transparent 72%), radial-gradient(36% 42% at 90% 80%, rgb(255 92 112 / .34), transparent 72%);
-  --aurora-b: radial-gradient(44% 32% at 64% 6%, rgb(255 168 140 / .42), transparent 72%), radial-gradient(34% 36% at 26% 94%, rgb(176 0 24 / .24), transparent 72%);
+  --aurora-a: radial-gradient(48% 42% at 8% 10%, rgb(255 96 120 / .52), transparent 70%), radial-gradient(44% 48% at 94% 88%, rgb(170 150 255 / .55), transparent 70%), radial-gradient(36% 34% at 50% 50%, rgb(255 226 236 / .45), transparent 72%);
+  --aurora-b: radial-gradient(46% 36% at 72% 4%, rgb(255 176 140 / .62), transparent 70%), radial-gradient(42% 42% at 18% 96%, rgb(226 32 64 / .34), transparent 70%), radial-gradient(30% 34% at 96% 40%, rgb(255 140 170 / .30), transparent 70%);
   --hairline: rgb(32 32 36 / .07);
   --surface-sheen: inset 0 1px 0 rgb(255 255 255 / .9);
   --nav: #eeedf1;
@@ -88,11 +88,11 @@
   --ok-soft: #25372c;
   --focus: #f6f2f5;
   --shadow: 0 2px 8px rgb(0 0 0 / .18), 0 18px 40px -12px rgb(0 0 0 / .42);
-  --hero-background: radial-gradient(ellipse 65% 85% at 100% 0%, rgb(230 24 48 / .62) 0, transparent 62%), radial-gradient(ellipse 70% 90% at 0% 115%, rgb(190 10 44 / .70) 0, transparent 62%), radial-gradient(ellipse 50% 60% at 55% 120%, rgb(255 90 70 / .30) 0, transparent 60%), #221b20;
+  --hero-background: radial-gradient(ellipse 55% 85% at 100% 0%, rgb(232 40 64 / .55) 0, transparent 62%), radial-gradient(ellipse 50% 80% at 0% 115%, rgb(150 10 50 / .65) 0, transparent 62%), radial-gradient(ellipse 45% 70% at 70% 120%, rgb(110 60 190 / .38) 0, transparent 62%), linear-gradient(115deg, #2a1820 0%, #231a24 55%, #1f1a26 100%);
   --hero-copy: #d9cdd8;
   --hero-muted: #c5adbf;
-  --aurora-a: radial-gradient(40% 36% at 12% 16%, rgb(214 0 16 / .48), transparent 72%), radial-gradient(36% 42% at 90% 80%, rgb(160 20 70 / .46), transparent 72%);
-  --aurora-b: radial-gradient(44% 32% at 64% 6%, rgb(255 84 60 / .24), transparent 72%), radial-gradient(34% 36% at 26% 94%, rgb(120 0 20 / .50), transparent 72%);
+  --aurora-a: radial-gradient(48% 42% at 8% 10%, rgb(214 0 36 / .46), transparent 70%), radial-gradient(44% 48% at 94% 88%, rgb(96 54 180 / .40), transparent 70%), radial-gradient(36% 34% at 50% 50%, rgb(70 30 80 / .30), transparent 72%);
+  --aurora-b: radial-gradient(46% 36% at 72% 4%, rgb(255 84 96 / .24), transparent 70%), radial-gradient(42% 42% at 18% 96%, rgb(160 0 48 / .46), transparent 70%), radial-gradient(30% 34% at 96% 40%, rgb(190 40 110 / .26), transparent 70%);
   --hairline: rgb(246 242 245 / .07);
   --surface-sheen: inset 0 1px 0 rgb(255 255 255 / .06);
   --nav: #252229;
@@ -165,7 +165,7 @@ select { appearance: none; padding-right: 40px; background-image: url("data:imag
 @media (forced-colors: active) { select { appearance: auto; background-image: none; padding-right: 12px; } }
 
 /* Slow scarlet aurora: two oversized layers drift, turn and breathe on different periods so the light never visibly loops. Content stays stationary. */
-body::before, body::after { content: ""; position: fixed; inset: -20%; z-index: -1; pointer-events: none; will-change: transform; }
+body::before, body::after { content: ""; position: fixed; inset: -12%; z-index: -1; pointer-events: none; }
 body::before { background: var(--aurora-a); }
 body::after { background: var(--aurora-b); }
 .planner-hero::before { content: ""; position: absolute; inset: -10%; z-index: -1; pointer-events: none; background: var(--hero-background); }
@@ -173,13 +173,14 @@ body::after { background: var(--aurora-b); }
   body::before { animation: aurora-a 46s ease-in-out -12s infinite alternate; }
   body::after { animation: aurora-b 63s ease-in-out -30s infinite alternate; }
   .planner-hero::before { animation: ambient-drift 28s ease-in-out -7s infinite alternate; }
+  /* Max travel stays inside the 12% overscan, so an edge never enters the viewport. */
   @keyframes aurora-a {
-    from { transform: translate3d(-6%, -4%, 0) rotate(-4deg) scale(1); }
-    to { transform: translate3d(7%, 5%, 0) rotate(5deg) scale(1.12); }
+    from { transform: translate3d(-5%, -4%, 0) scale(1); }
+    to { transform: translate3d(5%, 4%, 0) scale(1.05); }
   }
   @keyframes aurora-b {
-    from { transform: translate3d(5%, -3%, 0) rotate(6deg) scale(1.08); }
-    to { transform: translate3d(-7%, 6%, 0) rotate(-3deg) scale(.96); }
+    from { transform: translate3d(4%, -3%, 0) scale(1.04); }
+    to { transform: translate3d(-5%, 5%, 0) scale(1); }
   }
   @keyframes ambient-drift {
     from { transform: translate3d(-3%, -1.5%, 0); }
@@ -357,6 +358,7 @@ button, .plate-ring .tnum, .macro-cell .text-2xl { font-weight: 600; }
   .hero-date { margin-bottom: 12px; }
   .hero-description { margin-top: 16px; }
   .context-card { padding: 0; background: transparent; border-radius: 0; border: 0; box-shadow: none; }
+  :root[data-theme="light"] { --hero-background: radial-gradient(ellipse 70% 35% at 100% 0%, rgb(255 176 140 / .55) 0, transparent 65%), linear-gradient(165deg, #c8102e 0%, #b3184c 40%, #8e2468 75%, #62308f 100%); }
   /* Flattened onto the scarlet hero in light mode: invert labels, divider and the primary action. */
   :root[data-theme="light"] .context-card { color: #fff; --focus: #fff; }
   :root[data-theme="light"] .context-card label, :root[data-theme="light"] .context-card .text-muted { color: #ffd3d8; }
