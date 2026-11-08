@@ -10,7 +10,7 @@
 
 /* Cool porcelain surfaces, BU scarlet actions, and quiet ambient color. */
 :root {
-  --page: #f7f7f9;
+  --page: #faf6f7;
   --surface: #ffffff;
   --surface-solid: #ffffff;
   --field: #ffffff;
@@ -40,9 +40,10 @@
   --motion-view: 460ms;
   --motion-nav: 480ms;
   --motion-progress: 650ms;
-  --hero-background: radial-gradient(ellipse 45% 80% at 100% 0%, rgb(255 176 140 / .70) 0, transparent 62%), radial-gradient(ellipse 50% 80% at 0% 0%, rgb(214 16 40 / .70) 0, transparent 66%), radial-gradient(ellipse 50% 90% at 70% 120%, rgb(140 70 220 / .45) 0, transparent 62%), linear-gradient(115deg, #c8102e 0%, #b3184c 38%, #8e2468 68%, #62308f 100%);
-  --hero-copy: #4d5261;
-  --hero-muted: #656978;
+  /* Mirrors the dark hero: a light surface lit by scarlet, rose and violet glows, not a saturated panel. */
+  --hero-background: radial-gradient(ellipse 55% 85% at 100% 0%, rgb(232 40 64 / .34) 0, transparent 62%), radial-gradient(ellipse 50% 80% at 0% 115%, rgb(214 30 70 / .30) 0, transparent 62%), radial-gradient(ellipse 45% 70% at 70% 120%, rgb(140 100 230 / .26) 0, transparent 62%), linear-gradient(115deg, #fffafb 0%, #fdf5f7 55%, #f8f5fd 100%);
+  --hero-copy: #5a4a55;
+  --hero-muted: #8f4f66;
   /* Scarlet aurora: BU red carries the light, rose and peach soften its edges. Cards stay opaque, so text contrast never depends on it. */
   --aurora-a: radial-gradient(48% 42% at 8% 10%, rgb(255 96 120 / .52), transparent 70%), radial-gradient(44% 48% at 94% 88%, rgb(170 150 255 / .55), transparent 70%), radial-gradient(36% 34% at 50% 50%, rgb(255 226 236 / .45), transparent 72%);
   --aurora-b: radial-gradient(46% 36% at 72% 4%, rgb(255 176 140 / .62), transparent 70%), radial-gradient(42% 42% at 18% 96%, rgb(226 32 64 / .34), transparent 70%), radial-gradient(30% 34% at 96% 40%, rgb(255 140 170 / .30), transparent 70%);
@@ -227,12 +228,6 @@ html:has(dialog[open]) .planner-hero::before { animation-play-state: paused; }
 .hero-description { max-width: 42ch; color: var(--hero-copy); margin-top: 16px; line-height: 1.5; }
 .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
 .hero-actions .button-primary { min-height: 48px; padding-inline: 24px; }
-/* Light mode: the hero is a solid BU-scarlet panel, so its copy and actions invert to white. */
-:root[data-theme="light"] .hero-copy { color: #fff; --hero-copy: rgb(255 238 238 / .92); --hero-muted: #ffd3d8; --focus: #fff; }
-:root[data-theme="light"] .hero-copy .button-primary { background: #fff; color: #b00000; box-shadow: 0 8px 20px -8px rgb(70 0 0 / .55); }
-:root[data-theme="light"] .hero-copy .button-primary:hover { background: #fff3f3; }
-:root[data-theme="light"] .hero-copy .text-brand-ink { color: #fff; }
-:root[data-theme="light"] .hero-copy .text-brand-ink:hover { background: rgb(255 255 255 / .14); }
 .context-card { background: var(--surface); border-radius: 28px; padding: 24px; box-shadow: var(--shadow); }
 .context-heading { display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 20px; margin-bottom: 20px; }
 .context-fields { display: grid; gap: 12px; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
@@ -358,13 +353,6 @@ button, .plate-ring .tnum, .macro-cell .text-2xl { font-weight: 600; }
   .hero-date { margin-bottom: 12px; }
   .hero-description { margin-top: 16px; }
   .context-card { padding: 0; background: transparent; border-radius: 0; border: 0; box-shadow: none; }
-  :root[data-theme="light"] { --hero-background: radial-gradient(ellipse 70% 35% at 100% 0%, rgb(255 176 140 / .55) 0, transparent 65%), linear-gradient(165deg, #c8102e 0%, #b3184c 40%, #8e2468 75%, #62308f 100%); }
-  /* Flattened onto the scarlet hero in light mode: invert labels, divider and the primary action. */
-  :root[data-theme="light"] .context-card { color: #fff; --focus: #fff; }
-  :root[data-theme="light"] .context-card label, :root[data-theme="light"] .context-card .text-muted { color: #ffd3d8; }
-  :root[data-theme="light"] .context-card .restriction-summary { border-top-color: rgb(255 255 255 / .22); }
-  :root[data-theme="light"] .context-card .button-primary { background: #fff; color: #b00000; }
-  :root[data-theme="light"] .context-card .button-secondary { background: rgb(255 255 255 / .16); color: #fff; }
   .context-fields { grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); }
   .context-card select { padding-left: 10px; padding-right: 32px; background-position: right 12px center; }
   .context-heading { display: none; }
