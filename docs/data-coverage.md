@@ -1,6 +1,6 @@
 # Menu data coverage
 
-Generated 2026-11-08T01:07:23.750Z from data version `bfc96043250719ea`. Counts are food occurrences (a dish served at two meals counts twice).
+Generated 2026-11-08T01:11:33.175Z from data version `bfc96043250719ea`. Counts are food occurrences (a dish served at two meals counts twice).
 
 Micronutrients are published by BU only as % of the label Daily Value, so TerrierTray shows them as printed and does not score them against personal targets.
 
