@@ -85,32 +85,36 @@ export function MenuList({ items, restrictions, onPlate, onAdd, onOpen }: Props)
         <ul className="glass mt-3 divide-y divide-line">
           {rows.map(({ item, verdict }) => {
             const added = onPlate.has(item.id);
+            const unknownAllergen = verdict.allergen === "unknown" ? allergenHeadline(verdict, restrictions) : null;
+            // The notice above covers the unanswered gate; keep item-specific conflicts here.
+            const conflicts = !answered && verdict.allergen === "not_checked" ? verdict.reasons.slice(1) : verdict.reasons;
+            const reasons = unknownAllergen && !conflicts.includes(unknownAllergen) ? [...conflicts, unknownAllergen] : conflicts;
             return (
-              <li key={item.id} className="flex items-start gap-3 p-4 [contain-intrinsic-size:auto_6rem] [content-visibility:auto]">
+              <li key={item.id} className="flex items-start gap-3 p-3 sm:px-4 [contain-intrinsic-size:auto_4.5rem] [content-visibility:auto]">
                 <div className="min-w-0 flex-1">
-                  <button type="button" onClick={() => onOpen(item)} className="dish-name text-left font-medium break-words">
-                    {item.name}
+                  <button type="button" onClick={() => onOpen(item)} aria-haspopup="dialog" className="group flex min-h-11 w-full min-w-0 flex-col justify-center rounded py-0.5 text-left text-ink [overflow-wrap:anywhere]">
+                    <span className="font-semibold group-hover:underline underline-offset-4">{item.name}</span>{" "}
+                    <span className="text-sm font-semibold tnum">
+                      {item.caloriesKcal === null ? "Nutrition not listed" : `${formatAmount(item.caloriesKcal, " kcal")} per serving`}
+                    </span>
                   </button>
-                  <p className="text-sm text-muted tnum">
-                    {item.station ?? "Other"} · {item.servingText ?? "serving not listed"} ·{" "}
-                    {item.caloriesKcal === null ? "no nutrition label" : `${formatAmount(item.caloriesKcal, " kcal")}, ${item.proteinG === null ? "protein unknown" : `${formatAmount(item.proteinG, " g")} protein`}`}
-                  </p>
-                  {!answered && verdict.reasons.length === 1 ? (
-                    <p className="mt-1 text-sm text-muted">Allergies not set</p>
-                  ) : (
-                    <p className={`mt-1 flex items-center gap-1.5 text-sm ${verdict.allowed ? "text-muted" : "font-semibold text-danger"}`}>
-                      {!verdict.allowed && <Icon name="alert" className="size-4 shrink-0" />}
-                      {verdict.allowed ? allergenHeadline(verdict, restrictions) : verdict.reasons[0]}
+                  {reasons.map((reason) => (
+                    <p key={reason} className={`mt-1 flex items-start gap-1.5 text-sm [overflow-wrap:anywhere] ${verdict.allowed ? "text-warn" : "font-semibold text-danger"}`}>
+                      <Icon name="alert" className="mt-0.5 size-4 shrink-0" />
+                      <span className="min-w-0">{reason}</span>
                     </p>
-                  )}
+                  ))}
                 </div>
-                <IconButton
-                  label={added ? `${item.name} is on your plate; add another serving` : verdict.allowed ? `Add ${item.name} to plate` : `${item.name} doesn't fit your restrictions`}
-                  icon="plus"
-                  disabled={!verdict.allowed}
-                  onClick={() => onAdd(item)}
-                  className={added ? "border-brand bg-brand-soft" : ""}
-                />
+                <div className="flex shrink-0 flex-col items-center gap-1">
+                  <IconButton
+                    label={added ? `${item.name} is on your plate; add another serving` : verdict.allowed ? `Add ${item.name} to plate` : `${item.name} doesn't fit your restrictions`}
+                    icon="plus"
+                    disabled={!verdict.allowed}
+                    onClick={() => onAdd(item)}
+                    className={added ? "border-brand bg-brand-soft" : ""}
+                  />
+                  {added && <span className="text-xs font-semibold text-brand-ink">Added</span>}
+                </div>
               </li>
             );
           })}
