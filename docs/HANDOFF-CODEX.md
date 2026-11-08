@@ -11,6 +11,8 @@ The user rejected the heavy red light-mode gradient and requested a very subtle 
 
 Movement verification: browser readings showed both layer transforms changing while opacity and headline coordinates stayed identical. Focused-input checks froze both transform matrices exactly and resumed afterward. Light/dark views at desktop/320px had no horizontal overflow or browser warnings/errors. Direct Vite build and whitespace checks passed. Reduced-motion selectors were reviewed; OS preference emulation was not performed.
 
+The movement correction was pushed as `45c481d`. The user then requested clearer shadows on the boxes: the hero and existing cards now share a soft contact shadow plus a broader neutral falloff, with deeper black shadows in dark mode. Mobile's transparent context card remains shadow-free. Light/dark desktop and 320px checks, production build and whitespace checks passed. No layout, motion, model, dataset, scraper or planner behavior changed for the shadow update.
+
 ## Motion and daily-summary repair — November 8, 2026
 
 The user reported rushed/replaying animation and a cluttered summary. This repair supersedes the earlier outline indicator and derived-energy summary:

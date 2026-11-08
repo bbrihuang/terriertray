@@ -46,7 +46,7 @@ spacing:
 components:
   control-height: "44px minimum"
   field-height: "48px minimum"
-  card: "Opaque white with one quiet, neutral shadow"
+  card: "Opaque surface with a soft contact shadow and broad neutral falloff"
   primary: "Scarlet fill, white text"
   focus: "Visible neutral outline"
 ---
@@ -83,6 +83,7 @@ The daily summary combines planned dishes from all halls for the selected date. 
 
 - Use the self-hosted Inter Tight Latin variable family: 700 display headings, 600 section/button/nutrition emphasis, 400 body, and tabular numbers. Inputs stay at 16px or larger. Its license and source are in `public/fonts/`.
 - Group with spacing before adding lines or containers. Keep one depth cue per white surface.
+- Cards, the meal selector, daily totals, onboarding and the hero share one shadow token: a small contact shadow plus a broad, softened falloff. Light mode uses neutral plum-gray at low opacity; dark mode uses deeper black. Keep shadows static and outside the surface, without colored glows or hover lift.
 - Keep controls at least 44px and fields at least 48px tall. Preserve labels, keyboard focus, and native dialog behavior.
 - Keep body and label contrast at least 4.5:1 over their actual backgrounds; use words with semantic status colors.
 - Selected meals use a blush row and scarlet icon well. Published hours and planned totals remain visible.
