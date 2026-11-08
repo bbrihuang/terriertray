@@ -1,0 +1,36 @@
+{
+  "sourceRevision": "46645b5bcf169d9f23250b06c473648e601d661d",
+  "rowCount": 6000,
+  "provenance": "Unverified team research dataset; no clinical accuracy claim.",
+  "coefficientSource": "research/models/dietary_cal_model.regression.txt (rounded original-scale export)",
+  "coefficients": {
+    "intercept": -340.7314,
+    "age": -7.4506,
+    "heightCm": 8.1819,
+    "weightKg": 15.5104,
+    "activity": 254.3456,
+    "male": 218.5443
+  },
+  "ranges": {
+    "age": [
+      18.0,
+      80.0
+    ],
+    "heightCm": [
+      145.0,
+      198.6
+    ],
+    "weightKg": [
+      40.0,
+      116.6
+    ]
+  },
+  "activityEncoding": [
+    "Sedentary",
+    "Lightly Active",
+    "Moderately Active",
+    "Very Active",
+    "Extremely Active"
+  ],
+  "omittedCategory": "Gender_Other is intentionally unsupported for physiological target estimation."
+}

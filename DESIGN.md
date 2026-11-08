@@ -2,32 +2,32 @@
 name: TerrierTray
 description: Soft glass plate planner for BU dining halls
 colors:
-  page: "#f4f3f8"
+  page: "#ffffff"
   surface-glass: "rgba(255,255,255,0.72)"
-  surface-solid: "#fbfbfd"
+  surface-solid: "#ffffff"
   field: "rgba(255,255,255,0.9)"
   ink: "#111114"
   muted: "#56556a"
   control: "#7e7d90"
   action: "#111114"
   on-action: "#ffffff"
-  accent-ink: "#4f35c2"
-  accent-soft: "#eeeafe"
-  blob-lavender: "#b9a8ff"
-  blob-peach: "#ffc7a3"
-  blob-sky: "#a9d4ff"
-  blob-pink: "#ffb3c1"
+  accent-ink: "#b00000"
+  accent-soft: "#fff0f0"
+  blob-lavender: "#cc0000"
+  blob-peach: "#ef4444"
+  blob-sky: "#fca5a5"
+  blob-pink: "#b91c1c"
   danger: "#b42318"
   danger-soft: "#fde7e4"
   warn: "#8a3b0a"
   warn-soft: "#ffebdc"
   ok: "#1f7a3f"
   ok-soft: "#ddf3e4"
-  night-page: "#14121c"
+  night-page: "#1b1111"
   night-surface-glass: "rgba(32,28,46,0.74)"
   night-ink: "#f3f1fa"
   night-muted: "#b9b6cc"
-  night-accent-ink: "#c9b8ff"
+  night-accent-ink: "#ffb3b3"
 typography:
   headline:
     fontFamily: "Atkinson Hyperlegible Next Variable, ui-sans-serif, system-ui, sans-serif"
@@ -126,10 +126,10 @@ Restrained pastel world: colour comes from the light behind the glass, not from 
 - **Ink** (`#111114`): text and the action pill. White on it is 18.85:1.
 
 ### Secondary
-- **Accent ink** (`#4f35c2`): links and quiet buttons. 7.14:1 on glass over the strongest blob.
+- **Accent ink** (`#b00000`): links and quiet buttons. 7.14:1 on glass over the strongest blob.
 
 ### Neutral
-- **Page** (`#f4f3f8`), **glass** (white at 72%), **field** (white at 90%) for inputs and pills.
+- **Page** (`#ffffff`), **glass** (white at 72%), **field** (white at 90%) for inputs and pills.
 - **Muted** (`#56556a`): second headline line, meta, units. 6.45:1 on glass and 4.69:1 directly on the page over a blob. The handoff's `#9a99a6` failed and is not used.
 - **Control** (`#7e7d90`): input borders, ≥3.58:1 against glass.
 
@@ -137,7 +137,7 @@ Restrained pastel world: colour comes from the light behind the glass, not from 
 - Danger `#b42318` on `#fde7e4`, warn `#8a3b0a` on `#ffebdc`, ok `#1f7a3f` on `#ddf3e4`.
 
 ### Night
-A dark variant follows the OS setting with the same roles (`#14121c` page, night glass, ink `#f3f1fa`, muted `#b9b6cc` at ≥7.6:1). In the dark the action pill inverts to light.
+A dark variant follows the OS setting with the same roles (`#1b1111` page, night glass, ink `#f3f1fa`, muted `#b9b6cc` at ≥7.6:1). In the dark the action pill inverts to light.
 
 ### Named Rules
 **The Light-Not-Paint Rule.** Pastels appear as blurred light behind glass and in the plate ring, never as large flat fills behind text.
@@ -170,19 +170,19 @@ Cards 22 px, inner tiles and inputs 14 px, meal chips 18 px, and buttons and pil
 ## Components
 
 ### Buttons
-- **Primary:** black pill, white text, 44 px. One per view.
+- **Primary:** red pill, white text, 44 px. One per view.
 - **Secondary:** field-white pill with a rim and a whisper shadow.
-- **Quiet:** accent-ink text with a soft lavender hover.
+- **Quiet:** accent-ink text with a soft red hover.
 - All buttons scale to 0.97 when pressed (motion-safe only).
 
 ### Chips
-Meal chips are two-line (name with "now/next", then compact hours) with `aria-pressed`. The selected chip is black.
+Meal chips are two-line (name with "now/next", then compact hours) with `aria-pressed`. The selected chip is red.
 
 ### Cards / Containers
 One `glass` utility for every card. No nested cards: inner groupings use the sunken 4% tint (macro tiles, "Why this plan?").
 
 ### Plate ring (signature)
-A 128-unit SVG ring with an 11-unit stroke, a peach to pink to lavender gradient and round caps over a `line` track. The centre shows a big number with "kcal planned", plus "at least" when data is incomplete. It is `role="img"` with a full sentence label, and the stroke eases over 700 ms only when motion is allowed.
+A 128-unit SVG ring with an 11-unit stroke, a red gradient and round caps over a `line` track. The centre shows a big number with "kcal planned", plus "at least" when data is incomplete. It is `role="img"` with a full sentence label, and the stroke eases over 700 ms only when motion is allowed.
 
 ### View tabs
 A segmented glass track. The selected tab is white (light) or a 16% white wash (dark) with `aria-current="page"`.
@@ -194,3 +194,6 @@ A segmented glass track. The selected tab is white (light) or a 16% white wash (
 - **Don't** add an assistant orb, chat, scanning, reservations, reminders, odometer counters or invented metrics. There is no AI here.
 - **Don't** use grey text lighter than `#56556a` on the light theme.
 - **Don't** animate layout. Only opacity, transform and the ring's `stroke-dashoffset` move, and only when motion is allowed.
+
+## Red-and-white update
+The user explicitly requested BU-inspired red and white. CSS tokens in src/index.css are authoritative: white cards/page, red primary actions and accents, restrained red backdrop, dark-mode equivalents. Keep the unofficial notice and existing accessible layout. Colors are a student visual identity, not an endorsement or use of BU marks.

@@ -1,0 +1,62 @@
+{
+  "sourceBranch": "origin/data",
+  "revision": "46645b5bcf169d9f23250b06c473648e601d661d",
+  "sourceAndLicense": "Not recorded; must be verified before external redistribution or scientific claims.",
+  "files": [
+    {
+      "source": "clean_activity.py",
+      "path": "research/scripts/clean_activity.py",
+      "sha256": "d55d48e894f63a6e6fb4003f83329e083b4cc709eb3f6390c81b27935e6d4a7d"
+    },
+    {
+      "source": "clean_rda.py",
+      "path": "research/scripts/clean_rda.py",
+      "sha256": "95757348f351780d380f210e325d1aa385d0fd18a44819cb497e88c612e7f8d2"
+    },
+    {
+      "source": "cleaned_activity.csv",
+      "path": "data/reference/cleaned_activity.csv",
+      "sha256": "3692fe2326fdc8b83fda6f30d32af58aea36a1c5ed3c992bbab73d49c62f78eb"
+    },
+    {
+      "source": "cleaned_vitamins.csv",
+      "path": "data/reference/cleaned_vitamins.csv",
+      "sha256": "eec775894ecf1bbc4823394fecf74e070896e5d67f8d49cdd7a69c8d85d56cc1"
+    },
+    {
+      "source": "conversions.py",
+      "path": "research/scripts/conversions.py",
+      "sha256": "fa60f0f2d8c04de9167f0458fb6705bd1bd25529338035384bc5f40e04036d72"
+    },
+    {
+      "source": "dietary_cal_model.joblib",
+      "path": "research/models/dietary_cal_model.joblib",
+      "sha256": "60ef9abb787931d8404b7607fcc71cc1c657c9b7b5a9ab56f7bb7b3ddcdce8dc"
+    },
+    {
+      "source": "dietary_cal_model.regression.txt",
+      "path": "research/models/dietary_cal_model.regression.txt",
+      "sha256": "778bc31f8f44a0ad29acae14c1da54007367253f3fa8db90514932cb6705ec10"
+    },
+    {
+      "source": "dietary_database.py",
+      "path": "research/scripts/dietary_database.py",
+      "sha256": "11c75472f601f62758c4d77c18c9861f9e01aa550465b3051acb6fba31772c5a"
+    },
+    {
+      "source": "exercise_dataset.csv",
+      "path": "data/reference/exercise_dataset.csv",
+      "sha256": "a6c1c57309a218222fedf2c99dbac8aaa9e155d8ba325e4bca1e832e106d4330"
+    },
+    {
+      "source": "healthy_diet_calorie_intake.csv",
+      "path": "data/reference/healthy_diet_calorie_intake.csv",
+      "sha256": "5088ad87000d8607d25e0c2b65b46ddeaab35700ece1ceb2d8a30690ded1f102"
+    },
+    {
+      "source": "vitamins-RDAs.csv",
+      "path": "data/reference/vitamins-RDAs.csv",
+      "sha256": "70bf03e3edef31016a3aea4e68dbf33d16368d35e72c5d2af7c4864859e18fc7"
+    }
+  ]
+}

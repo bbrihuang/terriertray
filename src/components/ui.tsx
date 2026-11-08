@@ -23,7 +23,7 @@ export function Icon({ name, className = "size-5" }: { name: keyof typeof paths;
 type Variant = "primary" | "secondary" | "quiet";
 
 const variants: Record<Variant, string> = {
-  // Black means "act": one primary per view.
+  // Red identifies the primary action.
   primary: "bg-action text-on-action font-semibold hover:brightness-125 dark:hover:brightness-95",
   secondary: "bg-field text-ink font-semibold border border-rim shadow-[var(--shadow)] hover:bg-surface-solid",
   quiet: "text-brand-ink font-semibold hover:bg-brand-soft",

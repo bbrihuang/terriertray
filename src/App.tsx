@@ -145,7 +145,7 @@ export default function App() {
       <header className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 pt-5">
         <div className="flex items-center gap-2.5">
           <PlateMark />
-          <h1 className="text-xl font-semibold tracking-[-0.02em]" translate="no">
+          <h1 className="text-brand-ink text-xl font-semibold tracking-[-0.02em]" translate="no">
             TerrierTray
           </h1>
         </div>
@@ -300,7 +300,7 @@ export default function App() {
               type="button"
               aria-current={tab === id ? "page" : undefined}
               onClick={() => setTab(id)}
-              className={`press min-h-11 rounded-full font-semibold ${tab === id ? "bg-tab-selected text-ink shadow-[0_2px_8px_rgb(30_20_60/0.12)]" : "text-muted hover:text-ink"}`}
+              className={`press min-h-11 rounded-full font-semibold ${tab === id ? "bg-tab-selected text-on-action shadow-[0_2px_8px_rgb(30_20_60/0.12)]" : "text-muted hover:text-ink"}`}
             >
               {label}
             </button>

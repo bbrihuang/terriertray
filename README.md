@@ -78,4 +78,12 @@ To resume, `npm run collect:fenway` (manual only) reads `SODEXO_API_KEY` from th
 - [docs/SECURITY.md](docs/SECURITY.md): threat model and implemented controls
 - [docs/REFERENCE_DATA.md](docs/REFERENCE_DATA.md): what the nutrition and activity datasets are, and why they are not used yet
 - [collector/README.md](collector/README.md): scraper provenance and changes made for integration
-- The Python research files (`dietary_database.py`, CSVs, `dietary_cal_model.*`) live on the `data` branch and are not used by the website.
+- Research files are preserved in data/reference and research/ on main; the optional experimental calculator uses only the text-exported regression coefficients.
+
+## Optional target calculator
+
+In Settings → Daily targets, open “Help me estimate my daily targets.” Enter metric or imperial measurements, age, equation category, usual activity and goal. Preview and explicitly apply the estimate; every target remains editable. Standard Mifflin–St Jeor is the default; the team dataset regression is a separate experimental option with input-range checks and unverified provenance. Activity factors, ±10% goal adjustments and a 20/50/30 macro split are editable app assumptions, not medical prescriptions. Measurement inputs stay temporary and are never stored or sent. Only resulting targets can be saved through the existing opt-in setting.
+
+The data branch is preserved under data/reference and research/ on main. src/lib/calorie-model.json contains only the coefficient export, dataset bounds and provenance; raw CSV/model artifacts stay outside public/ and dist. See docs/REFERENCE_DATA.md.
+
+Regenerate the browser model export without loading joblib: python scripts/export-calorie-model.py (standard-library Python). Original research scripts are preserved snapshots; they are not part of app startup.

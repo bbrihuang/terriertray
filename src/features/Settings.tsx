@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import type { MealTargets } from "../lib/planner";
 import type { Profile } from "../lib/profile-storage";
 import { ALLERGENS, DIET_TAGS, type Restrictions } from "../lib/restrictions";
+import { TargetCalculator } from "./TargetCalculator";
 import { Button, Section } from "../components/ui";
 
 type Props = {
@@ -26,6 +27,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
   const r = profile.restrictions;
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [calculatorKey, setCalculatorKey] = useState(0);
 
   const setR = (patch: Partial<Restrictions>) => onChange({ ...profile, restrictions: { ...r, ...patch } });
 
@@ -124,7 +126,8 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
       </Section>
 
       <Section card title="Daily targets" id={`${id}-targets`}>
-        <p className="text-muted">Enter your own numbers. Leave blank anything you don't track. TerrierTray doesn't estimate these for you.</p>
+        <p className="text-muted">Enter your own numbers, or preview an optional estimate from your measurements and goal. Leave blank anything you don't track.</p>
+        <TargetCalculator key={calculatorKey} onApply={(daily) => onChange({ ...profile, daily })} />
         <div className="mt-3 grid grid-cols-1 gap-3 min-[22rem]:grid-cols-2">
           {TARGETS.map(([key, label, unit]) => (
             <div key={key}>
@@ -181,6 +184,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
                 <Button
                   onClick={() => {
                     onDeleteSaved();
+                    setCalculatorKey((key) => key + 1);
                     setConfirmDelete(false);
                   }}
                 >
