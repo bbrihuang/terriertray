@@ -125,9 +125,12 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
         </fieldset>
       </Section>
 
+      <Section card title="Estimate calories with our model" id="calorie-model">
+        <TargetCalculator key={calculatorKey} currentKcal={profile.daily.caloriesKcal} onApply={(kcal) => onChange({ ...profile, daily: { ...profile.daily, caloriesKcal: kcal } })} />
+      </Section>
+
       <Section card title="Daily targets" id={`${id}-targets`}>
-        <p className="text-muted">Enter your own numbers, or preview an optional estimate from your measurements and goal. Leave blank anything you don't track.</p>
-        <TargetCalculator key={calculatorKey} onApply={(daily) => onChange({ ...profile, daily })} />
+        <p className="text-muted">Type your own numbers, or apply the estimate above for calories. Leave blank anything you don't track. Every number stays editable.</p>
         <div className="mt-3 grid grid-cols-1 gap-3 min-[22rem]:grid-cols-2">
           {TARGETS.map(([key, label, unit]) => (
             <div key={key}>

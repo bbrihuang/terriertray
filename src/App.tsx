@@ -134,6 +134,17 @@ export default function App() {
     setTab("plan");
   };
 
+  /** Jump to the model calculator in Settings and move focus to its heading. */
+  const openCalculator = () => {
+    setTab("settings");
+    setTimeout(() => {
+      const heading = document.getElementById("calorie-model");
+      heading?.setAttribute("tabindex", "-1");
+      heading?.scrollIntoView({ block: "start" });
+      heading?.focus();
+    }, 50);
+  };
+
   const brand = (
     <>
       <div className="blobs" aria-hidden="true">
@@ -410,10 +421,13 @@ export default function App() {
                   <Section title="Suggested plates" id="suggest-heading">
                     {!hasTarget ? (
                       <Notice title="Add a target to get suggestions">
-                        <p>Enter a daily calorie or protein target in Settings. TerrierTray splits it across your meals and finds dishes that fit.</p>
-                        <Button variant="primary" className="mt-3" onClick={() => setTab("settings")}>
-                          Set my targets
-                        </Button>
+                        <p>Estimate your daily calories with our model, or type your own targets. TerrierTray splits them across your meals and finds dishes that fit.</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Button variant="primary" onClick={openCalculator}>
+                            Estimate my calories
+                          </Button>
+                          <Button onClick={() => setTab("settings")}>Type my own targets</Button>
+                        </div>
                       </Notice>
                     ) : !canSuggest ? (
                       <Notice tone="warn" title="Suggestions are off for this day">

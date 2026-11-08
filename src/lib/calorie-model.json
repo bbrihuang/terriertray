@@ -1,16 +1,56 @@
 {
   "sourceRevision": "46645b5bcf169d9f23250b06c473648e601d661d",
-  "rowCount": 6000,
-  "provenance": "Unverified team research dataset; no clinical accuracy claim.",
-  "coefficientSource": "research/models/dietary_cal_model.regression.txt (rounded original-scale export)",
-  "coefficients": {
-    "intercept": -340.7314,
-    "age": -7.4506,
-    "heightCm": 8.1819,
-    "weightKg": 15.5104,
-    "activity": 254.3456,
-    "male": 218.5443
-  },
+  "modelSha256": "60ef9abb787931d8404b7607fcc71cc1c657c9b7b5a9ab56f7bb7b3ddcdce8dc",
+  "sklearnVersion": "1.9.1",
+  "trainingScript": "research/scripts/dietary_database.py",
+  "provenance": "Team research dataset of unrecorded origin; no clinical validation.",
+  "numericFeatures": [
+    "Age",
+    "Height_cm",
+    "Weight_kg",
+    "Activity_Level"
+  ],
+  "numericMedians": [
+    48.0,
+    168.3,
+    74.1,
+    1.0
+  ],
+  "scalerMean": [
+    48.632083333333334,
+    168.61577083333333,
+    74.15283333333333,
+    1.3227083333333334
+  ],
+  "scalerScale": [
+    18.180370934785376,
+    9.199253549291338,
+    12.34134887166805,
+    1.0160303464614409
+  ],
+  "genderCategories": [
+    "Female",
+    "Male",
+    "Other"
+  ],
+  "genderDropped": "Female",
+  "genderMostFrequent": "Male",
+  "coefficients": [
+    -135.45518723169027,
+    75.26753223847099,
+    191.419569176245,
+    258.42281336759544,
+    218.54431331908438,
+    485.51405109581174
+  ],
+  "intercept": 2163.096287349672,
+  "activityLevels": [
+    "Sedentary",
+    "Lightly Active",
+    "Moderately Active",
+    "Very Active",
+    "Extremely Active"
+  ],
   "ranges": {
     "age": [
       18.0,
@@ -23,14 +63,10 @@
     "weightKg": [
       40.0,
       116.6
+    ],
+    "kcal": [
+      1223.0,
+      4079.0
     ]
-  },
-  "activityEncoding": [
-    "Sedentary",
-    "Lightly Active",
-    "Moderately Active",
-    "Very Active",
-    "Extremely Active"
-  ],
-  "omittedCategory": "Gender_Other is intentionally unsupported for physiological target estimation."
+  }
 }

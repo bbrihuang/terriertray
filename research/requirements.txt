@@ -1,0 +1,7 @@
+# Only for scripts/export-calorie-model.py (dev-time; the website needs none of this).
+# scikit-learn must match the version the model was saved with.
+scikit-learn==1.9.1
+numpy==2.5.4
+pandas==3.1.1
+joblib==1.6.0
+scipy==1.18.1

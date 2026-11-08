@@ -1,0 +1,186 @@
+[
+  {
+    "age": 25,
+    "gender": "Male",
+    "heightCm": 175,
+    "weightKg": 70,
+    "activity": 2,
+    "kcal": 2717.803627478525
+  },
+  {
+    "age": 25,
+    "gender": "Female",
+    "heightCm": 165,
+    "weightKg": 60,
+    "activity": 1,
+    "kcal": 2007.990322300427
+  },
+  {
+    "age": 40,
+    "gender": "Other",
+    "heightCm": 170,
+    "weightKg": 80,
+    "activity": 3,
+    "kcal": 3241.554171478937
+  },
+  {
+    "age": 18.0,
+    "gender": "Female",
+    "heightCm": 145.0,
+    "weightKg": 40.0,
+    "activity": 0,
+    "kcal": 1331.9523029094826
+  },
+  {
+    "age": 80.0,
+    "gender": "Male",
+    "heightCm": 198.6,
+    "weightKg": 116.6,
+    "activity": 4,
+    "kcal": 3732.5892657042323
+  },
+  {
+    "age": 19,
+    "gender": "Male",
+    "heightCm": 198.6,
+    "weightKg": 40,
+    "activity": 4,
+    "kcal": 2998.9790212331927
+  },
+  {
+    "age": 80,
+    "gender": "Female",
+    "heightCm": 145,
+    "weightKg": 116.6,
+    "activity": 0,
+    "kcal": 2058.111919023291
+  },
+  {
+    "age": 33,
+    "gender": "Male",
+    "heightCm": 181.3,
+    "weightKg": 77.7,
+    "activity": 3,
+    "kcal": 3083.5205201996973
+  },
+  {
+    "age": 30,
+    "gender": "Female",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 0,
+    "kcal": 1912.405453961399
+  },
+  {
+    "age": 30,
+    "gender": "Female",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 1,
+    "kcal": 2166.751019787865
+  },
+  {
+    "age": 30,
+    "gender": "Female",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 2,
+    "kcal": 2421.096585614331
+  },
+  {
+    "age": 30,
+    "gender": "Female",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 3,
+    "kcal": 2675.442151440797
+  },
+  {
+    "age": 30,
+    "gender": "Female",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 4,
+    "kcal": 2929.787717267263
+  },
+  {
+    "age": 30,
+    "gender": "Male",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 0,
+    "kcal": 2130.9497672804832
+  },
+  {
+    "age": 30,
+    "gender": "Male",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 1,
+    "kcal": 2385.2953331069493
+  },
+  {
+    "age": 30,
+    "gender": "Male",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 2,
+    "kcal": 2639.6408989334154
+  },
+  {
+    "age": 30,
+    "gender": "Male",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 3,
+    "kcal": 2893.9864647598815
+  },
+  {
+    "age": 30,
+    "gender": "Male",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 4,
+    "kcal": 3148.332030586347
+  },
+  {
+    "age": 30,
+    "gender": "Other",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 0,
+    "kcal": 2397.9195050572107
+  },
+  {
+    "age": 30,
+    "gender": "Other",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 1,
+    "kcal": 2652.265070883677
+  },
+  {
+    "age": 30,
+    "gender": "Other",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 2,
+    "kcal": 2906.610636710143
+  },
+  {
+    "age": 30,
+    "gender": "Other",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 3,
+    "kcal": 3160.9562025366085
+  },
+  {
+    "age": 30,
+    "gender": "Other",
+    "heightCm": 170,
+    "weightKg": 70,
+    "activity": 4,
+    "kcal": 3415.3017683630746
+  }
+]

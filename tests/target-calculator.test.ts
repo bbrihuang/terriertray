@@ -1,34 +1,73 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { estimateTargets, poundsToKg, inchesToCm, type CalculatorInput } from "../src/lib/target-calculator";
-import model from "../src/lib/calorie-model.json";
+import { applyAdjustment, feetAndInchesToCm, poundsToKg, predictCalories, RANGES, unsupportedReason, type ModelInput } from "../src/lib/target-calculator";
+import { mealShare, planMeal } from "../src/lib/planner";
+import { DEFAULT_RESTRICTIONS } from "../src/lib/restrictions";
+import { DayMenu } from "../src/lib/schema";
 
-const base: CalculatorInput = { age: 25, heightCm: 175, weightKg: 70, category: "male", activity: 2, goal: "maintain", method: "standard" };
-describe("local target calculator", () => {
-  it("matches the standard equation and produces energy-consistent macros", () => {
-    const r = estimateTargets(base);
-    expect(r.maintenanceKcal).toBe(2590);
-    expect(Math.abs(r.targets.proteinG! * 4 + r.targets.carbsG! * 4 + r.targets.fatG! * 9 - r.targets.caloriesKcal!)).toBeLessThanOrEqual(2);
+type Case = { age: number; gender: string; heightCm: number; weightKg: number; activity: number; kcal: number };
+// Written by scripts/export-calorie-model.py from the ORIGINAL sklearn pipeline's predict().
+const parity: Case[] = JSON.parse(readFileSync("tests/fixtures/calorie-model-parity.json", "utf-8"));
+
+describe("browser inference matches the team's trained pipeline", () => {
+  it.each(parity.filter((c) => c.gender !== "Other"))("$age y, $gender, $heightCm cm, $weightKg kg, activity $activity", (c) => {
+    const kcal = predictCalories({ age: c.age, gender: c.gender as ModelInput["gender"], heightCm: c.heightCm, weightKg: c.weightKg, activity: c.activity });
+    expect(Math.abs(kcal - c.kcal)).toBeLessThan(1e-6);
   });
-  it("uses the actual exported dataset coefficients without applying activity twice", () => {
-    const r = estimateTargets({ ...base, method: "dataset" });
-    const c = model.coefficients;
-    const expected = c.intercept + c.age * 25 + c.heightCm * 175 + c.weightKg * 70 + c.activity * 2 + c.male;
-    expect(r.maintenanceKcal).toBe(Math.round(expected / 10) * 10);
-    const female = estimateTargets({ ...base, method: "dataset", category: "female" });
-    expect(female.maintenanceKcal).toBe(Math.round((expected - c.male) / 10) * 10);
+
+  it("matches the training script's own sample prediction", () => {
+    expect(predictCalories({ age: 25, gender: "Male", heightCm: 175, weightKg: 70, activity: 2 })).toBeCloseTo(2717.80, 2);
   });
-  it("changes goal targets without changing maintenance", () => {
-    const maintain = estimateTargets(base), loss = estimateTargets({ ...base, goal: "lose" }), gain = estimateTargets({ ...base, goal: "gain" });
-    expect(loss.maintenanceKcal).toBe(maintain.maintenanceKcal);
-    expect(loss.targets.caloriesKcal!).toBeLessThan(maintain.targets.caloriesKcal!);
-    expect(gain.targets.caloriesKcal!).toBeGreaterThan(maintain.targets.caloriesKcal!);
+});
+
+describe("input encoding and supported range", () => {
+  const base: ModelInput = { age: 25, gender: "Male", heightCm: 175, weightKg: 70, activity: 2 };
+
+  it("encodes Female as the dropped baseline and activity as 0-4", () => {
+    const male = predictCalories(base);
+    const female = predictCalories({ ...base, gender: "Female" });
+    expect(male - female).toBeGreaterThan(0); // Gender_Male coefficient applies only to Male
+    const steps = [0, 1, 2, 3, 4].map((activity) => predictCalories({ ...base, activity }));
+    const diffs = steps.slice(1).map((v, i) => v - steps[i]!);
+    for (const d of diffs) expect(d).toBeCloseTo(diffs[0]!, 9); // one linear term per level
   });
-  it("normalizes imperial measurements", () => {
-    expect(inchesToCm(70)).toBeCloseTo(177.8);
-    expect(poundsToKg(154.3235835)).toBeCloseTo(70);
+
+  it("refuses to extrapolate and explains why", () => {
+    for (const patch of [{ age: RANGES.age[0]! - 1 }, { age: 30.5 }, { heightCm: RANGES.heightCm[1]! + 0.1 }, { weightKg: RANGES.weightKg[0]! - 0.1 }, { activity: 5 }, { activity: 1.5 }, { weightKg: NaN }]) {
+      expect(unsupportedReason({ ...base, ...patch })).toBeTruthy();
+      expect(() => predictCalories({ ...base, ...patch })).toThrow();
+    }
+    expect(() => predictCalories({ ...base, gender: "Other" as never })).toThrow();
   });
-  it("rejects invalid, unsupported and extrapolated inputs", () => {
-    for (const patch of [{ age: 17 }, { age: 22.5 }, { weightKg: NaN }, { heightCm: Infinity }, { activity: 5 }, { activity: 1.5 }]) expect(() => estimateTargets({ ...base, ...patch })).toThrow();
-    expect(() => estimateTargets({ ...base, method: "dataset", heightCm: 229 })).toThrow();
+
+  it("accepts the exact range boundaries", () => {
+    expect(unsupportedReason({ ...base, age: RANGES.age[0]!, heightCm: RANGES.heightCm[0]!, weightKg: RANGES.weightKg[1]! })).toBeNull();
+  });
+
+  it("converts units with the team's research factors", () => {
+    expect(poundsToKg(154.3235835)).toBeCloseTo(70, 6);
+    expect(feetAndInchesToCm(5, 9)).toBeCloseTo(175.26, 6);
+  });
+
+  it("keeps a user-chosen adjustment separate from the model's output", () => {
+    const kcal = predictCalories(base);
+    expect(applyAdjustment(kcal, 0)).toBe(Math.round(kcal));
+    expect(applyAdjustment(kcal, -10)).toBe(Math.round(kcal * 0.9));
+    expect(predictCalories(base)).toBe(kcal); // prediction unchanged by adjustments
+  });
+});
+
+describe("applied targets drive the planner", () => {
+  const day = DayMenu.parse(JSON.parse(readFileSync("tests/fixtures/warren-2026-11-07.day.json", "utf-8")));
+  const dinner = day.meals.find((m) => m.name === "Dinner")!.items;
+  const restrictions = { ...DEFAULT_RESTRICTIONS, allergyAnswer: "none" as const };
+
+  it("a model-derived daily calorie target produces a meal plan near its share", () => {
+    const daily = { caloriesKcal: applyAdjustment(predictCalories({ age: 25, gender: "Female", heightCm: 165, weightKg: 60, activity: 1 }), 0), proteinG: null, carbsG: null, fatG: null };
+    const share = mealShare(daily, 3);
+    const result = planMeal(dinner, share, restrictions);
+    if (result.kind !== "ok") throw new Error("expected options");
+    const kcal = result.options[0]!.entries.reduce((n, e) => n + e.item.caloriesKcal! * e.servings, 0);
+    expect(Math.abs(kcal - share.caloriesKcal!) / share.caloriesKcal!).toBeLessThan(0.2);
   });
 });

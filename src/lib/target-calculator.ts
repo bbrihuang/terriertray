@@ -1,43 +1,56 @@
-import type { MealTargets } from "./planner";
 import model from "./calorie-model.json";
 
-export const ACTIVITIES = [
-  { label: "Mostly seated", factor: 1.2 },
-  { label: "Lightly active", factor: 1.375 },
-  { label: "Moderately active", factor: 1.55 },
-  { label: "Very active", factor: 1.725 },
-  { label: "Extremely active", factor: 1.9 },
-] as const;
-export type CalculatorInput = { age: number; heightCm: number; weightKg: number; category: "female" | "male"; activity: number; goal: "lose" | "maintain" | "gain"; method: "standard" | "dataset" };
-export type Estimate = { maintenanceKcal: number; targets: MealTargets; adjustmentPercent: number; method: string };
+/**
+ * Browser-local inference for the team's calorie regression
+ * (research/scripts/dietary_database.py -> research/models/dietary_cal_model.joblib),
+ * exported at full precision by scripts/export-calorie-model.py. The model predicts
+ * daily calories only. No other equation, multiplier or macro template is used.
+ */
 
-/** Local estimates only. Activity already contributes to maintenance; never add it twice. */
-export function estimateTargets(input: CalculatorInput): Estimate {
-  const { age, heightCm, weightKg, activity, category, method, goal } = input;
-  for (const [label, value, min, max] of [["Age", age, 18, 78], ["Height", heightCm, 120, 230], ["Weight", weightKg, 35, 250]] as const) {
-    if (!Number.isFinite(value) || value < min || value > max) throw new Error(`${label} is outside this calculator's supported range (${min}–${max}). Use manual targets instead.`);
-  }
-  if (!Number.isInteger(age) || !Number.isInteger(activity) || activity < 0 || activity >= ACTIVITIES.length) throw new Error("Choose a whole-number age and a listed activity level.");
-  if (!["female", "male"].includes(category) || !["standard", "dataset"].includes(method) || !["lose", "maintain", "gain"].includes(goal)) throw new Error("Choose a listed equation, calculation method and goal.");
-  let maintenance: number;
-  if (method === "dataset") {
-    const ranges = model.ranges;
-    if (age < ranges.age[0]! || age > ranges.age[1]! || heightCm < ranges.heightCm[0]! || heightCm > ranges.heightCm[1]! || weightKg < ranges.weightKg[0]! || weightKg > ranges.weightKg[1]!) throw new Error("Your measurements are outside the research dataset's range. Use the standard estimate or manual targets instead.");
-    const c = model.coefficients;
-    maintenance = c.intercept + c.age * age + c.heightCm * heightCm + c.weightKg * weightKg + c.activity * activity + (category === "male" ? c.male : 0);
-  } else {
-    const resting = 10 * weightKg + 6.25 * heightCm - 5 * age + (category === "male" ? 5 : -161);
-    maintenance = resting * ACTIVITIES[activity]!.factor;
-  }
-  const adjustmentPercent = goal === "lose" ? -10 : goal === "gain" ? 10 : 0;
-  const calories = Math.round(maintenance * (1 + adjustmentPercent / 100) / 10) * 10;
-  if (calories < 1200 || calories > 6000) throw new Error("This result is outside the calculator's supported output range. Enter an individualized target manually. These bounds are product limits, not a guarantee of safety.");
-  // Editable balanced starting template, not a personalized nutrient prescription.
-  const proteinG = Math.round(calories * 0.2 / 4);
-  const fatG = Math.round(calories * 0.3 / 9);
-  const carbsG = Math.round((calories - proteinG * 4 - fatG * 9) / 4);
-  return { maintenanceKcal: Math.round(maintenance / 10) * 10, targets: { caloriesKcal: calories, proteinG, carbsG, fatG }, adjustmentPercent, method: method === "dataset" ? "Research dataset regression (experimental)" : "Mifflin–St Jeor resting estimate × activity factor" };
+/** Activity labels exactly as the dataset records them, encoded 0-4 like the training script. */
+export const ACTIVITY_LEVELS = model.activityLevels;
+
+/**
+ * Gender categories offered. The dataset also records "Other"; the team chose not to apply
+ * that category's coefficient, so it is explained in the UI rather than offered.
+ */
+export const GENDERS = ["Female", "Male"] as const;
+export type Gender = (typeof GENDERS)[number];
+
+export type ModelInput = { age: number; gender: Gender; heightCm: number; weightKg: number; activity: number };
+
+export const RANGES = model.ranges;
+
+/** Why an input can't be used, or null. Inputs outside the training data are never extrapolated. */
+export function unsupportedReason(i: ModelInput): string | null {
+  const within = (v: number, [lo, hi]: number[]) => Number.isFinite(v) && v >= lo! && v <= hi!;
+  if (!Number.isInteger(i.age) || !within(i.age, RANGES.age)) return `Age must be a whole number from ${RANGES.age[0]} to ${RANGES.age[1]}, the ages in our dataset.`;
+  if (!within(i.heightCm, RANGES.heightCm)) return `Height must be ${RANGES.heightCm[0]}–${RANGES.heightCm[1]} cm, the range in our dataset.`;
+  if (!within(i.weightKg, RANGES.weightKg)) return `Weight must be ${RANGES.weightKg[0]}–${RANGES.weightKg[1]} kg, the range in our dataset.`;
+  if (!Number.isInteger(i.activity) || i.activity < 0 || i.activity >= ACTIVITY_LEVELS.length) return "Choose one of the listed activity levels.";
+  if (!GENDERS.includes(i.gender)) return "Choose one of the listed categories.";
+  return null;
 }
 
+/** The model's prediction in kcal/day, unrounded. Throws on unsupported input. */
+export function predictCalories(i: ModelInput): number {
+  const reason = unsupportedReason(i);
+  if (reason) throw new Error(reason);
+  const raw = [i.age, i.heightCm, i.weightKg, i.activity];
+  // StandardScaler, then one-hot Gender with the first category (Female) dropped.
+  const scaled = raw.map((v, k) => (v - model.scalerMean[k]!) / model.scalerScale[k]!);
+  const onehot = [i.gender === "Male" ? 1 : 0, 0 /* Gender_Other: not offered */];
+  const kcal = [...scaled, ...onehot].reduce((sum, x, k) => sum + x * model.coefficients[k]!, model.intercept);
+  const [lo, hi] = RANGES.kcal;
+  if (kcal < lo! || kcal > hi!) throw new Error("This combination falls outside the calories seen in our dataset, so the model can't be used for it.");
+  return kcal;
+}
+
+/** A user-chosen adjustment, kept separate from (and never folded into) the model's prediction. */
+export function applyAdjustment(modelKcal: number, adjustmentPercent: number): number {
+  return Math.round(modelKcal * (1 + adjustmentPercent / 100));
+}
+
+// Same factors as research/scripts/conversions.py.
 export const poundsToKg = (pounds: number) => pounds * 0.45359237;
-export const inchesToCm = (inches: number) => inches * 2.54;
+export const feetAndInchesToCm = (feet: number, inches: number) => (feet * 12 + inches) * 2.54;
