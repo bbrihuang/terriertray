@@ -1,0 +1,1 @@
+Calories_Burned = 905.3776 - 38.3469 * num__Age + 1.9127 * num__Weight (kg) - 2.6837 * num__Height (m) + 249.8922 * num__Session_Duration (hours) - 46.1246 * cat__Gender_Female + 46.1246 * cat__Gender_Male
