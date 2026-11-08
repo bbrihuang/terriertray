@@ -3,6 +3,7 @@ import { formatAmount } from "../lib/nutrition";
 import { allergenHeadline, checkRestrictions, type Restrictions } from "../lib/restrictions";
 import type { MenuItem } from "../lib/schema";
 import { Button, Icon, IconButton } from "./ui";
+import { portionLabel } from "../lib/portion";
 
 type Props = {
   item: MenuItem | null;
@@ -117,7 +118,7 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
             <h3 id="label-title" className="font-bold">
               Nutrition per serving
             </h3>
-            <p className="text-muted">Serving: {item.servingText ?? "not listed"}</p>
+            <p className="text-muted">Serving: {portionLabel(item)}{item.servingText && item.servingText !== portionLabel(item) ? ` (label says ${item.servingText})` : ""}</p>
             {item.caloriesKcal === null ? (
               <p className="mt-2 rounded-[var(--radius-inner)] bg-sunken p-3">The source page has no nutrition label for this dish.</p>
             ) : (

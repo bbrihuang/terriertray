@@ -2,6 +2,7 @@ import { formatAmount, isComplete, macroEnergyShares, totals, type Total, type T
 import type { MealTargets } from "../lib/planner";
 import type { MenuItem } from "../lib/schema";
 import { IconButton } from "../components/ui";
+import { portionLabel } from "../lib/portion";
 
 export const MAX_SERVINGS = 6;
 
@@ -154,7 +155,7 @@ export function Plate({ meal, entries, target, targetLabel, onServings, onOpen }
                   {item.name}
                 </button>
                 <p className="text-sm text-muted tnum">
-                  {servings} × {item.servingText ?? "serving"} · {item.station ?? "Station not listed"} · {item.caloriesKcal === null ? "calories unknown" : formatAmount(item.caloriesKcal * servings, " kcal")}
+                  {portionLabel(item, servings)} · {item.station ?? "Station not listed"} · {item.caloriesKcal === null ? "calories unknown" : formatAmount(item.caloriesKcal * servings, " kcal")}
                 </p>
               </div>
               <div className="flex items-center gap-1.5" role="group" aria-label={`Servings of ${item.name}`}>

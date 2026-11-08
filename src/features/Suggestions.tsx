@@ -3,6 +3,7 @@ import type { MealTargets, PlanOption, PlanResult } from "../lib/planner";
 import type { Restrictions } from "../lib/restrictions";
 import type { MenuItem } from "../lib/schema";
 import { Button, Notice } from "../components/ui";
+import { portionLabel } from "../lib/portion";
 
 type Props = {
   result: PlanResult;
@@ -75,7 +76,7 @@ export function Suggestions({ result, target, targetLabel, restrictions, freshne
                       <button type="button" onClick={() => onOpen(item)} className="dish-name text-left font-medium break-words">
                         {item.name}
                       </button>
-                      <p className="text-sm text-muted tnum">{servings} × {item.servingText ?? "serving"}{item.station ? ` · ${item.station}` : ""}</p>
+                      <p className="text-sm text-muted tnum">{portionLabel(item, servings)}{item.station ? ` · ${item.station}` : ""}</p>
                     </div>
                     <Button variant="quiet" className="shrink-0 px-2 text-sm" onClick={() => onNotThis(item)} aria-label={`Not ${item.name}: suggest without it`}>
                       Not this

@@ -11,6 +11,7 @@ import { allergyAnswered } from "../lib/restrictions";
 import type { HallEntry, MenuIndex, MenuItem } from "../lib/schema";
 import { formatDate, formatHours } from "../lib/time";
 import { chooseMeals, dayTotals, weekDates } from "../lib/week";
+import { portionLabel } from "../lib/portion";
 
 type Props = {
   index: MenuIndex;
@@ -158,7 +159,7 @@ export function Week({ index, hall, start, profile, now, onUse, onSetup, onOpen 
                                   <li key={item.id} className="flex items-start justify-between gap-2">
                                     <span className="min-w-0">
                                       <span className="font-bold tnum">
-                                        {servings} × {item.servingText ?? "serving"}
+                                        {portionLabel(item, servings)}
                                       </span>{" "}
                                       <button type="button" onClick={() => onOpen(item, m.name)} className="text-left break-words underline decoration-line underline-offset-4 hover:decoration-current">
                                         {item.name}
