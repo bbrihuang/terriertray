@@ -29,12 +29,14 @@ describe("portionLabel: words a student uses in line", () => {
   });
 
   it("puts soups and drinks in bowls, mini bowls and cups; sauces in tablespoons", () => {
-    expect(p("Buffalo Chicken Soup", "6 fl oz")).toBe("6 fl oz · bowl");
+    expect(p("Buffalo Chicken Soup", "6 fl oz")).toBe("6 fl oz · mini bowl");
+    expect(p("Mac And Cheese", "22 fl oz")).toBe("22 fl oz · bowl");
     expect(p("Butter Chicken", "4 fl oz")).toBe("4 fl oz · mini bowl");
     expect(p("Blueberry-Banana Smoothie", "8 fl oz")).toBe("8 fl oz · cup");
     expect(p("Hot Honey", "1 fl oz")).toBe("2 tbsp");
     expect(p("Barbecue Sauce", "2 Tablespoon")).toBe("2 tbsp");
-    expect(p("Vegetable Stew", "3/4 cup")).toBe("¾ cup · bowl");
+    expect(p("Vegetable Stew", "3/4 cup")).toBe("¾ cup · mini bowl");
+    expect(p("Vegetable Stew", "3/4 cup", 2)).toBe("1½ cups · bowl");
     expect(p("Sweet Chili Noodle Stir Fry", "1 cup")).toBe("1 cup · plate");
     expect(p("Chili", "1 each")).toBe("1 bowl");
     expect(p("Scrambled Eggs", "1/2 cup")).toBe("½ cup · plate");

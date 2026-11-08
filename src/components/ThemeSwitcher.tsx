@@ -1,4 +1,4 @@
-import { useId, useSyncExternalStore } from "react";
+import { useId, useSyncExternalStore, type MouseEvent } from "react";
 import { IconButton } from "./ui";
 
 const subscribe = (notify: () => void) => {
@@ -14,7 +14,22 @@ const chooseTheme = (preference: ThemePreference) => window.dispatchEvent(new Cu
 export function ThemeSwitcher() {
   const theme = useSyncExternalStore(subscribe, snapshot, () => "light");
   const next = theme === "dark" ? "light" : "dark";
-  return <IconButton className="theme-control" icon={next === "dark" ? "moon" : "sun"} label={`Switch to ${next} theme`} onClick={() => chooseTheme(next)} />;
+  const toggle = (event: MouseEvent<HTMLButtonElement>) => {
+    const button = event.currentTarget;
+    const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    // The icon spins in as it swaps; the new theme spreads out in a circle from the button.
+    button.querySelector("svg")?.animate?.(
+      [{ transform: "rotate(-150deg) scale(.3)", opacity: 0 }, { transform: "rotate(0) scale(1)", opacity: 1 }],
+      { duration: still ? 0 : 560, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+    );
+    const { left, top, width, height } = button.getBoundingClientRect();
+    const root = document.documentElement;
+    root.style.setProperty("--theme-x", `${left + width / 2}px`);
+    root.style.setProperty("--theme-y", `${top + height / 2}px`);
+    if (!still && document.startViewTransition) document.startViewTransition(() => chooseTheme(next));
+    else chooseTheme(next);
+  };
+  return <IconButton className="theme-control" icon={next === "dark" ? "moon" : "sun"} label={`Switch to ${next} theme`} onClick={toggle} />;
 }
 
 /** The stored preference is separate from the effective light/dark appearance. */

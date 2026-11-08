@@ -3,9 +3,11 @@
  * ("1 muffin", "1 slice", "4 oz on a plate"). Display only: nutrition math still uses the
  * official serving, and `servings` multiplies it exactly as before.
  *
- * BU halls serve on plates, bowls and mini bowls. Assumed: a mini bowl holds a small side or
- * soup up to about 5 fl oz / ½ cup; a bowl holds soup, stew or cereal-style dishes beyond that.
+ * BU halls serve on plates, bowls and mini bowls. Confirmed by the team: a mini bowl holds about
+ * 1 cup (8 fl oz); a bowl holds soup, stew or cereal-style dishes beyond that.
  */
+const MINI_BOWL_FL_OZ = 8;
+
 export type Dish = "plate" | "bowl" | "mini bowl" | "cup";
 export type Portion = { amount: string; dish: Dish | null };
 
@@ -138,18 +140,18 @@ export function portion(item: Item, servings = 1): Portion {
   if (/^(fl ?oz|fluid ounces?)$/.test(unit)) {
     if (drink) return { amount: `${formatQty(total)} fl oz`, dish: "cup" };
     if (total <= 2) return { amount: `${formatQty(total * 2)} tbsp`, dish: null }; // sauces and dressings
-    return { amount: `${formatQty(total)} fl oz`, dish: total <= 5 ? "mini bowl" : "bowl" };
+    return { amount: `${formatQty(total)} fl oz`, dish: total <= MINI_BOWL_FL_OZ ? "mini bowl" : "bowl" };
   }
   if (/^(tbsp|tablespoons?)$/.test(unit)) return { amount: `${formatQty(total)} tbsp`, dish: null };
   if (/^(cups?)$/.test(unit)) {
     const amount = `${formatQty(total)} cup${total > 1 ? "s" : ""}`;
     if (drink) return { amount, dish: "cup" };
-    if (bowlFood) return { amount, dish: total <= 0.5 ? "mini bowl" : "bowl" };
+    if (bowlFood) return { amount, dish: total * 8 <= MINI_BOWL_FL_OZ ? "mini bowl" : "bowl" };
     return { amount, dish: "plate" };
   }
   if (/^(ounces?|oz|ozw)$/.test(unit)) {
     if (total <= 1) return { amount: `${formatQty(total)} oz`, dish: null }; // toppings, cheese, crumbs
-    return { amount: `${formatQty(total)} oz`, dish: bowlFood ? (total <= 5 ? "mini bowl" : "bowl") : "plate" };
+    return { amount: `${formatQty(total)} oz`, dish: bowlFood ? (total <= MINI_BOWL_FL_OZ ? "mini bowl" : "bowl") : "plate" };
   }
   if (/^(pounds?|lbs?)$/.test(unit)) return { amount: `${formatQty(total * 16)} oz`, dish: bowlFood ? "bowl" : "plate" };
   return { amount: `${formatQty(total)} ${unit}`, dish: null };
