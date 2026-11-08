@@ -11,6 +11,7 @@ TerrierTrays reads the real menus from Boston University's dining halls and help
 - **See what's being served.** West Campus, Warren Towers and Marciano Commons, up to a week ahead, meal by meal, with posted hours.
 - **Get suggested plates.** Set a daily calorie target and TerrierTrays suggests up to three plates from the current meal, using whole dining-hall servings. Don't like a dish? Tap **Not this** and it finds another. **Why this plan?** shows how it chose.
 - **Build your own plate.** Add dishes from the Menu tab and watch the totals add up against your meal's share of the day.
+- **Change your mind.** Replacing a filled plate offers Undo, including the portions you customized. A later manual edit dismisses that Undo.
 - **See the whole day.** Below the meal selector, **Your daily totals** combines planned plates across halls for the selected date, with calories, protein, carbs and fat against your daily targets.
 - **Plan the week.** The Week tab lays out suggested meals for the next seven days at one hall.
 - **Filter for allergies and diets.** Avoid specific allergens, or show only dishes labelled vegetarian, vegan, halal or gluten-free.
@@ -40,6 +41,7 @@ TerrierTrays can only filter on what BU Dining publishes, and **BU leaves the al
 ## Good to know
 
 - **Menus update a few times a day.** Each menu shows when it was last fetched. If it's more than a day old, it's labelled and suggestions pause until fresh data arrives. You can still browse the menu.
+- **Returning to an open tab checks for updates.** A failed update keeps the last valid menus and their original freshness information.
 - **Some nutrition is missing.** When a dish has no calorie data, totals read "at least" and say how many dishes they include.
 - **Daily target rings.** Four circles show planned calories, protein, carbs and fat against your daily targets. Calories use BU's published values. Missing or loading nutrition stays labelled; partial totals use dashed progress and coverage counts.
 - **Planned, not eaten.** Totals are what you planned, not a food log.

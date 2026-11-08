@@ -91,6 +91,9 @@ The daily summary combines planned dishes from all halls for the selected date. 
 - The sole background-motion exception, explicitly requested by the user, is slow translation of the low-contrast gradient layers. Use composited transforms with oversized/clipped layers, constant opacity and no background-position animation. These layers are noninteractive and separate from content, pause during form entry/dialogs, and have a static reduced-motion equivalent. Never translate text or cards for this effect.
 - Do not add healthcare claims, assistant chat, fake proof, reminders, or other unsupported features.
 - Menu rows lead with name and kcal per serving; ordinary nutrition/station/serving detail is available in the existing dish dialog. Keep missing nutrition and item-specific allergy/restriction warnings visible. The unanswered allergy gate is stated once above the list, with Add disabled until answered.
+- Treat unanswered allergy setup as a neutral prerequisite, not a known food conflict. Keep actual diet/allergy conflicts and cross-contact notes distinct.
+- Direct setup actions focus their destination heading. Week presents generated meals as suggestions until applied. Replacing a filled plate offers inline Undo; later manual edits or restriction changes invalidate that recovery action.
+- Mobile uses tighter header/hero/meal spacing, two visible planning shortcuts and compact hall/day controls. Fields remain48px high with16px text; preserve the meal-selector/daily-summary/plate ordering.
 
 ## Product contracts
 
