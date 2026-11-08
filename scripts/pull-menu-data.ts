@@ -11,7 +11,7 @@ if (process.env.VERCEL !== "1" || process.env.TERRIERTRAY_DATA_PINNED === "1") p
 const git = (...args: string[]) => execFileSync("git", args, { stdio: ["ignore", "pipe", "pipe"] }).toString();
 
 try {
-  git("fetch", "--depth=1", "https://github.com/bbrihuang/terriertray.git", "menu-data");
+  git("fetch", "--depth=1", "https://github.com/bbrihuang/terriertrays.git", "menu-data");
   git("--work-tree=public", "checkout", "FETCH_HEAD", "--", "menus");
   console.log("Using published menu data from the menu-data branch.");
 } catch {

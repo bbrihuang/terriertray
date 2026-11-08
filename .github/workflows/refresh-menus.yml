@@ -24,7 +24,7 @@ permissions:
 jobs:
   refresh:
     # Never run with secrets on forks.
-    if: github.repository == 'bbrihuang/terriertray'
+    if: github.repository == 'bbrihuang/terriertrays'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
