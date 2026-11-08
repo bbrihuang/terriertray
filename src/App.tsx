@@ -56,6 +56,7 @@ export default function App() {
   const [openItem, setOpenItem] = useState<MenuItem | null>(null);
   /** Set when a dish is opened from the week view (another day or meal than the plate). */
   const [openFromWeek, setOpenFromWeek] = useState<string | null>(null);
+  const [focusPlateAfterWeek, setFocusPlateAfterWeek] = useState(false);
   const today = nyDate();
 
   useEffect(() => {
@@ -75,6 +76,19 @@ export default function App() {
   const defaultMeal = activeDate === today ? pickMealIndex(meals, nyMinutes()) : 0;
   const meal = meals.find((m) => m.name === mealName) ?? meals[defaultMeal] ?? null;
   const ctx = `${hall?.id}/${activeDate}/${meal?.name}`;
+
+  useEffect(() => {
+    if (!focusPlateAfterWeek) return;
+    if (tab !== "plan" || day?.state === "error") {
+      setFocusPlateAfterWeek(false);
+      return;
+    }
+    const heading = document.getElementById("plate-heading");
+    if (!heading) return; // Another day's menu may still be loading.
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({ behavior: "instant", block: "start" });
+    setFocusPlateAfterWeek(false);
+  }, [focusPlateAfterWeek, tab, ctx, day?.state]);
 
   useEffect(() => {
     if (!hall) return;
@@ -155,6 +169,7 @@ export default function App() {
     setTrays((t) => ({ ...t, [`${hall.id}/${day}/${mealName}`]: picked }));
     setDate(day);
     setMealName(mealName);
+    setFocusPlateAfterWeek(true);
     setTab("plan");
   };
 
@@ -408,7 +423,7 @@ export default function App() {
             ) : tab === "plan" ? (
               <div className="plan-workspace">
                 <section aria-labelledby="plate-heading" className="plate-column">
-                  <h3 id="plate-heading" className="mb-3 scroll-mt-4 text-lg font-semibold tracking-[-0.01em]">
+                  <h3 id="plate-heading" tabIndex={-1} className="mb-3 scroll-mt-4 text-lg font-semibold tracking-[-0.01em]">
                     Your {meal.name.toLowerCase()} plate
                   </h3>
                   {conflicts.length > 0 && (
