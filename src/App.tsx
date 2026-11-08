@@ -245,7 +245,7 @@ export default function App() {
           <div className="hero-copy">
             <p className="hero-date">{activeDate ? formatDate(activeDate) : "Boston University dining"}</p>
             {/* Hidden (space kept) until the day menu loads, so the fallback headline doesn't flash before the real one. */}
-            <div className={heroLoading ? "invisible" : undefined}>
+            <div className={heroLoading ? "invisible" : undefined} aria-hidden={heroLoading || undefined}>
               <Headline statement={headline[0]} feeling={headline[1]} />
             </div>
             {tab === "menu" && <p className="hero-description">{meal ? `${meal.name} · ${dishCount} ${dishCount === 1 ? "dish" : "dishes"}` : "Choose a day and meal"}</p>}

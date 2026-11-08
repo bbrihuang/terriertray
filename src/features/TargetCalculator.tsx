@@ -208,7 +208,7 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
         )}
       </div>
 
-      <p className="mt-4 text-sm text-muted">Typically off by about 111 kcal. Not medical advice.</p>
+      <p className="mt-4 text-sm text-muted">Held-out dataset error: about 111 kcal on average. Not medical advice.</p>
       <details className="mt-2 text-sm text-muted">
         <summary className="min-h-11 cursor-pointer content-center font-semibold text-ink">About this model</summary>
         <ul className="list-disc space-y-1 pl-5">

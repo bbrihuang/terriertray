@@ -104,7 +104,7 @@ export function Pill({ tone = "neutral", children }: { tone?: "neutral" | "ok" |
 export function Headline({ id, statement, feeling, as: Tag = "h2" }: { id?: string; statement: ReactNode; feeling: ReactNode; as?: "h1" | "h2" }) {
   return (
     <Tag id={id} className="page-headline">
-      <span className="block">{statement}</span>
+      <span className="block">{statement}</span>{" "}
       <span className="block text-muted">{feeling}</span>
     </Tag>
   );

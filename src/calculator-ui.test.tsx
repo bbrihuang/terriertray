@@ -63,10 +63,20 @@ describe("model calculator interaction", () => {
       fireEvent.change(input, { target: { value: typed } });
       expect(input.value).toBe(typed);
       expect(input.getAttribute("aria-invalid")).toBe("true");
-      expect(screen.getByText(message)).toBeTruthy();
+      const error = screen.getByText(message);
+      expect(input.getAttribute("aria-describedby")?.split(" ")).toContain(error.id);
       expect(screen.queryByRole("button", { name: /^Apply/ })).toBeNull();
     }
     expect(apply).not.toHaveBeenCalled();
+  });
+
+  it("keeps model limitations available through a native labelled disclosure", () => {
+    render(<TargetCalculator currentKcal={null} onApply={() => {}} />);
+    const summary = screen.getByText("About this model", { selector: "summary" });
+    const disclosure = summary.closest("details");
+    expect(disclosure).toBeTruthy();
+    expect(disclosure?.textContent).toContain("On held-out rows");
+    expect(disclosure?.textContent).toContain("doesn’t mean it’s accurate for you");
   });
 
   it("recomputes the default with body changes, keeps an edited amount, and clears stale Applied feedback", () => {
