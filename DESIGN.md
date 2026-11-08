@@ -24,10 +24,10 @@ colors:
   ok-soft: "#eaf5ee"
   focus: "#34343a"
 typography:
-  family: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
-  headline: "36–52px / 1.08 / 500"
-  figure: "40px / 1 / 500; tabular numerals"
-  section: "20px / 1.4 / 500"
+  family: "Inter Tight, ui-sans-serif, system-ui, sans-serif"
+  headline: "36–52px / 1.08 / 700"
+  figure: "40px / 1 / 600; tabular numerals"
+  section: "20px / 1.4 / 600"
   body: "16px / 1.5 / 400"
   meta: "12–14px / 1.5 / 400"
 rounded:

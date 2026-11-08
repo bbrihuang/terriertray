@@ -34,7 +34,7 @@ Real scraped menus for West, Warren and Marciano (Nov 7–13, 2026). No user res
 Real data only; unknown stays unknown. One primary action per meal. Explain every suggestion. Restrictions are never relaxed automatically.
 
 ## Accessibility & Inclusion
-WCAG 2.2 AA: measured contrast, 44 px targets, 16 px inputs, keyboard and screen-reader paths, reflow at 320 px and 200% text, reduced motion and reduced transparency. Atkinson Hyperlegible Next as the single typeface.
+WCAG 2.2 AA: measured contrast, 44 px targets, 16 px inputs, keyboard and screen-reader paths, reflow at 320 px and 200% text, reduced motion and reduced transparency. Inter Tight as the single typeface, selected by the user after an isolated font preview.
 
 ## Optional target estimates
 The team's trained calorie regression is the only automatic estimator: measurements → prediction → review → explicit Apply (calories only). Runs on the device; inputs are temporary; out-of-range inputs are refused. No clinical accuracy claim.

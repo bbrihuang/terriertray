@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Inter Tight";
+  src: url("/fonts/inter-tight-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 /* White surfaces, BU scarlet, and one atmospheric material around the meal context. */
 :root {
   --page: #f7f7f9;
@@ -94,7 +102,7 @@
 .theme-changing *, .theme-changing *::before, .theme-changing *::after { transition: none !important; }
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --color-page: var(--page);
   --color-surface: var(--surface);
   --color-surface-solid: var(--surface-solid);
@@ -160,13 +168,13 @@
 }
 .hero-copy { min-width: 0; }
 .hero-date { color: var(--hero-copy); font-size: 14px; margin-bottom: 16px; }
-.page-headline { font-size: clamp(36px, 4.2vw, 52px); font-weight: 500; line-height: 1.08; letter-spacing: -.035em; }
+.page-headline { font-size: clamp(36px, 4.2vw, 52px); font-weight: 700; line-height: 1.08; letter-spacing: -.035em; }
 .page-headline > .text-muted { color: var(--hero-muted); }
 .hero-description { max-width: 42ch; color: var(--hero-copy); margin-top: 16px; line-height: 1.5; }
 .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
 .hero-actions .button-primary { min-height: 48px; padding-inline: 24px; }
 .context-card { background: var(--surface); border-radius: 28px; padding: 24px; box-shadow: var(--shadow); }
-.context-heading { display: flex; align-items: center; justify-content: space-between; font-weight: 500; font-size: 20px; margin-bottom: 20px; }
+.context-heading { display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 20px; margin-bottom: 20px; }
 .context-fields { display: grid; gap: 12px; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
 .context-card label { font-size: 14px; font-weight: 400; color: var(--muted); }
 .context-card select { font-size: 16px; border-color: var(--control); padding-inline: 12px 24px; }
@@ -185,7 +193,7 @@
 .plan-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.14fr); gap: 32px; align-items: start; }
 .plate-column { position: sticky; top: 24px; min-width: 0; }
 .suggestions-column { min-width: 0; }
-.app-main h3 { font-size: 20px; font-weight: 500; letter-spacing: -.01em; }
+.app-main h3 { font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
 .plate-card { padding: 28px; }
 .plate-summary { gap: 24px; }
 .macro-cell { background: var(--macro-surface); padding: 16px; }
@@ -195,12 +203,13 @@
 .menu-content { max-width: 880px; }
 .suggestion-card { padding: 28px; }
 .suggestion-heading { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; }
-.suggestion-heading h4 { padding-top: 4px; font-size: 16px; }
+.suggestion-heading h4 { padding-top: 4px; font-size: 16px; font-weight: 600; }
 .suggestion-nutrition { display: flex; flex-direction: column; align-items: flex-end; color: var(--muted); font-size: 14px; }
-.suggestion-nutrition > span:first-child { color: var(--ink); font-size: 28px; font-weight: 500; line-height: 1.2; }
+.suggestion-nutrition > span:first-child { color: var(--ink); font-size: 28px; font-weight: 600; line-height: 1.2; }
 .suggestion-nutrition small { color: var(--muted); font-size: 14px; font-weight: 400; }
 .suggestion-dishes { display: grid; gap: 16px; margin-top: 24px; }
 .dish-name { min-height: 32px; padding-block: 4px; border-radius: 4px; }
+button, .plate-ring .tnum, .macro-cell .text-2xl { font-weight: 600; }
 .suggestion-card > .button-primary, .suggestion-card > .button-secondary { margin-top: 20px; min-height: 48px; }
 .view-settings > div:first-child { max-width: 800px; }
 .view-settings section > .glass { padding: 28px; }
