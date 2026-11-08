@@ -231,6 +231,8 @@ export default function App() {
             ? [`${meal.name} at`, `${hall?.name}.`]
             : ["Your next BU meal,", "a little more you."];
 
+  const heroLoading = tab === "plan" && day?.state === "loading";
+
   const freshTone = !elig ? "neutral" : elig.canRecommend ? "ok" : elig.status === "not_validated" ? "neutral" : "warn";
   const freshLabel = !elig ? "Not checked" : elig.canRecommend ? "Fresh" : elig.status === "missing_date" ? "Not all halls posted" : elig.status === "not_validated" ? "Not checked" : "Older than 24 hours";
 
@@ -245,7 +247,10 @@ export default function App() {
         <div className="planner-hero">
           <div className="hero-copy">
             <p className="hero-date">{activeDate ? formatDate(activeDate) : "Boston University dining"}</p>
-            <Headline statement={headline[0]} feeling={headline[1]} />
+            {/* Hidden (space kept) until the day menu loads, so the fallback headline doesn't flash before the real one. */}
+            <div className={heroLoading ? "invisible" : undefined}>
+              <Headline statement={headline[0]} feeling={headline[1]} />
+            </div>
             <p className="hero-description">{tab === "settings" ? "Your allergies and targets stay in this browser. Set only what you want to use." : tab === "week" ? "Plan with the menus BU has posted. Each meal is checked for freshness and your restrictions." : tab === "menu" ? `${meal ? `${meal.name} · ${dishCount} ${dishCount === 1 ? "dish" : "dishes"}` : "Choose a day and meal"}. Explore the dining hall’s published dishes and nutrition.` : "Real BU menus, matched to your portions and preferences."}</p>
             {tab === "plan" && <div className="hero-actions">
               <Button variant="primary" onClick={openCalculator}>{daily.caloriesKcal !== null ? "Adjust my calorie target" : "Estimate my calories"}<Icon name="arrow" className="size-[18px]" /></Button>
