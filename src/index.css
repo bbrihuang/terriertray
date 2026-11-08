@@ -8,7 +8,7 @@
   font-display: swap;
 }
 
-/* White surfaces, BU scarlet, and one atmospheric material around the meal context. */
+/* Cool porcelain surfaces, BU scarlet actions, and quiet ambient color. */
 :root {
   --page: #f7f7f9;
   --surface: #ffffff;
@@ -40,16 +40,17 @@
   --motion-view: 460ms;
   --motion-nav: 480ms;
   --motion-progress: 650ms;
-  --hero-background: radial-gradient(ellipse at 9% 115%, #edb8bc 0, transparent 52%), radial-gradient(ellipse at 58% 110%, #f9d9c8 0, transparent 45%), radial-gradient(ellipse at 95% 15%, #e4e7f7 0, transparent 50%), #f1eef3;
-  --hero-copy: #514b55;
-  --hero-muted: #716671;
+  --hero-background: radial-gradient(ellipse at 95% 0%, #e4ecf7 0, transparent 62%), radial-gradient(ellipse at 0% 100%, #eeeaf6 0, transparent 58%), linear-gradient(120deg, #ffffff 12%, #f7f8fc 100%);
+  --hero-copy: #4d5261;
+  --hero-muted: #656978;
+  --ambient-background: radial-gradient(ellipse at 4% 24%, #e4ecf7 0, transparent 60%), radial-gradient(ellipse at 96% 80%, #eeeaf6 0, transparent 60%);
   --nav: #eeedf1;
   --nav-hover: #e4e1e7;
   --icon-well: #f3f1f5;
   --selected-well: #f8dfe0;
   --macro-surface: #f6f5f8;
   --empty-surface: #f7f6f8;
-  --onboarding-background: radial-gradient(ellipse at 100% 100%, #f9e7e1, transparent 70%), #ffffff;
+  --onboarding-background: radial-gradient(ellipse at 100% 100%, #eef2fa, transparent 70%), #ffffff;
   --action-hover: #ad0000;
   --selection: #f5c5c7;
   --on-selection: #202024;
@@ -86,6 +87,7 @@
   --hero-background: radial-gradient(ellipse at 9% 115%, #62313b 0, transparent 52%), radial-gradient(ellipse at 58% 110%, #4d3534 0, transparent 45%), radial-gradient(ellipse at 95% 15%, #343347 0, transparent 50%), #29242e;
   --hero-copy: #d9cdd8;
   --hero-muted: #c5adbf;
+  --ambient-background: radial-gradient(ellipse at 4% 24%, #313041 0, transparent 60%), radial-gradient(ellipse at 96% 80%, #252f36 0, transparent 60%);
   --nav: #252229;
   --nav-hover: #3a353f;
   --icon-well: #343039;
@@ -136,7 +138,7 @@
 
 @layer base {
   html { background: var(--page); color: var(--ink); -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; scroll-padding-top: 24px; }
-  body { @apply font-sans antialiased; font-size: 1rem; line-height: 1.5; }
+  body { @apply font-sans antialiased; min-height: 100dvh; isolation: isolate; font-size: 1rem; line-height: 1.5; }
   ::selection { background: var(--selection); color: var(--on-selection); }
   :focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
   button, a, input, select, summary { touch-action: manipulation; }
@@ -151,6 +153,16 @@
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 20px; border: 3px solid var(--page); }
 }
+
+/* Only a background layer changes opacity; content never pans, scales or shifts. */
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: var(--ambient-background); opacity: .55; }
+@media (prefers-reduced-motion: no-preference) {
+  body::before { animation: ambient-color 32s ease-in-out infinite alternate; }
+  @keyframes ambient-color { from { opacity: .35; } to { opacity: .7; } }
+}
+body:has(input:focus, select:focus)::before,
+html:has(dialog[open]) body::before { animation-play-state: paused; }
+@media (forced-colors: active) { body::before { display: none; } }
 
 @utility tnum { font-variant-numeric: tabular-nums; }
 /* Shared primitive for existing feature screens, now an opaque white surface. */

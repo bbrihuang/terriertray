@@ -25,7 +25,7 @@ Standing in line or walking to a hall, on a small screen and possibly in bright 
 Menu data refreshes a few times a day, not live. About half of dishes lack allergen lists. Micronutrients are available only as % Daily Value. No accounts and no server-side profile.
 
 ## Brand Commitments
-TerrierTrays name. Red and white student identity: white surfaces, red actions and accents, soft red ambient light, and readable text (see DESIGN.md). The user-provided square TerrierTrays mascot logo overrides the earlier no-mascot rule; the unofficial BU notice remains. No AI assistant imagery or "safe for you" claims. The logo links home to Plan without clearing current planning state.
+TerrierTrays name. Red and white student identity: cool porcelain surfaces, pale blue/lavender atmosphere, scarlet actions and accents, and readable text (see DESIGN.md). The heavy red light-mode gradient was rejected by the user. The user-provided square TerrierTrays mascot logo overrides the earlier no-mascot rule; the unofficial BU notice remains. No AI assistant imagery or "safe for you" claims. The logo links home to Plan without clearing current planning state.
 
 ## Evidence on Hand
 Real scraped menus for West, Warren and Marciano (Nov 7–13, 2026). No user research. *(inferred)*
@@ -39,6 +39,8 @@ The approved daily summary sits below the meal selector and combines planned pla
 WCAG 2.2 AA: measured contrast, 44 px targets, 16 px inputs, keyboard and screen-reader paths, reflow at 320 px and 200% text, reduced motion and reduced transparency. Inter Tight as the single typeface, selected by the user after an isolated font preview.
 
 A gentle introduction and deliberate navigation, dialog, plate and ring transitions explain arrival and change. Typing and field focus never replay page animation, and plate optimization does not run in Settings. No decorative loops; reduced motion preserves the same information without movement.
+
+The user's explicit background-animation request permits one quiet exception: a fixed, low-contrast gradient layer that changes opacity over a 64-second round trip. Content stays stationary, form focus/dialogs pause it, and reduced motion keeps it static.
 
 ## Optional target estimates
 The team's unchanged trained calorie regression is the only calorie estimator: measurements → prediction → planning adjustment → review → explicit Apply. Feet, inches and pounds appear first; unit changes convert existing values. Runs on the device; inputs are temporary; out-of-range inputs are refused. No clinical accuracy claim.

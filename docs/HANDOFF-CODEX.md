@@ -5,6 +5,10 @@ Stack: React 19 + TypeScript + Vite + Tailwind 4, static on Vercel. All planning
 
 Read first: `PRODUCT.md`, `DESIGN.md`, `docs/DEVELOPMENT.md` (developer guide), `docs/REFERENCE_DATA.md`. `README.md` is the user-facing guide.
 
+## Background appearance update — November 8, 2026
+
+The user rejected the heavy red light-mode gradient and requested a very subtle animated background. Light mode now uses porcelain, pale blue and lavender, with scarlet reserved for actions/progress; the existing dark hero remains intact. A fixed, noninteractive `body::before` gradient changes opacity from 0.35 to 0.7 over 32 seconds in each direction. It does not transform content, animate gradient positions or run JavaScript timers. Input/select focus and open dialogs pause it without restarting; reduced motion keeps a static 0.55 opacity, and forced colors hides the layer. Working cards remain opaque. Contrast review, light/dark browser checks at desktop/320px, focused-input pause/resume readings, direct Vite build and whitespace checks passed. No models, datasets, scraper, planner or profile logic changed. This appearance commit is local until the user asks to push.
+
 ## Motion and daily-summary repair — November 8, 2026
 
 The user reported rushed/replaying animation and a cluttered summary. This repair supersedes the earlier outline indicator and derived-energy summary:

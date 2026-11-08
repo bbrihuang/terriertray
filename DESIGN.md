@@ -1,6 +1,6 @@
 ---
 name: TerrierTrays
-description: A BU dining planner with white surfaces and a soft scarlet atmosphere
+description: A BU dining planner with cool porcelain surfaces and scarlet actions
 colors:
   page: "#f7f7f9"
   surface: "#ffffff"
@@ -12,10 +12,14 @@ colors:
   on-action: "#ffffff"
   accent-ink: "#b00000"
   accent-soft: "#fff0f0"
-  hero-blush: "#edb8bc"
-  hero-peach: "#f9d9c8"
-  hero-ice: "#e4e7f7"
-  hero-ground: "#f1eef3"
+  hero-lavender: "#eeeaf6"
+  hero-ice: "#e4ecf7"
+  hero-ground: "#f7f8fc"
+  hero-copy: "#4d5261"
+  hero-muted: "#656978"
+  onboarding-ice: "#eef2fa"
+  ambient-dark-violet: "#313041"
+  ambient-dark-slate: "#252f36"
   danger: "#a72821"
   danger-soft: "#fff0ed"
   warn: "#86420e"
@@ -57,7 +61,7 @@ Visual inspiration: [AI Healthcare Assistant App](https://dribbble.com/shots/278
 
 Observed reference traits: broad rounded white panels, large two-tone headings, circular line-icon controls, compact numeric summaries, generous grouping, and a soft multicolor gradient material.
 
-Adaptation choices: the user explicitly requested the gradient quality alongside BU scarlet and white. Confine the blush, peach, and ice-blue wash to the meal-context hero. Working surfaces stay opaque; scarlet marks primary actions. There are no drifting blobs or frosted cards.
+Adaptation choices: the user requested the reference's gradient quality alongside BU scarlet and white, then rejected the heavy red gradient in light mode. Use a bright porcelain hero with pale ice blue and lavender; reserve scarlet for actions, progress and selection. Working cards stay opaque. A fixed ambient gradient behind the page slowly changes opacity over 32 seconds in each direction, without panning or moving content. It pauses while inputs/selects are focused or a dialog is open and stays static with reduced motion. Dark mode keeps its existing hero material with a quiet violet/slate ambient layer. There are no drifting blobs or frosted cards.
 
 The user-provided square TerrierTrays mascot logo is the approved brand asset, replacing the earlier no-mascot direction. Keep its original design and text; do not substitute official BU artwork or imply endorsement. The unofficial student-project notice remains visible.
 
@@ -83,6 +87,7 @@ The daily summary combines planned dishes from all halls for the selected date. 
 - Keep body and label contrast at least 4.5:1 over their actual backgrounds; use words with semantic status colors.
 - Selected meals use a blush row and scarlet icon well. Published hours and planned totals remain visible.
 - Use a 700ms header/hero introduction with 80–160ms grouping delays, 460ms content arrivals, a 480ms clipped navigation pill and 650ms target-ring progress. The pill's decorative white labels counter-translate so they stay aligned and retain contrast. Capture each view's animation choice on mount: field focus or typing must never toggle document-wide motion styles. Keyboard navigation and active range controls are immediate. No looping decoration. Reduced motion reaches the same final state without movement.
+- The sole background-motion exception, explicitly requested by the user, is the low-contrast ambient opacity cycle. Its layer is noninteractive and separate from content, pauses during form entry/dialogs, and has a static reduced-motion equivalent. Never animate gradient positions, text or cards for this effect.
 - Do not add healthcare claims, assistant chat, fake proof, reminders, or other unsupported features.
 - Menu rows lead with name and kcal per serving; ordinary nutrition/station/serving detail is available in the existing dish dialog. Keep missing nutrition and item-specific allergy/restriction warnings visible. The unanswered allergy gate is stated once above the list, with Add disabled until answered.
 
