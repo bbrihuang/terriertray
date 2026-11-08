@@ -30,7 +30,9 @@ const versus = (actual: number, target: number | null, unit: string) =>
   target === null ? formatAmount(actual, unit) : `${formatAmount(actual, unit)} of ${formatAmount(target, unit)}`;
 
 export function Week({ index, hall, start, profile, now, onUse, onSetup, onOpen }: Props) {
-  const dates = useMemo(() => weekDates(start), [start]);
+  // Stop at the last day BU has posted, instead of showing empty days beyond the collected menus.
+  const lastPosted = hall.dates.map((d) => d.date).sort().at(-1) ?? start;
+  const dates = useMemo(() => weekDates(start).filter((d, i) => i === 0 || d <= lastPosted), [start, lastPosted]);
   const fileByDate = new Map(hall.dates.map((d) => [d.date, d.file]));
   const loads = useDayMenus(dates.flatMap((d) => fileByDate.get(d) ?? []), index.dataVersion);
   const [excluded, setExcluded] = useState<Record<string, string[]>>({});
@@ -93,7 +95,7 @@ export function Week({ index, hall, start, profile, now, onUse, onSetup, onOpen 
 
   return (
     <div>
-      <h3 className="text-lg font-semibold tracking-[-0.01em] text-balance">Seven days from {formatDate(start, "short")}</h3>
+      <h3 className="text-lg font-semibold tracking-[-0.01em] text-balance">{dates.length === 7 ? `Seven days from ${formatDate(start, "short")}` : `${formatDate(start, "short")} to ${formatDate(dates.at(-1)!, "short")}, the days BU has posted`}</h3>
       <p className="mt-1 text-sm text-muted">
         Each suggestion aims for {mealsPerDay === 1 ? "your whole-day targets" : `1/${mealsPerDay} of your daily targets`}. Use a meal to add it to your plan.
       </p>
