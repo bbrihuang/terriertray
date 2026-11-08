@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import { Button } from "../components/ui";
 import model from "../lib/calorie-model.json";
-import { ACTIVITY_LEVELS, applyAdjustment, feetAndInchesToCm, GENDERS, PLANNING_GOALS, poundsToKg, predictCalories, RANGES, type Gender } from "../lib/target-calculator";
+import { ACTIVITY_LEVELS, defaultAdjustmentKcal, feetAndInchesToCm, GENDERS, GOALS, planTarget, poundsToKg, predictCalories, RANGES, type Gender, type Goal } from "../lib/target-calculator";
 
 const field = "mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink tnum";
 
@@ -19,7 +19,8 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
   const [weight, setWeight] = useState("");
   const [gender, setGender] = useState<"" | Gender>("");
   const [activity, setActivity] = useState("");
-  const [adjust, setAdjust] = useState(0);
+  const [goal, setGoal] = useState<Goal>("maintain");
+  const [amount, setAmount] = useState<string | null>(null);
   const [scope, setScope] = useState(false);
   const [applied, setApplied] = useState<number | null>(null);
 
@@ -36,7 +37,11 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
       problem = err instanceof Error ? err.message : "Check your inputs.";
     }
   }
-  const target = prediction === null ? null : applyAdjustment(prediction, adjust);
+  // An unedited amount (null) follows the current estimate; an edited one is kept across goal and body changes.
+  const amountText = amount ?? (prediction === null ? "" : String(defaultAdjustmentKcal(prediction)));
+  const plan = prediction === null ? null : planTarget(prediction, goal, amountText);
+  const amountError = plan && "error" in plan ? plan.error : null;
+  const signed = (n: number) => `${n < 0 ? "−" : n > 0 ? "+" : ""}${Math.abs(n).toLocaleString("en-US")}`;
   const edit = <T,>(set: (v: T) => void) => (v: T) => {
     set(v);
     setApplied(null);
@@ -139,27 +144,62 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
               <span className="text-[2.125rem] leading-none font-semibold tracking-[-0.03em]">{Math.round(prediction).toLocaleString("en-US")}</span>
               <span className="text-sm text-muted"> kcal per day</span>
             </p>
-            <label htmlFor={`${id}-adjust`} className="mt-4 block font-semibold">Planning goal</label>
-            <select id={`${id}-adjust`} className={field} value={adjust} onChange={(e) => edit(setAdjust)(Number(e.target.value))}>
-              {PLANNING_GOALS.map(({ adjustmentPercent, label }) => (
-                <option key={adjustmentPercent} value={adjustmentPercent}>{label}</option>
-              ))}
-            </select>
-            <p className="mt-2 text-sm text-muted">Goals adjust the model estimate; they don’t predict weight or muscle change. Maintaining uses the estimate unchanged, not a measured maintenance level.</p>
-            <p className="mt-3 tnum">
-              Daily calorie target to apply: <span className="font-semibold">{target!.toLocaleString("en-US")} kcal</span>
-            </p>
-            <p className="mt-1 text-sm text-muted tnum">{adjust === 0 ? "No change from the model estimate" : `${Math.abs(target! - Math.round(prediction)).toLocaleString("en-US")} ${adjust > 0 ? "more" : "fewer"} kcal/day than the model estimate (${adjust > 0 ? "+" : "−"}${Math.abs(adjust)}%)`}</p>
-            <Button
-              variant="primary"
-              className="mt-3"
-              onClick={() => {
-                onApply(target!);
-                setApplied(target);
-              }}
-            >
-              Apply {target!.toLocaleString("en-US")} kcal as my daily target
-            </Button>
+            <fieldset className="mt-4">
+              <legend className="font-semibold">Planning goal</legend>
+              <div className="mt-1 flex flex-wrap gap-x-6">
+                {GOALS.map(({ value, label }) => (
+                  <label key={value} className="flex min-h-11 items-center gap-3">
+                    <input type="radio" name={`${id}-goal`} checked={goal === value} onChange={() => edit(setGoal)(value)} className="size-5 accent-[var(--brand)]" />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            {goal === "maintain" ? (
+              <p className="mt-1 text-sm text-muted">Uses the model estimate unchanged. That’s a planning label, not a measured maintenance level.</p>
+            ) : (
+              <div className="mt-2">
+                <label htmlFor={`${id}-amount`} className="block font-semibold">
+                  Your planning adjustment <span className="font-normal text-muted">(kcal/day {goal === "cut" ? "fewer" : "more"})</span>
+                </label>
+                <input
+                  id={`${id}-amount`}
+                  className={`${field} max-w-40`}
+                  type="text"
+                  inputMode="numeric"
+                  value={amountText}
+                  onChange={(e) => edit(setAmount)(e.target.value)}
+                  aria-invalid={amountError !== null || undefined}
+                  aria-describedby={`${id}-amount-help`}
+                  autoComplete="off"
+                />
+                <p id={`${id}-amount-help`} className={`mt-1 text-sm ${amountError ? "font-semibold text-danger" : "text-muted"}`}>
+                  {amountError ?? `${amount === null ? "Starts at 10% of the estimate; edit it to suit your plan. " : ""}Changes the estimate; does not predict weight change.`}
+                </p>
+              </div>
+            )}
+            {plan && "target" in plan && (
+              <>
+                <dl className="mt-3 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 tnum">
+                  <dt className="text-muted">Model estimate</dt>
+                  <dd className="text-right">{plan.estimate.toLocaleString("en-US")}</dd>
+                  <dt className="text-muted">Your planning adjustment</dt>
+                  <dd className="text-right">{signed(plan.adjustment)}</dd>
+                  <dt className="border-t border-control pt-1 font-semibold">Proposed daily target</dt>
+                  <dd className="border-t border-control pt-1 text-right font-semibold">{plan.target.toLocaleString("en-US")} kcal</dd>
+                </dl>
+                <Button
+                  variant="primary"
+                  className="mt-3"
+                  onClick={() => {
+                    onApply(plan.target);
+                    setApplied(plan.target);
+                  }}
+                >
+                  Apply {plan.target.toLocaleString("en-US")} kcal as my daily target
+                </Button>
+              </>
+            )}
             <p className="mt-2 text-sm text-muted">Only calories change. Your protein, carb and fat targets stay as you set them; the model doesn’t predict those.</p>
             {applied !== null && applied === currentKcal && (
               <p role="status" className="mt-2 font-semibold text-ok">Applied. Plan and Week now aim for {applied.toLocaleString("en-US")} kcal a day.</p>

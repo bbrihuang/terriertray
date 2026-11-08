@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { applyAdjustment, defaultAdjustmentKcal, feetAndInchesToCm, planTarget, poundsToKg, predictCalories, RANGES, unsupportedReason, type ModelInput } from "../src/lib/target-calculator";
+import { defaultAdjustmentKcal, feetAndInchesToCm, planTarget, poundsToKg, predictCalories, RANGES, unsupportedReason, type ModelInput } from "../src/lib/target-calculator";
 import { mealShare, planMeal } from "../src/lib/planner";
 import { DEFAULT_RESTRICTIONS } from "../src/lib/restrictions";
 import { DayMenu } from "../src/lib/schema";
@@ -49,12 +49,6 @@ describe("input encoding and supported range", () => {
     expect(feetAndInchesToCm(5, 9)).toBeCloseTo(175.26, 6);
   });
 
-  it("keeps a user-chosen adjustment separate from the model's output", () => {
-    const kcal = predictCalories(base);
-    expect(applyAdjustment(kcal, 0)).toBe(Math.round(kcal));
-    expect(applyAdjustment(kcal, -10)).toBe(Math.round(kcal * 0.9));
-    expect(predictCalories(base)).toBe(kcal); // prediction unchanged by adjustments
-  });
 });
 
 describe("planTarget: goal direction and editable kcal adjustment", () => {
@@ -96,7 +90,7 @@ describe("applied targets drive the planner", () => {
   const restrictions = { ...DEFAULT_RESTRICTIONS, allergyAnswer: "none" as const };
 
   it("a model-derived daily calorie target produces a meal plan near its share", () => {
-    const daily = { caloriesKcal: applyAdjustment(predictCalories({ age: 25, gender: "Female", heightCm: 165, weightKg: 60, activity: 1 }), 0), proteinG: null, carbsG: null, fatG: null };
+    const daily = { caloriesKcal: Math.round(predictCalories({ age: 25, gender: "Female", heightCm: 165, weightKg: 60, activity: 1 })), proteinG: null, carbsG: null, fatG: null };
     const share = mealShare(daily, 3);
     const result = planMeal(dinner, share, restrictions);
     if (result.kind !== "ok") throw new Error("expected options");

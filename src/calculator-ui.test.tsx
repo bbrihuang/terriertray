@@ -21,7 +21,7 @@ describe("model calculator interaction", () => {
     const fetched = vi.spyOn(globalThis, "fetch");
     render(<TargetCalculator currentKcal={null} onApply={apply} />);
     fill();
-    expect(screen.getByText("2,718")).toBeTruthy(); // the trained pipeline's 2717.80 kcal, rounded for display
+    expect(screen.getAllByText("2,718")).toHaveLength(2); // headline and breakdown: the trained pipeline's 2717.80 kcal, rounded for display
     expect(apply).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Apply 2,718 kcal as my daily target" }));
     expect(apply).toHaveBeenCalledWith(2718);
@@ -31,18 +31,71 @@ describe("model calculator interaction", () => {
     fetched.mockRestore();
   });
 
-  it("names the goal and keeps its calorie difference separate from the model prediction", () => {
+  it("shows estimate, signed adjustment and proposed target together, with goal setting the direction", () => {
     const apply = vi.fn();
     render(<TargetCalculator currentKcal={null} onApply={apply} />);
     fill();
-    fireEvent.change(screen.getByLabelText(/^Planning goal/), { target: { value: "-10" } });
-    expect(screen.getByText("2,718")).toBeTruthy(); // prediction itself unchanged
-    expect(screen.getByText(/272 fewer kcal\/day than the model estimate/)).toBeTruthy();
-    expect(screen.getByRole("option", { name: /Cutting/ })).toBeTruthy();
-    expect(screen.getByRole("option", { name: /Bulking/ })).toBeTruthy();
-    expect(screen.getByRole("option", { name: /Maintaining/ })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Apply 2,446 kcal as my daily target" }));
-    expect(apply).toHaveBeenCalledWith(2446);
+    expect(screen.getByText(/Uses the model estimate unchanged/)).toBeTruthy();
+    expect(screen.queryByLabelText(/^Your planning adjustment/)).toBeNull(); // no hidden adjustment while maintaining
+    fireEvent.click(screen.getByLabelText("Cutting"));
+    expect(screen.getByLabelText<HTMLInputElement>(/^Your planning adjustment/).value).toBe("272"); // the earlier 10% default
+    expect(screen.getByRole("button", { name: "Apply 2,446 kcal as my daily target" })).toBeTruthy();
+    fireEvent.change(screen.getByLabelText(/^Your planning adjustment/), { target: { value: "400" } });
+    expect(screen.getAllByText("2,718")).toHaveLength(2); // prediction itself unchanged
+    expect(screen.getByText("−400")).toBeTruthy();
+    expect(screen.getByText("2,318 kcal")).toBeTruthy();
+    fireEvent.click(screen.getByLabelText("Bulking"));
+    expect(screen.getByText("+400")).toBeTruthy(); // edited magnitude kept, direction flipped
+    fireEvent.click(screen.getByLabelText("Maintaining"));
+    expect(screen.getByRole("button", { name: "Apply 2,718 kcal as my daily target" })).toBeTruthy();
+    fireEvent.click(screen.getByLabelText("Cutting"));
+    fireEvent.click(screen.getByRole("button", { name: "Apply 2,318 kcal as my daily target" }));
+    expect(apply).toHaveBeenCalledWith(2318);
+  });
+
+  it("explains invalid adjustments, keeps what was typed and blocks Apply", () => {
+    const apply = vi.fn();
+    render(<TargetCalculator currentKcal={null} onApply={apply} />);
+    fill();
+    fireEvent.click(screen.getByLabelText("Cutting"));
+    const input = screen.getByLabelText<HTMLInputElement>(/^Your planning adjustment/);
+    for (const [typed, message] of [["", /Enter an adjustment/], ["-300", /minus sign/], ["12.5", /whole number/], ["abc", /whole number/], ["5000", /no calories/]] as const) {
+      fireEvent.change(input, { target: { value: typed } });
+      expect(input.value).toBe(typed);
+      expect(input.getAttribute("aria-invalid")).toBe("true");
+      expect(screen.getByText(message)).toBeTruthy();
+      expect(screen.queryByRole("button", { name: /^Apply/ })).toBeNull();
+    }
+    expect(apply).not.toHaveBeenCalled();
+  });
+
+  it("recomputes the default with body changes, keeps an edited amount, and clears stale Applied feedback", () => {
+    let current: number | null = null;
+    const { rerender } = render(<TargetCalculator currentKcal={current} onApply={(k) => (current = k)} />);
+    fill();
+    fireEvent.click(screen.getByLabelText("Bulking"));
+    fireEvent.click(screen.getByRole("button", { name: "Apply 2,990 kcal as my daily target" }));
+    rerender(<TargetCalculator currentKcal={current} onApply={(k) => (current = k)} />);
+    expect(screen.getByRole("status").textContent).toContain("2,990");
+    fireEvent.change(screen.getByLabelText(/^Weight/), { target: { value: "80" } });
+    expect(screen.queryByRole("status")).toBeNull();
+    const auto = screen.getByLabelText<HTMLInputElement>(/^Your planning adjustment/).value;
+    expect(auto).not.toBe("272"); // unedited default follows the new estimate
+    fireEvent.change(screen.getByLabelText(/^Your planning adjustment/), { target: { value: "150" } });
+    fireEvent.change(screen.getByLabelText(/^Weight/), { target: { value: "70" } });
+    expect(screen.getByLabelText<HTMLInputElement>(/^Your planning adjustment/).value).toBe("150");
+    expect(screen.getByRole("button", { name: "Apply 2,868 kcal as my daily target" })).toBeTruthy();
+  });
+
+  it("a remount (Settings' delete-and-reset) clears measurements, goal and adjustment", () => {
+    const { unmount } = render(<TargetCalculator key={0} currentKcal={null} onApply={() => {}} />);
+    fill();
+    fireEvent.click(screen.getByLabelText("Cutting"));
+    fireEvent.change(screen.getByLabelText(/^Your planning adjustment/), { target: { value: "400" } });
+    unmount();
+    render(<TargetCalculator key={1} currentKcal={null} onApply={() => {}} />);
+    expect(screen.getByLabelText<HTMLInputElement>(/^Age/).value).toBe("");
+    expect(screen.queryByLabelText(/^Your planning adjustment/)).toBeNull();
   });
 
   it("removes the preview and explains when an input is outside the dataset or scope is unconfirmed", () => {
