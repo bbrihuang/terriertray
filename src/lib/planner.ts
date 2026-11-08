@@ -168,6 +168,14 @@ export function planMeal(
     if (picked.length === want) break;
   }
 
+  if (picked.length === 0) {
+    return {
+      kind: "infeasible",
+      reason: "A suggested plate needs at least two different dishes with complete nutrition labels. Try another meal or dining hall, bring back set-aside dishes, or add dishes from the Menu.",
+      excluded,
+      notes,
+    };
+  }
   return { kind: "ok", options: picked, considered: candidates.length, excluded, notes };
 }
 

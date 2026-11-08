@@ -56,6 +56,8 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
   };
 
   const verdict = item ? checkRestrictions(item, restrictions) : null;
+  const setupOnly = verdict?.allergen === "not_checked" && verdict.reasons.length === 1;
+  const hasConflict = verdict !== null && !verdict.allowed && !setupOnly;
   // Facility / may-contain statements printed inside the ingredient text.
   const crossContact = [...new Set((item?.ingredients ?? "").match(/[^[(]*(?:processed in a facility|may contain|manufactured on)[^\])]*/gi) ?? [])]
     .map((s) => s.trim().replace(/^[,.\s]+/, ""))
@@ -84,10 +86,10 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
             <IconButton label="Close dish details" icon="close" onClick={() => ref.current?.close()} />
           </div>
 
-          <section aria-label="Restrictions" className={`mt-4 rounded-[var(--radius-inner)] border p-4 ${verdict.allowed ? "border-line bg-sunken" : "border-danger/30 bg-danger-soft"}`}>
+          <section aria-label="Restrictions" className={`mt-4 rounded-[var(--radius-inner)] border p-4 ${hasConflict ? "border-danger/30 bg-danger-soft" : "border-line bg-sunken"}`}>
             <p className="flex items-center gap-2 font-semibold">
-              <Icon name={verdict.allowed ? "info" : "alert"} className={`size-5 ${verdict.allowed ? "" : "text-danger"}`} />
-              {verdict.allowed ? allergenHeadline(verdict, restrictions) : "Doesn't fit your restrictions"}
+              <Icon name={hasConflict ? "alert" : "info"} className={`size-5 ${hasConflict ? "text-danger" : ""}`} />
+              {setupOnly ? "Answer the allergy question before adding" : hasConflict ? "Doesn't fit your restrictions" : allergenHeadline(verdict, restrictions)}
             </p>
             {verdict.reasons.length > 0 && (
               <ul className="mt-2 list-disc pl-6">

@@ -106,6 +106,7 @@ describe("compact menu interaction", () => {
     expect(add.disabled).toBe(true);
     fireEvent.click(add);
     fireEvent.click(within(row).getByRole("button", { name: /^Lemon lentils(?:$| \d)/ }));
+    expect(within(screen.getByRole("dialog")).getByText("Doesn't fit your restrictions")).toBeTruthy();
     const detailAdd = within(screen.getByRole("dialog")).getByRole<HTMLButtonElement>("button", { name: "Add to plate" });
     expect(detailAdd.disabled).toBe(true);
     fireEvent.click(detailAdd);
@@ -121,10 +122,50 @@ describe("compact menu interaction", () => {
     expect(screen.getByRole<HTMLButtonElement>("button", { name: /doesn't fit your restrictions/ }).disabled).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: /^Lemon lentils(?:$| \d)/ }));
     expect(screen.getByRole("dialog", { name: "Lemon lentils" })).toBeTruthy();
+    expect(within(screen.getByRole("dialog")).getByText("Doesn't fit your restrictions")).toBeTruthy();
+    expect(within(screen.getByRole("dialog")).getByText("Not labeled Vegan by the source")).toBeTruthy();
     expect(within(screen.getByRole("dialog")).getByRole<HTMLButtonElement>("button", { name: "Add to plate" }).disabled).toBe(true);
     expect(screen.getByLabelText("Servings on plate").textContent).toBe("0");
   });
 
+  it.each(["unanswered", "some"] as const)("describes incomplete allergy setup without claiming a dish conflict (%s)", (allergyAnswer) => {
+    const restrictions: Restrictions = { ...DEFAULT_RESTRICTIONS, allergyAnswer };
+    const unknown = { ...lentils, allergens: null, allergenStatus: "reason_not_recorded" as const, ingredients: "Lentils (processed in a facility that may contain milk)" };
+    render(<Menu items={[unknown]} restrictions={restrictions} />);
+    const row = screen.getByRole("listitem");
+    const add = within(row).getByRole<HTMLButtonElement>("button", { name: "Answer the allergy question before adding Lemon lentils" });
+    expect(add.disabled).toBe(true);
+    fireEvent.click(add);
+    fireEvent.click(within(row).getByRole("button", { name: /^Lemon lentils(?:$| \d)/ }));
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText("Answer the allergy question before adding")).toBeTruthy();
+    expect(within(dialog).queryByText("Doesn't fit your restrictions")).toBeNull();
+    expect(within(dialog).getByText(/Source allergens: not provided for this dish/)).toBeTruthy();
+    expect(within(dialog).getByText(/Ingredient notes:/).parentElement?.textContent).toContain("may contain milk");
+    const detailAdd = within(dialog).getByRole<HTMLButtonElement>("button", { name: "Add to plate" });
+    expect(detailAdd.disabled).toBe(true);
+    fireEvent.click(detailAdd);
+    expect(screen.getByLabelText("Servings on plate").textContent).toBe("0");
+  });
+
+  it("clears an unavailable station without losing search or restriction filtering when the meal changes", () => {
+    const restrictions = { ...none, requireTags: ["Vegan"] };
+    const { rerender } = render(<Menu items={[lentils]} restrictions={restrictions} />);
+    fireEvent.change(screen.getByLabelText("Search this meal"), { target: { value: "tomato" } });
+    fireEvent.change(screen.getByLabelText("Station"), { target: { value: "Plant kitchen" } });
+    fireEvent.click(screen.getByLabelText("Show only dishes that fit my restrictions"));
+    const newItems = [
+      { ...lentils, id: "tofu", name: "Tomato tofu", station: "Grill" },
+      { ...lentils, id: "soup", name: "Tomato soup", station: "Soup kitchen", dietTags: [] },
+    ];
+    rerender(<Menu items={newItems} restrictions={restrictions} />);
+    expect(screen.getByLabelText<HTMLSelectElement>("Station").value).toBe("");
+    expect(screen.getByLabelText<HTMLInputElement>("Search this meal").value).toBe("tomato");
+    expect(screen.getByLabelText<HTMLInputElement>("Show only dishes that fit my restrictions").checked).toBe(true);
+    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: /^Tomato tofu(?:$| \d)/ })).toBeTruthy();
+    expect(screen.getByText("1 of 2 dishes shown, 1 hidden")).toBeTruthy();
+  });
   it("combines station and name or description search and retains the restriction filter", () => {
     const soup = { ...lentils, id: "soup", name: "Tomato soup", station: "Soup kitchen", description: "Basil broth", dietTags: [] };
     const rice = { ...lentils, id: "rice", name: "Brown rice", description: "Plain grains" };

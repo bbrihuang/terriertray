@@ -170,6 +170,34 @@ describe("planner on the real Warren Nov 7 menu", () => {
     expect(result.options[0]!.far).toBe(true);
   });
 
+  it.each([2, 3])("reports no distinct plate instead of empty success for %s duplicate dish candidates", (count) => {
+    const duplicates = Array.from({ length: count }, (_, index) => item({ id: `rice-${index}`, name: index % 2 ? "brown rice" : "Brown Rice", station: `Station ${index}` }));
+    const result = planMeal(duplicates, targets, noAllergies);
+    expect(result.kind).toBe("infeasible");
+    if (result.kind !== "infeasible") throw new Error("Expected an honest unavailable result");
+    expect(result.reason).toMatch(/different dishes/i);
+    expect(result.reason).toMatch(/Menu/);
+    expect(result.excluded).toEqual({ restricted: 0, incompleteNutrition: 0, buildYourOwn: 0, tooSmall: 0, userExcluded: 0 });
+  });
+
+  it("keeps exclusions and recovers distinct suggestions when a set-aside dish is restored", () => {
+    const dishes = [
+      item({ id: "rice-a", name: "Brown Rice" }),
+      item({ id: "rice-b", name: "brown rice", station: "True Balance" }),
+      item({ id: "beans", name: "Black beans", station: "Vegan" }),
+    ];
+    const unavailable = planMeal(dishes, targets, noAllergies, { exclude: new Set(["beans"]) });
+    expect(unavailable.kind).toBe("infeasible");
+    expect(unavailable.excluded.userExcluded).toBe(1);
+    const restored = planMeal(dishes, targets, noAllergies);
+    expect(restored.kind).toBe("ok");
+    if (restored.kind !== "ok") throw new Error("Expected suggestions after restoring beans");
+    expect(restored.options.length).toBeGreaterThan(0);
+    for (const option of restored.options) {
+      expect(option.entries.some(({ item }) => item.id === "beans")).toBe(true);
+      expect(option.entries.filter(({ item }) => /rice/i.test(item.name))).toHaveLength(1);
+    }
+  });
   it("notes inconsistent macro targets without rewriting them", () => {
     expect(validateTargets({ caloriesKcal: 500, proteinG: 60, carbsG: 100, fatG: 40 })[0]).toMatch(/add up to about 1000 kcal/);
     expect(validateTargets(targets)).toEqual([]);

@@ -19,16 +19,17 @@ export function MenuList({ items, restrictions, onPlate, onAdd, onOpen }: Props)
   const ids = useId();
 
   const stations = useMemo(() => [...new Set(items.map((i) => i.station ?? "Other"))].sort(), [items]);
+  const effectiveStation = stations.includes(station) ? station : "";
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
     return items
       .map((item) => ({ item, verdict: checkRestrictions(item, restrictions) }))
       .filter(({ item, verdict }) => {
-        if (station && (item.station ?? "Other") !== station) return false;
+        if (effectiveStation && (item.station ?? "Other") !== effectiveStation) return false;
         if (onlyFits && !verdict.allowed) return false;
         return !q || item.name.toLowerCase().includes(q) || (item.description ?? "").toLowerCase().includes(q);
       });
-  }, [items, restrictions, query, station, onlyFits]);
+  }, [items, restrictions, query, effectiveStation, onlyFits]);
 
   const hidden = items.length - rows.length;
   const answered = allergyAnswered(restrictions);
@@ -62,7 +63,7 @@ export function MenuList({ items, restrictions, onPlate, onAdd, onOpen }: Props)
           <label htmlFor={`${ids}-s`} className="block font-semibold">
             Station
           </label>
-          <select id={`${ids}-s`} value={station} onChange={(e) => setStation(e.target.value)} className="mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink">
+          <select id={`${ids}-s`} value={effectiveStation} onChange={(e) => setStation(e.target.value)} className="mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink">
             <option value="">All stations</option>
             {stations.map((s) => (
               <option key={s}>{s}</option>
@@ -89,6 +90,11 @@ export function MenuList({ items, restrictions, onPlate, onAdd, onOpen }: Props)
             // The notice above covers the unanswered gate; keep item-specific conflicts here.
             const conflicts = !answered && verdict.allergen === "not_checked" ? verdict.reasons.slice(1) : verdict.reasons;
             const reasons = unknownAllergen && !conflicts.includes(unknownAllergen) ? [...conflicts, unknownAllergen] : conflicts;
+            const addLabel = !verdict.allowed
+              ? !answered && conflicts.length === 0
+                ? `Answer the allergy question before adding ${item.name}`
+                : `${item.name} doesn't fit your restrictions`
+              : added ? `${item.name} is on your plate; add another serving` : `Add ${item.name} to plate`;
             return (
               <li key={item.id} className="flex items-start gap-3 p-3 sm:px-4 [contain-intrinsic-size:auto_4.5rem] [content-visibility:auto]">
                 <div className="min-w-0 flex-1">
@@ -107,7 +113,7 @@ export function MenuList({ items, restrictions, onPlate, onAdd, onOpen }: Props)
                 </div>
                 <div className="flex shrink-0 flex-col items-center gap-1">
                   <IconButton
-                    label={added ? `${item.name} is on your plate; add another serving` : verdict.allowed ? `Add ${item.name} to plate` : `${item.name} doesn't fit your restrictions`}
+                    label={addLabel}
                     icon="plus"
                     disabled={!verdict.allowed}
                     onClick={() => onAdd(item)}

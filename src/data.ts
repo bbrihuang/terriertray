@@ -9,20 +9,38 @@ async function getJson(url: string): Promise<unknown> {
   return response.json();
 }
 
-/** Small index first; day files load lazily. Only public menu files are ever requested. */
+/** Small index first; revalidate on tab return. Day files still load lazily. */
 export function useMenuIndex(): Load<MenuIndex> {
   const [load, setLoad] = useState<Load<MenuIndex>>({ state: "loading" });
   useEffect(() => {
     let live = true;
-    getJson(`/menus/index.json?t=${Math.floor(Date.now() / 60_000)}`)
-      .then((json) => {
+    let pending = false;
+    const fail = (message: string) => {
+      if (live) setLoad((current) => current.state === "ready" ? current : { state: "error", message });
+    };
+    const refresh = async () => {
+      if (pending) return;
+      pending = true;
+      try {
+        const json = await getJson(`/menus/index.json?t=${Math.floor(Date.now() / 60_000)}`);
         const parsed = MenuIndex.safeParse(json);
         if (!live) return;
-        setLoad(parsed.success ? { state: "ready", data: parsed.data } : { state: "error", message: "The menu index has an unexpected format." });
-      })
-      .catch(() => live && setLoad({ state: "error", message: "Menus could not be loaded. Check your connection and reload." }));
+        if (parsed.success) setLoad({ state: "ready", data: parsed.data });
+        else fail("The menu index has an unexpected format.");
+      } catch {
+        fail("Menus could not be loaded. Check your connection and reload.");
+      } finally {
+        pending = false;
+      }
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") void refresh();
+    };
+    void refresh();
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       live = false;
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
   return load;
@@ -72,23 +90,29 @@ export function useDayMenu(file: string | null, version: string | null): Load<Da
 /** Several day files at once (the week view). Keys are the file paths. */
 export function useDayMenus(files: string[], version: string | null): Record<string, Load<DayMenu>> {
   const key = version ? files.join("|") : "";
-  const [loads, setLoads] = useState<Record<string, Load<DayMenu>>>({});
+  const requestKey = JSON.stringify([version, key]);
+  const [batch, setBatch] = useState<{ requestKey: string; loads: Record<string, Load<DayMenu>> }>({ requestKey, loads: {} });
   useEffect(() => {
     if (!key || !version) {
-      setLoads({});
+      setBatch({ requestKey, loads: {} });
       return;
     }
     let live = true;
     const list = key.split("|");
-    setLoads(Object.fromEntries(list.map((f) => [f, { state: "loading" } as const])));
+    setBatch({ requestKey, loads: Object.fromEntries(list.map((f) => [f, { state: "loading" } as const])) });
     for (const file of list) {
       loadDay(file, version)
-        .then((data) => live && setLoads((l) => ({ ...l, [file]: { state: "ready", data } })))
-        .catch((err) => live && setLoads((l) => ({ ...l, [file]: { state: "error", message: failure(err) } })));
+        .then((data) => live && setBatch((current) => current.requestKey !== requestKey ? current : {
+          requestKey, loads: { ...current.loads, [file]: { state: "ready", data } },
+        }))
+        .catch((err) => live && setBatch((current) => current.requestKey !== requestKey ? current : {
+          requestKey, loads: { ...current.loads, [file]: { state: "error", message: failure(err) } },
+        }));
     }
     return () => {
       live = false;
     };
-  }, [key, version]);
-  return loads;
+  }, [key, version, requestKey]);
+  // The index can change before this effect runs, even when file paths stay the same.
+  return batch.requestKey === requestKey ? batch.loads : {};
 }
