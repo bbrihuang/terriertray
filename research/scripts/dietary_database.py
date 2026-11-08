@@ -1,4 +1,8 @@
 # Create A Multi-Linear Regression Model to Predict Daily Calorie Requirements Based on User Inputs
+# ==========================================
+# 1. IMPORT LIBRARIES
+# ==========================================
+
 import joblib
 import numpy as np
 import pandas as pd
@@ -15,47 +19,19 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
+from pathlib import Path
+
+csv_path = Path(__file__).parent / "healthy_diet_calorie_intake.csv"
 
 # ==========================================
-# 1. LOAD DATASET
+# 2. LOAD DATASET
 # ==========================================
 
-dfcal = pd.read_csv('healthy_diet_calorie_intake.csv')
-
+dfcal = pd.read_csv(csv_path)
+dfcal = dfcal[dfcal['Gender'] != 'Other']
+dfcal = dfcal[dfcal['Activity_Level'] == 'Sedentary']
 print("Dataset loaded successfully!")
 print("Dataset shape:", dfcal.shape)
-
-
-# ==========================================
-# 2. CLEAN ACTIVITY LEVEL
-# ==========================================
-
-dfcal['Activity_Level'] = (
-    dfcal['Activity_Level']
-    .astype('string')
-    .str.strip()
-    .str.lower()
-)
-
-activity_order = {
-    'sedentary': 0,
-    'lightly active': 1,
-    'moderately active': 2,
-    'very active': 3,
-    'extremely active': 4
-}
-
-print("\nActivity Level Categories:")
-print(dfcal['Activity_Level'].value_counts(dropna=False))
-
-dfcal['Activity_Level'] = (
-    dfcal['Activity_Level'].map(activity_order)
-)
-
-# Check unknown categories
-if dfcal['Activity_Level'].isna().any():
-    print("\nWARNING: Missing or unknown activity categories found.")
-    print("These values will be handled by median imputation.")
 
 
 # ==========================================
@@ -67,7 +43,6 @@ features = [
     'Gender',
     'Height_cm',
     'Weight_kg',
-    'Activity_Level'
 ]
 
 target = 'Daily_Calorie_Requirement'
@@ -106,8 +81,7 @@ y = y.loc[valid_rows]
 numeric_cols = [
     'Age',
     'Height_cm',
-    'Weight_kg',
-    'Activity_Level'
+    'Weight_kg'
 ]
 
 categorical_cols = [
@@ -338,7 +312,6 @@ sample_person = pd.DataFrame({
     'Gender': ['Male'],
     'Height_cm': [175],
     'Weight_kg': [70],
-    'Activity_Level': [2]
 })
 
 sample_prediction = cal_pipeline.predict(
