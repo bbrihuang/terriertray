@@ -5,6 +5,24 @@ Stack: React 19 + TypeScript + Vite + Tailwind 4, static on Vercel. All planning
 
 Read first: `PRODUCT.md`, `DESIGN.md`, `docs/DEVELOPMENT.md` (developer guide), `docs/REFERENCE_DATA.md`. `README.md` is the user-facing guide.
 
+## Codex continuation — November 7, 2026
+
+The user approved continuing the suggested work and selected **Inter Tight** after a separate interactive font preview. The original handoff below is historical. These continuation commits are local and have **not** been pushed:
+
+- `42c51cf`: self-hosted Inter Tight with its OFL license, stronger approved weights, and updated typography guidance.
+- `d5563e1`: async headline accessibility state and calculator disclosure/error coverage; clarified that the 111 kcal error is from held-out dataset rows.
+- `36d58da`: Settings → Appearance restores discoverable Light/Dark/System choices while keeping the header icon; tests execute the unchanged theme bootstrap.
+- `88e7ab6`: compact menu rows keep name and per-serving calories prominent, detail access, missing nutrition and restriction warnings, and Added state.
+- `9591f0e`: applying a weekly meal moves focus and scroll to its own plate after rendering, including when another day must load.
+
+The phone verification also refined the populated plate at 320px: the calorie summary stacks clearly, and all three macro cells retain equal columns.
+
+Original model artifacts, source datasets, scraper and normalization code remain unchanged. Appearance is still separate from opt-in personal profile storage. The font experiment is isolated outside this repository; the selected font alone was applied to the app.
+
+The continuation was verified using the bundled **Node 24.22.1**, resolving the old Node-26-only verification limitation. The suite now contains **119 tests in 12 files**. Browser checks covered compact menus, native dish dialogs, weekly meals and a populated plate at phone/desktop sizes, light/dark appearance, keyboard opening/closing and focus return. These checks do not constitute a full assistive-software audit.
+
+The remaining external item is a confirmed live deployment URL for the README. No URL was invented. Detector-wide palette/radius drift remains advisory; this continuation updated relevant typography and appearance guidance rather than rewriting unrelated design tokens.
+
 ## State at handoff
 
 All commits below are **pushed to `origin/main`**. Do not amend or rewrite them, and push new work only when the user asks.
@@ -109,7 +127,7 @@ npm run check:secrets
 git diff --check
 ```
 
-## Next steps (suggested, not yet approved by the user)
+## Original suggested next steps (see continuation status above)
 1. **Menu view density.** It is still ~80% muted/small text, because each dish lists station, serving, calories and tags. Consider a compact row (name and kcal) with details in the dish dialog. This is a design change, so confirm with the user first.
 2. **Way back to System theme.** The icon button can't return to "follow system" once clicked. Options: long-press or context menu, a "Use system" link in Settings → Privacy, or leave it as is. Ask the user.
 3. **Unverified views.** The Week view and the DishDialog weren't checked in a browser after the declutter, and neither was a plate with dishes on it (ring, "known for" lines, merged meta line). Do a light and dark pass at 320px and at desktop width.

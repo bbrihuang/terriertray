@@ -63,3 +63,13 @@ Files: `public/fonts/`, `src/index.css`, `DESIGN.md`, targeted App/calculator te
 - Reconcile the handoff with completed work and remaining external dependencies.
 - Keep the live README URL pending until a real deployment URL is supplied or verified.
 - Report actual checks, commit IDs and any browser verification that could not run.
+
+## Completion
+
+- Typography: `42c51cf` (selected Inter Tight, self-hosted with license).
+- Loading/calculator accessibility: `d5563e1`.
+- Appearance: `36d58da`.
+- Compact menu: `88e7ab6`.
+- Week-to-plate focus found during browser verification: `9591f0e`.
+- Original model, datasets and collector files were preserved. Node 24.22.1 is available and was used for the continuation checks.
+- Deployment README URL still needs a confirmed real deployment; unrelated detector token drift remains advisory.

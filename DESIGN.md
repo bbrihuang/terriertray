@@ -61,7 +61,7 @@ Adaptation choices: the user explicitly requested the gradient quality alongside
 
 ## Appearance
 
-A single sun/moon icon button in the header switches between Light and Dark. Until it is used, the app follows the system appearance, including OS changes. Explicit choices persist under `terriertray-theme`, independently of personal profile storage. The small `public/theme.js` script resolves appearance before the app paints and updates native control color-scheme and browser theme color. Storage failures fall back gracefully; appearance changes never read or store measurements.
+A single sun/moon icon button in the header switches between Light and Dark. Settings → Appearance offers Light, Dark, and System; System removes the explicit choice and resumes following OS changes. Explicit choices persist under `terriertray-theme`, independently of personal profile storage. The small `public/theme.js` script resolves appearance before the app paints and updates native control color-scheme and browser theme color. Storage failures fall back gracefully; appearance changes never read or store measurements.
 
 Dark mode uses a charcoal page (#171619), raised panels (#242227), light ink (#f6f2f5), and muted labels (#beb6c2). The hero uses plum, scarlet, and warm charcoal gradients. Primary buttons stay scarlet with white text; links and progress use brighter rose tones for contrast. Theme switches suppress color transitions so surfaces change together.
 
@@ -73,13 +73,14 @@ The signature is the **actual plate total**: a scarlet ring shows planned calori
 
 ## Interface rules
 
-- Use the system sans family, medium-weight headings, and tabular numbers. Inputs stay at 16px or larger.
+- Use the self-hosted Inter Tight Latin variable family: 700 display headings, 600 section/button/nutrition emphasis, 400 body, and tabular numbers. Inputs stay at 16px or larger. Its license and source are in `public/fonts/`.
 - Group with spacing before adding lines or containers. Keep one depth cue per white surface.
 - Keep controls at least 44px and fields at least 48px tall. Preserve labels, keyboard focus, and native dialog behavior.
 - Keep body and label contrast at least 4.5:1 over their actual backgrounds; use words with semantic status colors.
 - Selected meals use a blush row and scarlet icon well. Published hours and planned totals remain visible.
 - Buttons use short, named color/press transitions. No looping decoration or page-entry animation. Reduced motion reaches the same final state without movement.
 - Do not add healthcare claims, assistant chat, fake proof, reminders, or other unsupported features.
+- Menu rows lead with name and kcal per serving; ordinary nutrition/station/serving detail is available in the existing dish dialog. Keep missing nutrition and item-specific allergy/restriction warnings visible. The unanswered allergy gate is stated once above the list, with Add disabled until answered.
 
 ## Product contracts
 
