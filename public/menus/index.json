@@ -1,33 +1,33 @@
 {
  "schemaVersion": 1,
- "dataVersion": "bfc96043250719ea",
- "generatedAt": "2026-11-08T01:11:33.175Z",
+ "dataVersion": "6bb387ea88eb22a2",
+ "generatedAt": "2026-11-08T14:13:11.155Z",
  "timezone": "America/New_York",
  "allergyNotice": "BU Dining warns that ingredient substitutions, formulation changes and kitchen cross-contact can occur, and no menu item is guaranteed allergen-free. If you have a food allergy, talk with BU Dining staff before eating.",
  "freshness": {
   "basis": "refresh_run_start",
-  "basisAt": "2026-11-08T01:03:52+00:00",
-  "checkedAt": "2026-11-08T01:11:29.784498+00:00",
+  "basisAt": "2026-11-08T14:09:54+00:00",
+  "checkedAt": "2026-11-08T14:13:04.462459+00:00",
   "validatorStatus": "fresh",
   "maxAgeHours": 24,
   "expiryHours": 48,
   "requestedDates": [
-   "2026-11-07",
    "2026-11-08",
    "2026-11-09",
    "2026-11-10",
    "2026-11-11",
    "2026-11-12",
-   "2026-11-13"
+   "2026-11-13",
+   "2026-11-14"
   ],
   "availableDates": [
-   "2026-11-07",
    "2026-11-08",
    "2026-11-09",
    "2026-11-10",
    "2026-11-11",
    "2026-11-12",
-   "2026-11-13"
+   "2026-11-13",
+   "2026-11-14"
   ],
   "missingDates": [],
   "warnings": [],
@@ -40,24 +40,14 @@
    "source": "bu-html",
    "sourceUrl": "https://www.bu.edu/dining/location/west/",
    "status": "ok",
-   "lastAttemptAt": "2026-11-08T01:11:33.175Z",
-   "lastSuccessfulFetchAt": "2026-11-08T01:03:52+00:00",
+   "lastAttemptAt": "2026-11-08T14:13:11.155Z",
+   "lastSuccessfulFetchAt": "2026-11-08T14:09:54+00:00",
    "note": null,
    "dates": [
     {
-     "date": "2026-11-07",
-     "file": "west/2026-11-07.json",
-     "itemCount": 127,
-     "meals": [
-      "Breakfast",
-      "Lunch",
-      "Dinner"
-     ]
-    },
-    {
      "date": "2026-11-08",
      "file": "west/2026-11-08.json",
-     "itemCount": 125,
+     "itemCount": 122,
      "meals": [
       "Breakfast",
       "Brunch",
@@ -113,6 +103,16 @@
       "Lunch",
       "Dinner"
      ]
+    },
+    {
+     "date": "2026-11-14",
+     "file": "west/2026-11-14.json",
+     "itemCount": 158,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
     }
    ]
   },
@@ -122,20 +122,10 @@
    "source": "bu-html",
    "sourceUrl": "https://www.bu.edu/dining/location/warren/",
    "status": "ok",
-   "lastAttemptAt": "2026-11-08T01:11:33.175Z",
-   "lastSuccessfulFetchAt": "2026-11-08T01:03:52+00:00",
+   "lastAttemptAt": "2026-11-08T14:13:11.155Z",
+   "lastSuccessfulFetchAt": "2026-11-08T14:09:54+00:00",
    "note": null,
    "dates": [
-    {
-     "date": "2026-11-07",
-     "file": "warren/2026-11-07.json",
-     "itemCount": 104,
-     "meals": [
-      "Breakfast",
-      "Lunch",
-      "Dinner"
-     ]
-    },
     {
      "date": "2026-11-08",
      "file": "warren/2026-11-08.json",
@@ -195,6 +185,16 @@
       "Lunch",
       "Dinner"
      ]
+    },
+    {
+     "date": "2026-11-14",
+     "file": "warren/2026-11-14.json",
+     "itemCount": 75,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
     }
    ]
   },
@@ -204,20 +204,10 @@
    "source": "bu-html",
    "sourceUrl": "https://www.bu.edu/dining/location/marciano/",
    "status": "ok",
-   "lastAttemptAt": "2026-11-08T01:11:33.175Z",
-   "lastSuccessfulFetchAt": "2026-11-08T01:03:52+00:00",
+   "lastAttemptAt": "2026-11-08T14:13:11.155Z",
+   "lastSuccessfulFetchAt": "2026-11-08T14:09:54+00:00",
    "note": null,
    "dates": [
-    {
-     "date": "2026-11-07",
-     "file": "marciano/2026-11-07.json",
-     "itemCount": 125,
-     "meals": [
-      "Breakfast",
-      "Lunch",
-      "Dinner"
-     ]
-    },
     {
      "date": "2026-11-08",
      "file": "marciano/2026-11-08.json",
@@ -272,6 +262,16 @@
      "date": "2026-11-13",
      "file": "marciano/2026-11-13.json",
      "itemCount": 101,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-14",
+     "file": "marciano/2026-11-14.json",
+     "itemCount": 99,
      "meals": [
       "Breakfast",
       "Lunch",
