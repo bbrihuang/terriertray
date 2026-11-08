@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { DishDialog } from "./components/DishDialog";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { Button, Headline, Icon, Notice, Pill, Section } from "./components/ui";
@@ -21,6 +21,19 @@ import { formatDate, formatTimestamp, nyDate, nyMinutes, parseHours, pickMealInd
 
 type Tab = "plan" | "week" | "menu" | "settings";
 type Picked = { id: string; servings: number };
+
+const VIEWS = [
+  ["plan", "Plan", "plate"],
+  ["week", "Week", "calendar"],
+  ["menu", "Menu", "menu"],
+  ["settings", "Settings", "settings"],
+] as const;
+
+/** Capture the arrival choice once; ordinary form updates never restart motion. */
+function ViewContent({ children, animate, className }: { children: ReactNode; animate: boolean; className: string }) {
+  const [arrive] = useState(animate);
+  return <main id="main" className={`${className}${arrive ? " view-enter" : ""}`}>{children}</main>;
+}
 
 const initialSaved = loadProfile();
 const initialUrl = new URLSearchParams(window.location.search);
@@ -60,6 +73,7 @@ export default function App() {
   const [openFromWeek, setOpenFromWeek] = useState<string | null>(null);
   const [focusPlateAfterWeek, setFocusPlateAfterWeek] = useState(false);
   const [focusHome, setFocusHome] = useState(false);
+  const [navigationMotion, setNavigationMotion] = useState(true);
   const today = nyDate();
 
   useEffect(() => {
@@ -214,10 +228,11 @@ export default function App() {
   };
 
   const brand = (
-      <header className="app-header app-width">
+      <header key="brand" className="app-header app-width intro-header">
         <a href="?view=plan" aria-label="TerrierTrays home" className="brand-lockup" onClick={(event) => {
           if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
           event.preventDefault();
+          setNavigationMotion(event.detail > 0);
           setTab("plan");
           setFocusHome(true);
         }}>
@@ -226,15 +241,17 @@ export default function App() {
             TerrierTrays
           </h1>
         </a>
-        <nav aria-label="Views" className="view-nav">
-          <span className="view-indicator" aria-hidden="true" style={{ transform: `translateX(${["plan", "week", "menu", "settings"].indexOf(tab) * 100}%)` }} />
-          {([
-            ["plan", "Plan", "plate"],
-            ["week", "Week", "calendar"],
-            ["menu", "Menu", "menu"],
-            ["settings", "Settings", "settings"],
-          ] as const).map(([id, label, icon]) => (
-            <button key={id} type="button" aria-current={tab === id ? "page" : undefined} onClick={() => setTab(id)} className="view-link press">
+        <nav aria-label="Views" className="view-nav" data-motion={navigationMotion}>
+          <div className="view-highlight" aria-hidden="true" style={{ transform: `translateX(${VIEWS.findIndex(([id]) => id === tab) * 100}%)` }}>
+            <div className="view-highlight-labels" style={{ transform: `translateX(${-VIEWS.findIndex(([id]) => id === tab) * 25}%)` }}>
+              {VIEWS.map(([id, label, icon]) => <span key={id} className="view-highlight-label"><Icon name={icon} className="size-[18px]" />{label}</span>)}
+            </div>
+          </div>
+          {VIEWS.map(([id, label, icon]) => (
+            <button key={id} type="button" aria-current={tab === id ? "page" : undefined} onClick={(event) => {
+              setNavigationMotion(event.detail > 0);
+              setTab(id);
+            }} className="view-link">
               <Icon name={icon} className="size-[18px]" />
               {label}
             </button>
@@ -291,7 +308,7 @@ export default function App() {
       {brand}
 
       <div className="app-width">
-        <div className="planner-hero">
+        <div className="planner-hero intro-hero">
           <div className="hero-copy">
             <p className="hero-date">{activeDate ? formatDate(activeDate) : "Boston University dining"}</p>
             {/* Hidden (space kept) until the day menu loads, so the fallback headline doesn't flash before the real one. */}
@@ -362,7 +379,7 @@ export default function App() {
         </div>
 
         {meals.length > 0 && tab !== "settings" && (
-          <div className="meal-schedule">
+          <div className="meal-schedule intro-meals">
             <MealTimeline
               meals={meals}
               selected={meal}
@@ -376,7 +393,7 @@ export default function App() {
 
       </div>
 
-      <main id="main" key={tab === "plan" ? `${tab}/${ctx}` : tab} className={`app-width app-main view-enter view-${tab}`}>
+      <ViewContent key={tab === "plan" ? `${tab}/${ctx}` : tab} animate={navigationMotion} className={`app-width app-main view-${tab}`}>
         {tab === "plan" && activeDate && <DailySummary date={activeDate} summary={dailySummary} targets={profile.daily} />}
         {tab === "settings" ? (
           <div className="rise max-w-2xl">
@@ -524,7 +541,7 @@ export default function App() {
         <footer className="mt-14 max-w-[70ch] border-t border-line pt-4 text-sm text-muted">
           <p>{data!.allergyNotice} Not affiliated with Boston University. Suggestions are estimates, not medical or dietary advice.</p>
         </footer>
-      </main>
+      </ViewContent>
 
       <DishDialog
         item={openItem}

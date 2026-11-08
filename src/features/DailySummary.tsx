@@ -1,3 +1,4 @@
+import { useId } from "react";
 import type { DailySummaryData } from "../lib/daily-totals";
 import { formatAmount, isComplete, type Total } from "../lib/nutrition";
 import type { MealTargets } from "../lib/planner";
@@ -5,42 +6,58 @@ import { formatDate } from "../lib/time";
 
 type Props = { date: string; summary: DailySummaryData; targets: MealTargets };
 
-function DailyStat({ label, total, target, unit }: { label: string; total: Total; target: number | null; unit: string }) {
+const RADIUS = 44;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+function DailyStat({ nutrient, label, total, target, unit }: { nutrient: string; label: string; total: Total; target: number | null; unit: string }) {
+  const maskId = useId();
   const complete = isComplete(total);
   const known = total.known > 0;
-  const difference = target === null ? null : target - total.value;
+  const hasTarget = target !== null && target > 0;
+  const progress = known && hasTarget ? Math.min(1, Math.max(0, total.value / target)) : 0;
+  const state = !known ? "unknown" : !hasTarget ? "no-target" : complete ? "complete" : "partial";
+  const value = known ? `${complete ? "" : "at least "}${formatAmount(total.value, "")}` : "unknown";
+  const targetLabel = hasTarget ? `of ${formatAmount(target, "")} ${unit}` : `${unit}; no daily target set`;
+  const coverage = `Known for ${total.known} of ${total.entries} dishes`;
+  const above = complete && hasTarget && total.value > target ? `${formatAmount(total.value - target, ` ${unit}`)} above target` : null;
+  const labelText = `${label}: ${value} ${targetLabel} planned${complete ? "" : `; ${coverage.toLowerCase()}`}${above ? `; ${above}` : ""}`;
   return (
-    <div className="daily-summary-stat min-w-0">
-      <dt className="text-sm text-muted">{label}</dt>
-      <dd className="mt-1 tnum">
-        <span className="daily-summary-number block text-3xl font-medium tracking-[-0.02em]">
-          {known ? `${complete ? "" : "at least "}${formatAmount(total.value, "")}` : "Unknown"}
-          {known && <span className="ml-1 text-base font-normal text-muted">{unit}</span>}
-        </span>
-        <span className="daily-summary-target mt-1 block text-sm text-muted">
-          {target === null ? "No daily target set" : `of ${formatAmount(target, ` ${unit}`)} daily target`}
-        </span>
-        {complete && difference !== null && (
-          <span className="mt-1 block text-sm">
-            {difference === 0 ? "Daily target met" : difference > 0 ? `${formatAmount(difference, ` ${unit}`)} left` : `${formatAmount(-difference, ` ${unit}`)} above target`}
-          </span>
-        )}
-        {!complete && <span className="mt-1 block text-sm text-muted">Known for {total.known} of {total.entries} dishes</span>}
+    <div className="daily-summary-stat" data-nutrient={nutrient} data-state={state}>
+      <dt className="daily-stat-label">{label}</dt>
+      <dd className="tnum">
+        <div className="daily-target-ring">
+          <svg viewBox="0 0 108 108" role="img" aria-label={labelText}>
+            {!complete && known && hasTarget && (
+              <defs>
+                <mask id={maskId}>
+                  <circle cx="54" cy="54" r={RADIUS} fill="none" stroke="white" strokeWidth="9" strokeDasharray={CIRCUMFERENCE} strokeDashoffset={CIRCUMFERENCE * (1 - progress)} />
+                </mask>
+              </defs>
+            )}
+            <circle className="daily-ring-track" cx="54" cy="54" r={RADIUS} fill="none" strokeWidth="7" strokeDasharray={!known || !hasTarget ? "4 4" : undefined} />
+            {known && hasTarget && (
+              <circle className="daily-ring-progress" cx="54" cy="54" r={RADIUS} fill="none" strokeWidth="7" strokeLinecap="round"
+                strokeDasharray={complete ? CIRCUMFERENCE : "4 4"}
+                strokeDashoffset={complete ? CIRCUMFERENCE * (1 - progress) : 0}
+                transform="rotate(-90 54 54)" mask={complete ? undefined : `url(#${maskId})`} />
+            )}
+          </svg>
+          <div className="daily-ring-center" aria-hidden="true">
+            <span className="daily-ring-value">{known ? `${complete ? "" : "≥ "}${formatAmount(total.value, "")}` : "Unknown"}</span>
+            <span className="daily-stat-target">{hasTarget ? `/ ${formatAmount(target, "")}` : "No target"}</span>
+            <span className="daily-ring-unit">{unit}</span>
+          </div>
+        </div>
+        {!complete && <p className="daily-stat-note">{coverage}</p>}
+        {above && <p className="daily-stat-note">{above}</p>}
       </dd>
     </div>
   );
 }
 
-/** Provider calories and approximate macro energy are separate, explicitly labelled quantities. */
+/** Whole-day planned totals against the user's own targets; incomplete nutrition stays explicit. */
 export function DailySummary({ date, summary, targets }: Props) {
   const { sum, selectedDishes, resolvedDishes, pendingDishes, unavailableDishes } = summary;
-  const parts = [
-    { key: "protein", label: "Protein", energy: sum.proteinG.value * 4 },
-    { key: "carbs", label: "Carbs", energy: sum.carbsG.value * 4 },
-    { key: "fat", label: "Fat", energy: sum.fatG.value * 9 },
-  ];
-  const macroCalories = parts.reduce((total, part) => total + part.energy, 0);
-  const partialMacros = ![sum.proteinG, sum.carbsG, sum.fatG].every(isComplete);
   const dishLabel = (count: number) => `${count} ${count === 1 ? "dish" : "dishes"}`;
 
   return (
@@ -48,7 +65,7 @@ export function DailySummary({ date, summary, targets }: Props) {
       <div className="daily-summary-heading">
         <h3 id="daily-summary-heading" className="text-xl font-semibold">Your daily totals</h3>
         <p className="mt-1 text-sm text-muted">
-          <time dateTime={date}>{formatDate(date)}</time> · All BU dining halls · Planned, not eaten
+          <time dateTime={date}>{formatDate(date, "short")}</time> · All BU dining halls · Planned, not eaten
         </p>
       </div>
 
@@ -67,39 +84,16 @@ export function DailySummary({ date, summary, targets }: Props) {
         </div>
       ) : (
         <>
-          <p className="daily-summary-note mt-4 text-sm text-muted" role="status">
-            {dishLabel(selectedDishes)} planned.
-            {pendingDishes > 0 && ` Nutrition for ${dishLabel(pendingDishes)} is still loading.`}
-            {unavailableDishes > 0 && ` Nutrition for ${dishLabel(unavailableDishes)} could not be found.`}
-          </p>
-          <dl className="daily-summary-stats mt-5">
-            <DailyStat label="Menu calories" total={sum.caloriesKcal} target={targets.caloriesKcal} unit="kcal" />
-            <DailyStat label="Protein" total={sum.proteinG} target={targets.proteinG} unit="g" />
-            <DailyStat label="Carbs" total={sum.carbsG} target={targets.carbsG} unit="g" />
-            <DailyStat label="Fat" total={sum.fatG} target={targets.fatG} unit="g" />
+          {(pendingDishes > 0 || unavailableDishes > 0) && <p className="daily-summary-note mt-3 text-sm text-muted" role="status">
+            {pendingDishes > 0 && `Nutrition for ${dishLabel(pendingDishes)} is still loading. `}
+            {unavailableDishes > 0 && `Nutrition for ${dishLabel(unavailableDishes)} could not be found.`}
+          </p>}
+          <dl className="daily-summary-stats">
+            <DailyStat nutrient="calories" label="Calories" total={sum.caloriesKcal} target={targets.caloriesKcal} unit="kcal" />
+            <DailyStat nutrient="protein" label="Protein" total={sum.proteinG} target={targets.proteinG} unit="g" />
+            <DailyStat nutrient="carbs" label="Carbs" total={sum.carbsG} target={targets.carbsG} unit="g" />
+            <DailyStat nutrient="fat" label="Fat" total={sum.fatG} target={targets.fatG} unit="g" />
           </dl>
-
-          {macroCalories > 0 ? (
-            <figure className="daily-macro-breakdown mt-6" aria-label="Calories from known macros">
-              <figcaption className="text-sm">
-                <span className="font-medium">Calories from known macros</span>
-                <span className="ml-2 tnum">{formatAmount(macroCalories, " kcal")}</span>
-                {partialMacros && <span className="ml-2 text-muted">· Partial</span>}
-              </figcaption>
-              <div className="daily-macro-bar mt-3" aria-hidden="true">
-                {parts.map((part) => <span key={part.key} className={`macro-segment-${part.key}`} style={{ width: `${part.energy / macroCalories * 100}%` }} />)}
-              </div>
-              <ul className="daily-macro-legend mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted tnum">
-                {parts.map((part) => <li key={part.key}>{part.label} {Math.round(part.energy / macroCalories * 100)}%</li>)}
-              </ul>
-              <p className="mt-2 max-w-[70ch] text-sm text-muted">
-                Approximate energy: 4 kcal per gram of protein and carbs, 9 per gram of fat. This may differ from the published menu calories.
-                {partialMacros && " Based only on known macro amounts."}
-              </p>
-            </figure>
-          ) : (
-            <p className="mt-5 text-sm text-muted">{partialMacros ? "Macro energy is unavailable until nutrition is known." : "No macro energy in the planned dishes."}</p>
-          )}
         </>
       )}
     </section>
