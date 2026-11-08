@@ -1,0 +1,113 @@
+# TerrierTray: handoff for Codex
+
+Repository: `C:\Users\Brian\code\terriertrays` (GitHub `bbrihuang/terriertrays`), branch `main`.
+Stack: React 19 + TypeScript + Vite + Tailwind 4, static on Vercel. All planning and calorie inference run in the browser; there is no backend, account system or database.
+
+Read first: `PRODUCT.md`, `DESIGN.md`, `README.md`, `docs/REFERENCE_DATA.md`.
+
+## State at handoff
+
+`main` is **7 commits ahead of `origin/main`. Nothing is pushed.** Do not push, amend or rewrite these unless the user asks.
+
+| Commit | What it did |
+| --- | --- |
+| `0b15b8e` | Scarlet-and-white redesign: soft gradient hero, rounded surfaces, responsive layouts |
+| `289a693` | Light / Dark / System appearance (`public/theme.js` resolves before first paint) |
+| `bec88a6` | Maintaining / Cutting / Bulking labels with visible kcal differences |
+| `9dd8f0d` | Central `planTarget()` adjustment helper plus validation tests |
+| `7306e59` | Editable kcal/day adjustment UI for Cutting/Bulking; old % presets removed |
+| `41dadd6` | Fix: hero headline flashed "Your next BU meal…" before "Dinner at <hall>" on reload |
+| `10fba51` | Copy declutter (impeccable critique), removed "BU dining, planned" tagline, sun/moon icon theme toggle |
+
+A local, untracked `.claude/launch.json` exists so Claude's browser pane can run `npx vite`. It is not part of the project. Ignore it or delete it.
+
+## What was done this session
+
+### 1. Editable calorie adjustments (around the unchanged model)
+- `src/lib/target-calculator.ts`
+  - `predictCalories()` is **unchanged**. It is the team's exported regression.
+  - New `Goal` type, `GOALS` and `defaultAdjustmentKcal()` (10% of the estimate, rounded).
+  - New `planTarget(modelKcal, goal, amountText)`. It is the only place a goal turns the prediction into a target:
+    - Maintaining applies 0.
+    - Cutting subtracts the typed nonnegative whole-kcal magnitude; Bulking adds it.
+    - It returns `{estimate, adjustment, target}` or `{error}`.
+    - It rejects blank, negative (including the Unicode minus), fractional, exponent, nonfinite, non-numeric and unsafe-integer amounts, and any target ≤ 0.
+    - `0 - 0` is used so that "0" never displays as −0.
+  - The old `PLANNING_GOALS` and `applyAdjustment` were deleted, so there are no competing percentage and kcal states.
+- `src/features/TargetCalculator.tsx`
+  - The goal is a radio group.
+  - Cutting/Bulking show a text input with `inputMode="numeric"`, so invalid input keeps what was typed.
+  - While unedited (`amount === null`), the amount follows the current estimate. Once edited, it is preserved across goal changes and body-input changes.
+  - A `<dl>` shows the model estimate, the signed adjustment and the proposed target, which reconcile exactly.
+  - When the amount is invalid, the error is linked with `aria-describedby`, `aria-invalid` is set, and Apply is hidden.
+  - Any edit clears the "Applied" status.
+  - Reset in Settings remounts the component through `key`, which clears all state.
+- Verification case: 25 y, Male, 175 cm, 70 kg, activity 2.
+  - Unrounded estimate is 2717.80; it displays as 2,718.
+  - Default Cutting gives 2,446; default Bulking gives 2,990.
+  - Cutting 400 gives 2,318.
+
+### 2. Hero headline flash
+`src/App.tsx`: `heroLoading = tab === "plan" && day?.state === "loading"`. While it is true, the headline is wrapped in `invisible`, which keeps the space and avoids layout shift. The index-loading state was already covered by a skeleton early return.
+
+### 3. Declutter, tagline and theme toggle
+- The `impeccable` critique ran as two isolated reviews:
+  - The design review scored 25/40, with "Aesthetic & minimalist" at 1/4.
+  - The detector found that 56–80% of visible words were muted subtext.
+- Each caveat is now said once, where it applies. Removed or shortened:
+  - The hero descriptions on Plan, Week and Settings. Menu keeps only "Dinner · N dishes".
+  - The repeated privacy and "not advice" lines.
+  - The duplicate cross-contact sentence in `DishDialog`.
+  - Verbose onboarding, notice, plate and settings helper text.
+  - The two footer paragraphs, merged into one and capped at `70ch`.
+- In Plate, the two muted meta lines for each dish are merged into one.
+- The calculator's provenance (dataset size, held-out error, "Other" gender coefficient, undefined activity levels, model/data hashes) moved into an "About this model" `<details>`.
+- In Settings, the "Allergies not set · Edit" row is hidden, because it linked to the page itself.
+- The header tagline "BU dining, planned" is removed, along with its CSS.
+- `src/components/ThemeSwitcher.tsx` is now a single `IconButton`. It shows a moon in light mode and a sun in dark mode, and dispatches the existing `terriertray:theme-change` event. `public/theme.js` is unchanged. `DESIGN.md` is updated.
+
+## Contracts to keep (do not break)
+- **Model and data are the source of truth.** Do not retrain, edit coefficients, regenerate or replace any of these:
+  - `research/models/dietary_cal_model.joblib`
+  - `src/lib/calorie-model.json`
+  - `tests/fixtures/calorie-model-parity.json`
+  - The source CSVs in `data/reference/`
+  - The scraper and normalization code in `collector/`
+
+  Do not add a second model or standard equation either.
+- Adjustments are user-chosen planning rules, not predictions. No weight-change claims, timelines, "safe minimums", AI goal models, macro formulas or automatic exercise calories.
+- Measurements stay in component memory: never saved, sent, logged or put in URLs. Profile storage stays opt-in. Theme storage (`terriertray-theme`) is separate and nonpersonal.
+- Apply changes daily calories only, and only on an explicit click.
+- Keep these visible:
+  - Allergy-answer gating, unknown-allergen text and cross-contact "Ingredient notes".
+  - Freshness pill and stale-menu labels, plus freshness checks at recommendation time and at action time.
+  - "Planned, not eaten" and the per-meal target share.
+  - The unofficial-BU notice and "not medical advice".
+  - The measurement privacy line, the scope checkbox and the warning that remembered settings are stored unencrypted.
+- Fenway/Sodexo stays deferred.
+- Design:
+  - Keep the scarlet/white light palette and the charcoal/rose dark palette.
+  - Inputs ≥16px, targets ≥44px, visible focus.
+  - Work at 320px with no horizontal scroll.
+
+## Verify
+Use Node 24 (`.nvmrc`). Checks so far ran on Node 26 only.
+
+```bash
+npm run typecheck
+npm test                 # 102 tests in 9 files passed at handoff
+npm exec vite build      # avoid `npm run build`: its prebuild refetches menu data
+npm run check:secrets
+git diff --check
+```
+
+## Next steps (suggested, not yet approved by the user)
+1. **Menu view density.** It is still ~80% muted/small text, because each dish lists station, serving, calories and tags. Consider a compact row (name and kcal) with details in the dish dialog. This is a design change, so confirm with the user first.
+2. **Way back to System theme.** The icon button can't return to "follow system" once clicked. Options: long-press or context menu, a "Use system" link in Settings → Privacy, or leave it as is. Ask the user.
+3. **Unverified views.** The Week view and the DishDialog weren't checked in a browser after the declutter, and neither was a plate with dishes on it (ring, "known for" lines, merged meta line). Do a light and dark pass at 320px and at desktop width.
+4. **Accessibility pass.** No keyboard-only or screen-reader run-through yet: radio goals, adjustment error, "About this model" disclosure, icon toggle label.
+5. **Detector drift** (advisory, `impeccable detect --json src`):
+   - Six colors and seven radii in `src/index.css` aren't in `DESIGN.md` (mostly dark-theme tones and pill radii). Decide whether to add them to DESIGN.md or remap them.
+   - The `radial-halo` and nested `context-card` findings are intentional per DESIGN.md.
+6. **Test gaps.** There is no UI test for the hero-loading `invisible` wrapper or for `ThemeSwitcher`. `tests/theme.test.ts` covers `public/theme.js` only.
+7. **Push.** Push the 7 local commits only when the user says so.
