@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { applyAdjustment, feetAndInchesToCm, poundsToKg, predictCalories, RANGES, unsupportedReason, type ModelInput } from "../src/lib/target-calculator";
+import { applyAdjustment, defaultAdjustmentKcal, feetAndInchesToCm, planTarget, poundsToKg, predictCalories, RANGES, unsupportedReason, type ModelInput } from "../src/lib/target-calculator";
 import { mealShare, planMeal } from "../src/lib/planner";
 import { DEFAULT_RESTRICTIONS } from "../src/lib/restrictions";
 import { DayMenu } from "../src/lib/schema";
@@ -54,6 +54,39 @@ describe("input encoding and supported range", () => {
     expect(applyAdjustment(kcal, 0)).toBe(Math.round(kcal));
     expect(applyAdjustment(kcal, -10)).toBe(Math.round(kcal * 0.9));
     expect(predictCalories(base)).toBe(kcal); // prediction unchanged by adjustments
+  });
+});
+
+describe("planTarget: goal direction and editable kcal adjustment", () => {
+  const kcal = predictCalories({ age: 25, gender: "Male", heightCm: 175, weightKg: 70, activity: 2 });
+
+  it("maintaining uses zero regardless of any typed amount", () => {
+    expect(planTarget(kcal, "maintain", "400")).toEqual({ estimate: 2718, adjustment: 0, target: 2718 });
+    expect(planTarget(kcal, "maintain", "garbage")).toEqual({ estimate: 2718, adjustment: 0, target: 2718 });
+  });
+
+  it("cutting subtracts and bulking adds the entered magnitude, reconciling with the rounded estimate", () => {
+    expect(planTarget(kcal, "cut", "400")).toEqual({ estimate: 2718, adjustment: -400, target: 2318 });
+    expect(planTarget(kcal, "bulk", " 400 ")).toEqual({ estimate: 2718, adjustment: 400, target: 3118 });
+    expect(planTarget(kcal, "cut", "0")).toEqual({ estimate: 2718, adjustment: 0, target: 2718 });
+  });
+
+  it("the default magnitude reproduces the earlier 10% presets", () => {
+    const d = String(defaultAdjustmentKcal(kcal));
+    expect(d).toBe("272");
+    expect(planTarget(kcal, "cut", d)).toMatchObject({ target: 2446 });
+    expect(planTarget(kcal, "bulk", d)).toMatchObject({ target: 2990 });
+  });
+
+  it("rejects blank, negative, fractional, nonfinite and non-numeric amounts, and nonpositive targets", () => {
+    for (const bad of ["", "  ", "-100", "−100", "12.5", "1e3", "Infinity", "NaN", "abc", "100kcal", "99999999999999999999"]) {
+      expect(planTarget(kcal, "cut", bad)).toHaveProperty("error");
+      expect(planTarget(kcal, "bulk", bad)).toHaveProperty("error");
+    }
+    expect(planTarget(kcal, "cut", "-100")).toEqual({ error: expect.stringContaining("minus sign") });
+    expect(planTarget(kcal, "cut", "2718")).toHaveProperty("error");
+    expect(planTarget(kcal, "cut", "2717")).toMatchObject({ target: 1 });
+    expect(predictCalories({ age: 25, gender: "Male", heightCm: 175, weightKg: 70, activity: 2 })).toBe(kcal); // inference untouched
   });
 });
 

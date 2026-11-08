@@ -58,6 +58,39 @@ export function applyAdjustment(modelKcal: number, adjustmentPercent: number): n
   return Math.round(modelKcal * (1 + adjustmentPercent / 100));
 }
 
+export type Goal = "maintain" | "cut" | "bulk";
+
+/** Goals set only the direction of a user-entered kcal/day adjustment; none is a trained model. */
+export const GOALS: readonly { value: Goal; label: string }[] = [
+  { value: "maintain", label: "Maintaining" },
+  { value: "cut", label: "Cutting" },
+  { value: "bulk", label: "Bulking" },
+];
+
+/** Starting magnitude for Cutting/Bulking: the app's earlier 10% preset, now shown and editable in kcal. */
+export const defaultAdjustmentKcal = (modelKcal: number) => Math.round(modelKcal * 0.1);
+
+export type PlannedTarget = { estimate: number; adjustment: number; target: number } | { error: string };
+
+/**
+ * The one place a goal turns the model's prediction into a proposed target.
+ * `amountText` is the nonnegative kcal/day magnitude as typed; the goal sets the sign.
+ * Display values reconcile exactly: target = estimate + adjustment, all whole kcal.
+ */
+export function planTarget(modelKcal: number, goal: Goal, amountText: string): PlannedTarget {
+  const estimate = Math.round(modelKcal);
+  if (goal === "maintain") return { estimate, adjustment: 0, target: estimate };
+  const text = amountText.trim();
+  if (text === "") return { error: "Enter an adjustment in kcal per day." };
+  const amount = Number(text);
+  if (/^[-−]/.test(text) && Number.isFinite(amount)) return { error: "Enter the amount without a minus sign; the goal sets the direction." };
+  if (!/^\d+$/.test(text) || !Number.isSafeInteger(amount)) return { error: "Enter the adjustment as a whole number of kcal, such as 300." };
+  const adjustment = goal === "cut" ? 0 - amount : amount; // 0 - 0 is +0, so "0" never shows as −0
+  const target = estimate + adjustment;
+  if (!Number.isSafeInteger(target) || target <= 0) return { error: "That adjustment would leave no calories. Enter a smaller amount." };
+  return { estimate, adjustment, target };
+}
+
 // Same factors as research/scripts/conversions.py.
 export const poundsToKg = (pounds: number) => pounds * 0.45359237;
 export const feetAndInchesToCm = (feet: number, inches: number) => (feet * 12 + inches) * 2.54;
