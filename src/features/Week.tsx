@@ -19,6 +19,7 @@ type Props = {
   profile: Profile;
   now: Date;
   onUse: (date: string, meal: string, option: PlanOption) => void;
+  onSetup: (destination: "daily-targets" | "food-allergies") => void;
   onOpen: (item: MenuItem, meal: string) => void;
 };
 
@@ -27,7 +28,7 @@ type Job = { key: string; sig: string; items: MenuItem[]; exclude: string[] };
 const versus = (actual: number, target: number | null, unit: string) =>
   target === null ? formatAmount(actual, unit) : `${formatAmount(actual, unit)} of ${formatAmount(target, unit)}`;
 
-export function Week({ index, hall, start, profile, now, onUse, onOpen }: Props) {
+export function Week({ index, hall, start, profile, now, onUse, onSetup, onOpen }: Props) {
   const dates = useMemo(() => weekDates(start), [start]);
   const fileByDate = new Map(hall.dates.map((d) => [d.date, d.file]));
   const loads = useDayMenus(dates.flatMap((d) => fileByDate.get(d) ?? []), index.dataVersion);
@@ -84,8 +85,8 @@ export function Week({ index, hall, start, profile, now, onUse, onOpen }: Props)
   const live = (date: string) => eligibility(index, hall.id, date, new Date()).canRecommend;
   const focusMeal = (key: string) => setTimeout(() => document.getElementById(`week-${key}`)?.focus(), 0);
 
-  if (!hasTarget) return <Notice title="Add a target to plan a week">Enter a daily calorie or protein target in Settings first.</Notice>;
-  if (!allergyAnswered(restrictions)) return <Notice title="Set your allergies to plan a week">Answer the allergy question in Settings, even if the answer is “none”.</Notice>;
+  if (!hasTarget) return <Notice title="Add a target to plan a week"><p>Enter a daily calorie or protein target first.</p><Button className="mt-3" onClick={() => onSetup("daily-targets")}>Set daily targets</Button></Notice>;
+  if (!allergyAnswered(restrictions)) return <Notice title="Set your allergies to plan a week"><p>Answer the allergy question, even if the answer is “none”.</p><Button className="mt-3" onClick={() => onSetup("food-allergies")}>Set allergy preferences</Button></Notice>;
 
   const done = jobs.length - pending.length;
 
@@ -93,10 +94,10 @@ export function Week({ index, hall, start, profile, now, onUse, onOpen }: Props)
     <div>
       <h3 className="text-lg font-semibold tracking-[-0.01em] text-balance">Seven days from {formatDate(start, "short")}</h3>
       <p className="mt-1 text-sm text-muted">
-        Each meal aims for {mealsPerDay === 1 ? "your whole-day targets" : `1/${mealsPerDay} of your daily targets`}.
+        Each suggestion aims for {mealsPerDay === 1 ? "your whole-day targets" : `1/${mealsPerDay} of your daily targets`}. Use a meal to add it to your plan.
       </p>
       <p className="mt-2 text-sm font-semibold" aria-live="polite">
-        {pending.length > 0 ? `Planning meals… ${done} of ${jobs.length} done` : jobs.length > 0 ? `Planned ${jobs.length} meals.` : ""}
+        {pending.length > 0 ? `Finding meal suggestions… ${done} of ${jobs.length} ready` : jobs.length > 0 ? `${jobs.length} meal suggestions ready.` : ""}
       </p>
 
       <ol className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2 lg:items-start">
@@ -211,11 +212,11 @@ export function Week({ index, hall, start, profile, now, onUse, onOpen }: Props)
                       );
                     })}
                     <p className="mt-3 border-t border-line pt-3 text-sm tnum">
-                      <span className="font-semibold">Day, planned: </span>
+                      <span className="font-semibold">Suggested day total: </span>
                       {versus(day.sum.caloriesKcal.value, daily.caloriesKcal, " kcal")} · {versus(day.sum.proteinG.value, daily.proteinG, " g")} protein
                       {!day.complete && (
                         <span className="block text-muted">
-                          Incomplete: {day.plannedMeals} of your {mealsPerDay} meals planned{meals.length < mealsPerDay ? ` (only ${meals.length} posted)` : ""}.
+                          Incomplete: suggestions for {day.plannedMeals} of your {mealsPerDay} meals{meals.length < mealsPerDay ? ` (only ${meals.length} posted)` : ""}.
                         </span>
                       )}
                     </p>

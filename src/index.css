@@ -144,7 +144,6 @@
   button, a, input, select, summary { touch-action: manipulation; }
   button:not(:disabled), select:not(:disabled) { cursor: pointer; }
   input, select, textarea { font-size: 1rem; caret-color: var(--brand-ink); }
-  input:not([type="checkbox"]):not([type="radio"]), select { min-height: 48px; }
   a { color: var(--brand-ink); text-underline-offset: 4px; }
   h1, h2, h3, h4 { text-wrap: balance; }
   p { text-wrap: pretty; }
@@ -153,6 +152,7 @@
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 20px; border: 3px solid var(--page); }
 }
+input:not([type="checkbox"]):not([type="radio"]), select { min-height: 48px; }
 
 /* The gradients themselves drift on separate layers; content stays stationary. */
 body::before { content: ""; position: fixed; inset: -10%; z-index: -1; pointer-events: none; background: var(--ambient-background); opacity: .55; }
@@ -314,20 +314,25 @@ button, .plate-ring .tnum, .macro-cell .text-2xl { font-weight: 600; }
 }
 @media (max-width: 760px) {
   .app-width { width: calc(100% - 40px); }
-  .app-header { flex-wrap: wrap; gap: 20px; padding-block: 20px; }
+  .app-header { flex-wrap: wrap; gap: 12px; padding-block: 16px; }
     .theme-control { margin-left: auto; }
   .view-nav { width: 100%; }
   .view-link, .view-highlight-label { padding-inline: 8px; }
-  .planner-hero { grid-template-columns: 1fr; gap: 28px; padding: 28px; border-radius: 28px; }
+  .planner-hero { grid-template-columns: 1fr; gap: 20px; padding: 24px; border-radius: 28px; }
   .page-headline { font-size: 40px; }
-  .hero-date { margin-bottom: 16px; }
+  .hero-date { margin-bottom: 12px; }
   .hero-description { margin-top: 16px; }
   .context-card { padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
+  .context-fields { grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); }
+  .context-card select { padding-inline: 8px; }
   .context-heading { display: none; }
-  .hero-actions > button:last-child { display: none; }
+  .hero-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 16px; }
+  .hero-actions > button, .hero-actions > .button-primary { min-height: 48px; padding-inline: 8px; font-size: 14px; line-height: 1.25; }
+  .hero-actions > .button-primary svg { display: none; }
   .meal-schedule { margin-top: 20px; }
   .meal-timeline > ul { grid-template-columns: 1fr; gap: 4px; }
-  .meal-hours { font-size: 14px; }
+  .meal-row { min-height: 72px; padding-block: 8px; }
+  .meal-hours { font-size: 12px; }
   .app-main { padding-top: 24px; }
   .plan-workspace { grid-template-columns: 1fr; gap: 32px; }
   .plate-column { position: static; }
@@ -341,7 +346,7 @@ button, .plate-ring .tnum, .macro-cell .text-2xl { font-weight: 600; }
     .brand-name { font-size: 20px; }
   .brand-lockup { gap: 8px; }
   .brand-mark { width: 48px; height: 48px; padding: 3px; border-radius: 12px; }
-    .planner-hero { padding: 24px 20px; }
+  .planner-hero { gap: 16px; padding: 20px; }
   .page-headline { font-size: 36px; }
   .view-link, .view-highlight-label { font-size: 14px; gap: 4px; padding-inline: 6px; }
   .view-link svg, .view-highlight-label svg { width: 16px; flex-shrink: 0; }
@@ -352,7 +357,6 @@ button, .plate-ring .tnum, .macro-cell .text-2xl { font-weight: 600; }
   .daily-stat-target { font-size: 12px; }
 }
 @media (max-width: 350px) {
-  .context-fields { grid-template-columns: 1fr; }
   .plate-summary { flex-direction: column; text-align: center; gap: 12px; }
   .plate-summary > div:last-child { width: 100%; flex: auto; }
   .macro-cell { padding-inline: 8px; }

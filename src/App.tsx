@@ -21,6 +21,7 @@ import { formatDate, formatTimestamp, nyDate, nyMinutes, parseHours, pickMealInd
 
 type Tab = "plan" | "week" | "menu" | "settings";
 type Picked = { id: string; servings: number };
+type SettingsDestination = "calorie-model" | "daily-targets" | "food-allergies";
 
 const VIEWS = [
   ["plan", "Plan", "plate"],
@@ -67,6 +68,7 @@ export default function App() {
   const [date, setDate] = useState<string | null>(initialUrl.get("date"));
   const [mealName, setMealName] = useState<string | null>(initialUrl.get("meal"));
   const [trays, setTrays] = useState<Record<string, Picked[]>>({});
+  const [plateUndo, setPlateUndo] = useState<{ context: string; picks: Picked[]; restrictions: Restrictions } | null>(null);
   const [excluded, setExcluded] = useState<Record<string, string[]>>({});
   const [openItem, setOpenItem] = useState<MenuItem | null>(null);
   /** Set when a dish is opened from the week view (another day or meal than the plate). */
@@ -74,6 +76,7 @@ export default function App() {
   const [focusPlateAfterWeek, setFocusPlateAfterWeek] = useState(false);
   const [focusHome, setFocusHome] = useState(false);
   const [navigationMotion, setNavigationMotion] = useState(true);
+  const [settingsDestination, setSettingsDestination] = useState<SettingsDestination | null>(null);
   const today = nyDate();
 
   useEffect(() => {
@@ -109,6 +112,16 @@ export default function App() {
   const defaultMeal = activeDate === today ? pickMealIndex(meals, nyMinutes()) : 0;
   const meal = meals.find((m) => m.name === mealName) ?? meals[defaultMeal] ?? null;
   const ctx = `${hall?.id}/${activeDate}/${meal?.name}`;
+
+  useEffect(() => {
+    if (tab !== "settings" || !settingsDestination) return;
+    const heading = document.getElementById(settingsDestination);
+    if (!heading) return;
+    heading.setAttribute("tabindex", "-1");
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({ behavior: "instant", block: "start" });
+    setSettingsDestination(null);
+  }, [tab, settingsDestination, index.state]);
 
   useEffect(() => {
     if (!focusHome || tab !== "plan" || day?.state === "loading") return;
@@ -189,7 +202,15 @@ export default function App() {
     [tab, meal, hasTarget, canSuggest, profile, exclude],
   );
 
-  const setTray = (next: Picked[]) => setTrays((t) => ({ ...t, [ctx]: next }));
+  const setTray = (next: Picked[]) => {
+    setTrays((t) => ({ ...t, [ctx]: next }));
+    setPlateUndo(null);
+  };
+  const replaceTray = (context: string, picks: Picked[]) => {
+    const previous = trays[context] ?? [];
+    setTrays((t) => ({ ...t, [context]: picks }));
+    setPlateUndo(previous.length ? { context, picks: previous, restrictions: profile.restrictions } : null);
+  };
   const addItem = (item: MenuItem) => {
     if (!checkRestrictions(item, profile.restrictions).allowed) return; // same gate as the planner
     const current = trays[ctx] ?? [];
@@ -202,29 +223,24 @@ export default function App() {
   };
   const applyOption = (option: PlanOption) => {
     if (!stillEligible()) return;
-    setTray(option.entries.filter((e) => checkRestrictions(e.item, profile.restrictions).allowed).map((e) => ({ id: e.item.id, servings: e.servings })));
+    replaceTray(ctx, option.entries.filter((e) => checkRestrictions(e.item, profile.restrictions).allowed).map((e) => ({ id: e.item.id, servings: e.servings })));
     document.getElementById("plate-heading")?.scrollIntoView({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
   };
   /** Put a week-view meal on that day's own plate and open it in the Plan tab. */
   const applyWeekMeal = (day: string, mealName: string, option: PlanOption) => {
     if (!data || !hall || !eligibility(data, hall.id, day, new Date()).canRecommend) return;
     const picked = option.entries.filter((e) => checkRestrictions(e.item, profile.restrictions).allowed).map((e) => ({ id: e.item.id, servings: e.servings }));
-    setTrays((t) => ({ ...t, [`${hall.id}/${day}/${mealName}`]: picked }));
+    replaceTray(`${hall.id}/${day}/${mealName}`, picked);
     setDate(day);
     setMealName(mealName);
     setFocusPlateAfterWeek(true);
     setTab("plan");
   };
 
-  /** Jump to the model calculator in Settings and move focus to its heading. */
-  const openCalculator = () => {
+  const openSettings = (destination: SettingsDestination) => {
+    setNavigationMotion(false);
+    setSettingsDestination(destination);
     setTab("settings");
-    setTimeout(() => {
-      const heading = document.getElementById("calorie-model");
-      heading?.setAttribute("tabindex", "-1");
-      heading?.scrollIntoView({ block: "start" });
-      heading?.focus();
-    }, 50);
   };
 
   const brand = (
@@ -317,7 +333,7 @@ export default function App() {
             </div>
             {tab === "menu" && <p className="hero-description">{meal ? `${meal.name} · ${dishCount} ${dishCount === 1 ? "dish" : "dishes"}` : "Choose a day and meal"}</p>}
             {tab === "plan" && <div className="hero-actions">
-              <Button variant="primary" onClick={openCalculator}>{daily.caloriesKcal !== null ? "Adjust my calorie target" : "Estimate my calories"}<Icon name="arrow" className="size-[18px]" /></Button>
+              <Button variant="primary" onClick={() => openSettings("calorie-model")}>{daily.caloriesKcal !== null ? "Adjust my calorie target" : "Estimate my calories"}<Icon name="arrow" className="size-[18px]" /></Button>
               <Button variant="quiet" onClick={() => setTab("menu")}>Browse the menu</Button>
             </div>}
           </div>
@@ -371,7 +387,7 @@ export default function App() {
             </div>
             {tab !== "settings" && <div className="restriction-summary">
               <span className="text-sm text-muted">{restrictionSummary(profile.restrictions)}</span>
-              <Button variant="quiet" className="min-h-11 px-3 text-sm" onClick={() => setTab("settings")}>
+              <Button variant="quiet" className="min-h-11 px-3 text-sm" onClick={() => openSettings("food-allergies")}>
                 Edit
               </Button>
             </div>}
@@ -467,6 +483,7 @@ export default function App() {
                   profile={profile}
                   now={now}
                   onUse={applyWeekMeal}
+                  onSetup={openSettings}
                   onOpen={(item, mealName) => {
                     setOpenFromWeek(mealName);
                     setOpenItem(item);
@@ -479,6 +496,15 @@ export default function App() {
                   <h3 id="plate-heading" tabIndex={-1} className="mb-3 scroll-mt-4 text-lg font-semibold tracking-[-0.01em]">
                     Your {meal.name.toLowerCase()} plate
                   </h3>
+                  {plateUndo?.context === ctx && plateUndo.restrictions === profile.restrictions && (
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                      <p role="status" className="text-sm text-muted">Plate replaced.</p>
+                      <Button variant="quiet" onClick={() => {
+                        setTray(plateUndo.picks);
+                        document.getElementById("plate-heading")?.focus({ preventScroll: true });
+                      }}>Undo replacement</Button>
+                    </div>
+                  )}
                   {conflicts.length > 0 && (
                     <div className="mb-3">
                       <Notice tone="danger" title="Something on your plate no longer fits your restrictions">
@@ -500,10 +526,10 @@ export default function App() {
                         <h4 className="text-xl font-medium">A starting point for your plate</h4>
                         <p className="mt-2 text-muted">Set a daily calorie target to get suggested plates.</p>
                         <div className="mt-3 flex flex-wrap gap-2">
-                          <Button variant="primary" onClick={openCalculator}>
+                          <Button variant="primary" onClick={() => openSettings("calorie-model")}>
                             Estimate my calories
                           </Button>
-                          <Button onClick={() => setTab("settings")}>Type my own targets</Button>
+                          <Button onClick={() => openSettings("daily-targets")}>Type my own targets</Button>
                         </div>
                       </div>
                     ) : !canSuggest ? (
@@ -520,6 +546,7 @@ export default function App() {
                           restrictions={profile.restrictions}
                           freshness={freshness(hall)}
                           excludedCount={exclude.size}
+                          hasPlate={(trays[ctx]?.length ?? 0) > 0}
                           onUse={applyOption}
                           onNotThis={(item) => stillEligible() && setExcluded((x) => ({ ...x, [ctx]: [...(x[ctx] ?? []), item.id] }))}
                           onResetExcluded={() => setExcluded((x) => ({ ...x, [ctx]: [] }))}

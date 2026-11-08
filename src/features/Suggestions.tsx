@@ -11,6 +11,7 @@ type Props = {
   restrictions: Restrictions;
   freshness: string;
   excludedCount: number;
+  hasPlate?: boolean;
   onUse: (option: PlanOption) => void;
   onNotThis: (item: MenuItem) => void;
   onResetExcluded: () => void;
@@ -34,7 +35,7 @@ function restrictionLine(r: Restrictions) {
   return parts.length ? parts.join("; ") : "no restrictions selected";
 }
 
-export function Suggestions({ result, target, targetLabel, restrictions, freshness, excludedCount, onUse, onNotThis, onResetExcluded, onOpen }: Props) {
+export function Suggestions({ result, target, targetLabel, restrictions, freshness, excludedCount, hasPlate = false, onUse, onNotThis, onResetExcluded, onOpen }: Props) {
   const ex = result.excluded;
   const left = [
     ex.restricted && `${ex.restricted} that don't fit your restrictions`,
@@ -97,7 +98,7 @@ export function Suggestions({ result, target, targetLabel, restrictions, freshne
                 </ul>
               </details>
               <Button variant={n === 0 ? "primary" : "secondary"} className="mt-3 w-full" onClick={() => onUse(option)}>
-                Use this plate
+                {hasPlate ? "Replace my plate" : "Use this plate"}
               </Button>
             </article>
           );

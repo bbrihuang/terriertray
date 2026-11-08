@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 import type { MealTargets } from "../lib/planner";
-import type { Profile } from "../lib/profile-storage";
+import { MAX_DAILY_TARGET, type Profile } from "../lib/profile-storage";
 import { ALLERGENS, DIET_TAGS, type Restrictions } from "../lib/restrictions";
 import { TargetCalculator } from "./TargetCalculator";
 import { Button, Section } from "../components/ui";
@@ -39,7 +39,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
 
   const setTarget = (key: keyof MealTargets, raw: string) => {
     const n = raw.trim() === "" ? null : Number(raw);
-    const value = n !== null && Number.isFinite(n) && n > 0 ? Math.min(n, 20000) : null;
+    const value = n !== null && Number.isFinite(n) && n > 0 ? Math.min(n, MAX_DAILY_TARGET) : null;
     onChange({ ...profile, daily: { ...profile.daily, [key]: value } });
   };
 
@@ -49,7 +49,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
         <AppearanceControl />
       </Section>
 
-      <Section card title="Food allergies" id={`${id}-allergy`}>
+      <Section card title="Food allergies" id="food-allergies">
         <fieldset>
           <legend className="sr-only">Do you need to avoid any allergens?</legend>
           <div className="space-y-1">
@@ -134,7 +134,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
         <TargetCalculator key={calculatorKey} currentKcal={profile.daily.caloriesKcal} onApply={(kcal, macros) => onChange({ ...profile, daily: { ...profile.daily, ...macros, caloriesKcal: kcal } })} />
       </Section>
 
-      <Section card title="Daily targets" id={`${id}-targets`}>
+      <Section card title="Daily targets" id="daily-targets">
         <p className="text-muted">Leave blank anything you don't track.</p>
         <div className="mt-3 grid grid-cols-1 gap-3 min-[22rem]:grid-cols-2">
           {TARGETS.map(([key, label, unit]) => (
@@ -149,7 +149,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
                 autoComplete="off"
                 inputMode={key === "caloriesKcal" ? "numeric" : "decimal"}
                 min={key === "caloriesKcal" ? 1 : 0.1}
-                max={20000}
+                max={MAX_DAILY_TARGET}
                 step={key === "caloriesKcal" ? 1 : 0.1}
                 value={profile.daily[key] ?? ""}
                 onChange={(e) => setTarget(key, e.target.value)}
