@@ -93,7 +93,7 @@ export function Week({ index, hall, start, profile, now, onUse, onOpen }: Props)
     <div>
       <h3 className="text-lg font-semibold tracking-[-0.01em] text-balance">Seven days from {formatDate(start, "short")}</h3>
       <p className="mt-1 text-sm text-muted">
-        Each planned meal aims for {mealsPerDay === 1 ? "your whole-day targets" : `1/${mealsPerDay} of your daily targets`}. When a day lists more meals than you eat, later meals are planned first. These are the best matches among listed dishes, not advice for your body.
+        Each meal aims for {mealsPerDay === 1 ? "your whole-day targets" : `1/${mealsPerDay} of your daily targets`}.
       </p>
       <p className="mt-2 text-sm font-semibold" aria-live="polite">
         {pending.length > 0 ? `Planning meals… ${done} of ${jobs.length} done` : jobs.length > 0 ? `Planned ${jobs.length} meals.` : ""}

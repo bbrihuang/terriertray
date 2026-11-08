@@ -61,7 +61,7 @@ Adaptation choices: the user explicitly requested the gradient quality alongside
 
 ## Appearance
 
-The header offers Light, Dark, and System. System is the default and follows OS appearance changes. Explicit choices persist under `terriertray-theme`, independently of personal profile storage. The small `public/theme.js` script resolves appearance before the app paints and updates native control color-scheme and browser theme color. Storage failures fall back gracefully; appearance changes never read or store measurements.
+A single sun/moon icon button in the header switches between Light and Dark. Until it is used, the app follows the system appearance, including OS changes. Explicit choices persist under `terriertray-theme`, independently of personal profile storage. The small `public/theme.js` script resolves appearance before the app paints and updates native control color-scheme and browser theme color. Storage failures fall back gracefully; appearance changes never read or store measurements.
 
 Dark mode uses a charcoal page (#171619), raised panels (#242227), light ink (#f6f2f5), and muted labels (#beb6c2). The hero uses plum, scarlet, and warm charcoal gradients. Primary buttons stay scarlet with white text; links and progress use brighter rose tones for contrast. Theme switches suppress color transitions so surfaces change together.
 

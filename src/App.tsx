@@ -38,10 +38,8 @@ function restrictionSummary(r: Restrictions) {
   return parts.join(" · ");
 }
 
-function freshness(hall: HallEntry, date: string, today: string) {
-  const when = hall.lastSuccessfulFetchAt ? `fetched ${formatTimestamp(hall.lastSuccessfulFetchAt)}` : "saved snapshot, fetch time not recorded";
-  const day = date === today ? "today" : formatDate(date, "short");
-  return `Menu for ${day} from the official BU Dining page (${when}).`;
+function freshness(hall: HallEntry) {
+  return hall.lastSuccessfulFetchAt ? `From BU Dining, fetched ${formatTimestamp(hall.lastSuccessfulFetchAt)}` : "From a saved BU Dining snapshot; fetch time not recorded";
 }
 
 export default function App() {
@@ -178,7 +176,6 @@ export default function App() {
           <h1 className="brand-name" translate="no">
             TerrierTray
           </h1>
-          <span className="brand-caption">BU dining, planned</span>
         </div>
         <nav aria-label="Views" className="view-nav">
           {([
@@ -251,12 +248,11 @@ export default function App() {
             <div className={heroLoading ? "invisible" : undefined}>
               <Headline statement={headline[0]} feeling={headline[1]} />
             </div>
-            <p className="hero-description">{tab === "settings" ? "Your allergies and targets stay in this browser. Set only what you want to use." : tab === "week" ? "Plan with the menus BU has posted. Each meal is checked for freshness and your restrictions." : tab === "menu" ? `${meal ? `${meal.name} · ${dishCount} ${dishCount === 1 ? "dish" : "dishes"}` : "Choose a day and meal"}. Explore the dining hall’s published dishes and nutrition.` : "Real BU menus, matched to your portions and preferences."}</p>
+            {tab === "menu" && <p className="hero-description">{meal ? `${meal.name} · ${dishCount} ${dishCount === 1 ? "dish" : "dishes"}` : "Choose a day and meal"}</p>}
             {tab === "plan" && <div className="hero-actions">
               <Button variant="primary" onClick={openCalculator}>{daily.caloriesKcal !== null ? "Adjust my calorie target" : "Estimate my calories"}<Icon name="arrow" className="size-[18px]" /></Button>
               <Button variant="quiet" onClick={() => setTab("menu")}>Browse the menu</Button>
             </div>}
-            {tab === "settings" && <p className="privacy-note"><Icon name="shield" className="size-4" /> Planning happens on your device</p>}
           </div>
 
           <div className="context-card">
@@ -306,13 +302,12 @@ export default function App() {
                 </select>
               </div>
             </div>
-            <div className="restriction-summary">
+            {tab !== "settings" && <div className="restriction-summary">
               <span className="text-sm text-muted">{restrictionSummary(profile.restrictions)}</span>
               <Button variant="quiet" className="min-h-11 px-3 text-sm" onClick={() => setTab("settings")}>
                 Edit
               </Button>
-            </div>
-            <p className="context-footnote"><Icon name="shield" className="size-4" /> Your personal details stay here</p>
+            </div>}
           </div>
         </div>
 
@@ -390,7 +385,7 @@ export default function App() {
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
                 <Pill tone={freshTone}>{freshLabel}</Pill>
                 <span>
-                  {freshness(hall, activeDate!, today)} Availability can change during service.
+                  {freshness(hall)}
                 </span>
               </p>
             </div>
@@ -435,7 +430,7 @@ export default function App() {
                       <div className="target-onboarding">
                         <div className="target-symbol" aria-hidden="true"><Icon name="sliders" className="size-7" /></div>
                         <h4 className="text-xl font-medium">A starting point for your plate</h4>
-                        <p className="mt-2 text-muted">Use our calorie model or enter a daily target. We’ll match the dishes at {hall.name} to your portions and preferences.</p>
+                        <p className="mt-2 text-muted">Set a daily calorie target to get suggested plates.</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <Button variant="primary" onClick={openCalculator}>
                             Estimate my calories
@@ -446,7 +441,7 @@ export default function App() {
                     ) : !canSuggest ? (
                       <Notice tone="warn" title="Suggestions are off for this day">
                         <p>{elig?.message}</p>
-                        <p className="mt-1">You can still build a plate yourself from the Menu tab; check dishes against the official page.</p>
+                        <p className="mt-1">You can still add dishes from the Menu tab.</p>
                       </Notice>
                     ) : (
                       plan && (
@@ -455,7 +450,7 @@ export default function App() {
                           target={target}
                           targetLabel={targetLabel}
                           restrictions={profile.restrictions}
-                          freshness={freshness(hall, activeDate!, today)}
+                          freshness={freshness(hall)}
                           excludedCount={exclude.size}
                           onUse={applyOption}
                           onNotThis={(item) => stillEligible() && setExcluded((x) => ({ ...x, [ctx]: [...(x[ctx] ?? []), item.id] }))}
@@ -475,9 +470,8 @@ export default function App() {
           </>
         )}
 
-        <footer className="mt-14 max-w-2xl border-t border-line pt-4 text-sm text-muted">
-          <p>{data!.allergyNotice}</p>
-          <p className="mt-2">Not affiliated with or endorsed by Boston University. Menu facts come from BU Dining; suggestions are estimates, not medical or dietary advice.</p>
+        <footer className="mt-14 max-w-[70ch] border-t border-line pt-4 text-sm text-muted">
+          <p>{data!.allergyNotice} Not affiliated with Boston University. Suggestions are estimates, not medical or dietary advice.</p>
         </footer>
       </main>
 

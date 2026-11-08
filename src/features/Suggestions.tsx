@@ -94,7 +94,6 @@ export function Suggestions({ result, target, targetLabel, restrictions, freshne
                   <li>Restrictions: {restrictionLine(restrictions)}.</li>
                   <li>Considered {result.considered} dishes with complete labels{left.length ? `; left out ${left.join(", ")}` : ""}.</li>
                   <li>{freshness}</li>
-                  <li>This is the best match among what's listed, not advice for your body.</li>
                 </ul>
               </details>
               <Button variant={n === 0 ? "primary" : "secondary"} className="mt-3 w-full" onClick={() => onUse(option)}>

@@ -50,7 +50,7 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
   return (
     <div>
       <p>
-        Our team’s regression, trained on a {(6000).toLocaleString("en-US")}-row dataset, predicts daily calories from five inputs. It runs on this device; your measurements are not saved or sent anywhere.
+        Our team’s model predicts daily calories from five inputs. Your measurements aren’t saved or sent anywhere.
       </p>
 
       <label className="mt-4 flex min-h-11 items-start gap-3">
@@ -114,7 +114,7 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
           </select>
         </div>
         <div className="min-[26rem]:col-span-2">
-          <label htmlFor={`${id}-gender`} className="block font-semibold">Gender <span className="font-normal text-muted">(as the dataset records it)</span></label>
+          <label htmlFor={`${id}-gender`} className="block font-semibold">Gender</label>
           <select id={`${id}-gender`} className={field} value={gender} onChange={(e) => edit(setGender)(e.target.value as Gender)}>
             <option value="">Choose…</option>
             {GENDERS.map((g) => (
@@ -122,12 +122,12 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
             ))}
           </select>
           <p className="mt-1 text-sm text-muted">
-            The dataset also records “Other”, but the team chose not to apply that category’s coefficient. If these options don’t fit you, enter calories yourself below.
+            Options don’t fit? Enter calories yourself below.
           </p>
         </div>
       </div>
       <p className="mt-2 text-sm text-muted">
-        The dataset doesn’t define its activity levels; pick the closest. Activity is already part of the prediction, so don’t add exercise calories on top.
+        Activity is already counted, so don’t add exercise calories on top.
       </p>
 
       <div className="mt-5 rounded-[var(--radius-inner)] bg-sunken p-4" aria-live="polite">
@@ -156,7 +156,7 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
               </div>
             </fieldset>
             {goal === "maintain" ? (
-              <p className="mt-1 text-sm text-muted">Uses the model estimate unchanged. That’s a planning label, not a measured maintenance level.</p>
+              <p className="mt-1 text-sm text-muted">Uses the model estimate unchanged.</p>
             ) : (
               <div className="mt-2">
                 <label htmlFor={`${id}-amount`} className="block font-semibold">
@@ -174,7 +174,7 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
                   autoComplete="off"
                 />
                 <p id={`${id}-amount-help`} className={`mt-1 text-sm ${amountError ? "font-semibold text-danger" : "text-muted"}`}>
-                  {amountError ?? `${amount === null ? "Starts at 10% of the estimate; edit it to suit your plan. " : ""}Changes the estimate; does not predict weight change.`}
+                  {amountError ?? `${amount === null ? "Starts at 10% of the estimate. " : ""}Doesn’t predict weight change.`}
                 </p>
               </div>
             )}
@@ -200,7 +200,7 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
                 </Button>
               </>
             )}
-            <p className="mt-2 text-sm text-muted">Only calories change. Your protein, carb and fat targets stay as you set them; the model doesn’t predict those.</p>
+            <p className="mt-2 text-sm text-muted">Only your calorie target changes.</p>
             {applied !== null && applied === currentKcal && (
               <p role="status" className="mt-2 font-semibold text-ok">Applied. Plan and Week now aim for {applied.toLocaleString("en-US")} kcal a day.</p>
             )}
@@ -208,9 +208,17 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
         )}
       </div>
 
-      <p className="mt-4 text-sm text-muted">
-        On held-out rows of its own dataset the model was off by about 111 kcal on average. That doesn’t mean it’s accurate for you, and it isn’t medical advice. Model {model.modelSha256.slice(0, 8)}, data revision {model.sourceRevision.slice(0, 7)}.
-      </p>
+      <p className="mt-4 text-sm text-muted">Typically off by about 111 kcal. Not medical advice.</p>
+      <details className="mt-2 text-sm text-muted">
+        <summary className="min-h-11 cursor-pointer content-center font-semibold text-ink">About this model</summary>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>A regression trained on a {(6000).toLocaleString("en-US")}-row dataset. On held-out rows it was off by about 111 kcal on average; that doesn’t mean it’s accurate for you.</li>
+          <li>The dataset doesn’t define its activity levels; pick the closest.</li>
+          <li>The dataset also records “Other” gender, but the team chose not to apply that category’s coefficient.</li>
+          <li>Your protein, carb and fat targets aren’t predicted and stay as you set them.</li>
+          <li className="tnum">Model {model.modelSha256.slice(0, 8)}, data revision {model.sourceRevision.slice(0, 7)}.</li>
+        </ul>
+      </details>
     </div>
   );
 }

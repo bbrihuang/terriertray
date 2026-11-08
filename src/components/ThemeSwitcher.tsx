@@ -1,23 +1,15 @@
 import { useSyncExternalStore } from "react";
-import { Icon } from "./ui";
+import { IconButton } from "./ui";
 
 const subscribe = (notify: () => void) => {
   window.addEventListener("terriertray:theme-applied", notify);
   return () => window.removeEventListener("terriertray:theme-applied", notify);
 };
-const snapshot = () => document.documentElement.dataset.themePreference ?? "system";
+const snapshot = () => document.documentElement.dataset.theme ?? "light";
 
+/** Follows the system until clicked; then flips to an explicit light or dark choice. */
 export function ThemeSwitcher() {
-  const preference = useSyncExternalStore(subscribe, snapshot, () => "system");
-  return (
-    <label className="theme-control">
-      <Icon name="moon" className="size-[18px]" />
-      <span className="sr-only">Color theme</span>
-      <select value={preference} onChange={(event) => window.dispatchEvent(new CustomEvent("terriertray:theme-change", { detail: event.target.value }))}>
-        <option value="system">System</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
-    </label>
-  );
+  const theme = useSyncExternalStore(subscribe, snapshot, () => "light");
+  const next = theme === "dark" ? "light" : "dark";
+  return <IconButton className="theme-control" icon={next === "dark" ? "moon" : "sun"} label={`Switch to ${next} theme`} onClick={() => window.dispatchEvent(new CustomEvent("terriertray:theme-change", { detail: next }))} />;
 }

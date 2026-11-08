@@ -105,7 +105,7 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
             <p className="mt-2 text-sm text-muted">
               Source allergens:{" "}
               {item.allergens === null ? "not provided for this dish" : item.allergens.length === 0 ? "none listed" : item.allergens.join(", ")}.
-              {item.dietTags.length > 0 && ` Labels: ${item.dietTags.join(", ")}.`} Recipes can change and kitchens share equipment; confirm with dining staff if you have an allergy.
+              {item.dietTags.length > 0 && ` Labels: ${item.dietTags.join(", ")}.`}
             </p>
           </section>
 
@@ -138,7 +138,7 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
             )}
             {DV.some(([k]) => item.labelDvPercent[k] !== null) && (
               <p className="mt-3 text-sm text-muted tnum">
-                % Daily Value as printed on the label (general reference, not a personal target):{" "}
+                % Daily Value (label):{" "}
                 {DV.map(([k, l]) => `${l} ${item.labelDvPercent[k] ?? "unknown"}${item.labelDvPercent[k] === null ? "" : "%"}`).join(", ")}
               </p>
             )}
@@ -174,7 +174,6 @@ export function DishDialog({ item, restrictions, meal, onAdd, onClose }: Props) 
             )}
             <Button onClick={() => ref.current?.close()}>Close</Button>
           </div>
-          {onAdd && !verdict.allowed && <p className="mt-2 text-sm text-muted">Change your restrictions in Settings to add this dish.</p>}
         </div>
       )}
     </dialog>

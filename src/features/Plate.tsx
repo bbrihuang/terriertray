@@ -104,7 +104,7 @@ function PlateBar({ entries }: { entries: TrayEntry[] }) {
             {p.label} {Math.round(p.share * 100)}%
           </span>
         ))}
-        <span>of energy from macros, approx.</span>
+        <span>approx.</span>
       </figcaption>
     </figure>
   );
@@ -143,7 +143,7 @@ export function Plate({ meal, entries, target, targetLabel, onServings, onOpen }
       {entries.length === 0 ? (
         <div className="plate-empty mt-6">
           <p className="font-medium">Your next plate starts here</p>
-          <p className="mt-1 text-sm text-muted">Nothing on your {meal.toLowerCase()} plate yet. Use a suggested plate, or add dishes from the Menu tab.</p>
+          <p className="mt-1 text-sm text-muted">Add a suggested plate or dishes from the Menu.</p>
         </div>
       ) : (
         <ul className="mt-4 divide-y divide-line border-t border-line">
@@ -153,9 +153,8 @@ export function Plate({ meal, entries, target, targetLabel, onServings, onOpen }
                 <button type="button" onClick={() => onOpen(item)} className="dish-name text-left font-medium break-words">
                   {item.name}
                 </button>
-                <p className="text-sm text-muted tnum">{servings} × {item.servingText ?? "serving"}</p>
                 <p className="text-sm text-muted tnum">
-                  {item.station ?? "Station not listed"} · {item.caloriesKcal === null ? "calories unknown" : formatAmount(item.caloriesKcal * servings, " kcal")}
+                  {servings} × {item.servingText ?? "serving"} · {item.station ?? "Station not listed"} · {item.caloriesKcal === null ? "calories unknown" : formatAmount(item.caloriesKcal * servings, " kcal")}
                 </p>
               </div>
               <div className="flex items-center gap-1.5" role="group" aria-label={`Servings of ${item.name}`}>
@@ -186,7 +185,7 @@ export function Plate({ meal, entries, target, targetLabel, onServings, onOpen }
             ))}
           </dl>
           <PlateBar entries={entries} />
-          {targetLabel && <p className="mt-3 text-sm text-muted">Planned, not eaten. Targets are {targetLabel}.</p>}
+          {targetLabel && <p className="mt-3 text-sm text-muted">Planned, not eaten · targets are {targetLabel}</p>}
         </>
       )}
     </div>

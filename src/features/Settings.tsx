@@ -102,7 +102,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
           </fieldset>
         )}
         <p className="mt-3 text-sm text-muted">
-          Filtering uses what the dining hall publishes. Recipes change and kitchens share equipment, so if you have an allergy, confirm with dining staff before eating.
+          Kitchens share equipment and recipes change. If you have an allergy, confirm with dining staff.
         </p>
       </Section>
 
@@ -130,7 +130,7 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
       </Section>
 
       <Section card title="Daily targets" id={`${id}-targets`}>
-        <p className="text-muted">Type your own numbers, or apply the estimate above for calories. Leave blank anything you don't track. Every number stays editable.</p>
+        <p className="text-muted">Leave blank anything you don't track.</p>
         <div className="mt-3 grid grid-cols-1 gap-3 min-[22rem]:grid-cols-2">
           {TARGETS.map(([key, label, unit]) => (
             <div key={key}>
@@ -171,12 +171,12 @@ export function Settings({ profile, onChange, remember, onRemember, onDeleteSave
       </Section>
 
       <Section card title="Privacy on this device" id={`${id}-privacy`}>
-        <p className="text-muted">Your allergies and targets stay in this browser. Planning happens on your device, and nothing you enter here is sent anywhere.</p>
+        <p className="text-muted">Nothing you enter is sent anywhere.</p>
         <label className="mt-3 flex min-h-11 items-start gap-3">
           <input type="checkbox" checked={remember} onChange={(e) => onRemember(e.target.checked)} className={`${box} mt-0.5`} />
           <span>
             Remember my settings on this device
-            <span className="block text-sm text-muted">Saved unencrypted in this browser's storage. Anyone using this device and browser profile could see them.</span>
+            <span className="block text-sm text-muted">Stored unencrypted; anyone using this browser could see them.</span>
           </span>
         </label>
         <div className="mt-3">
