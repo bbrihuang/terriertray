@@ -46,8 +46,8 @@ function pickDate(dates: string[], today: string): string | null {
 
 function restrictionSummary(r: Restrictions) {
   const parts: string[] = [];
-  if (r.allergyAnswer === "unanswered") parts.push("Allergies not set");
-  else if (r.allergyAnswer === "none") parts.push("No allergens filtered");
+  if (r.allergyAnswer === "unanswered") parts.push("Not set · suggestions off");
+  else if (r.allergyAnswer === "none") parts.push("None filtered");
   else if (r.avoidAllergens.length === 0) parts.push("Allergens not chosen");
   else parts.push(`Avoiding ${r.avoidAllergens.join(", ")}`);
   if (r.requireTags.length) parts.push(r.requireTags.join(" + "));
@@ -386,9 +386,12 @@ export default function App() {
               </div>
             </div>
             {tab !== "settings" && <div className="restriction-summary">
-              <span className="text-sm text-muted">{restrictionSummary(profile.restrictions)}</span>
-              <Button variant="quiet" className="min-h-11 px-3 text-sm" onClick={() => openSettings("food-allergies")}>
-                Edit
+              <div className="min-w-0">
+                <span className="block text-sm text-muted">Allergies and diet</span>
+                <Pill tone={allergyAnswered(profile.restrictions) ? "neutral" : "warn"}>{restrictionSummary(profile.restrictions)}</Pill>
+              </div>
+              <Button variant={allergyAnswered(profile.restrictions) ? "secondary" : "primary"} className="min-h-11 px-4 text-sm" onClick={() => openSettings("food-allergies")}>
+                {allergyAnswered(profile.restrictions) ? "Edit" : "Set allergies"}
               </Button>
             </div>}
           </div>

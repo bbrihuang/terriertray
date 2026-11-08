@@ -153,6 +153,9 @@
   ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 20px; border: 3px solid var(--page); }
 }
 input:not([type="checkbox"]):not([type="radio"]), select { min-height: 48px; }
+/* Custom chevron so the arrow sits inset from the edge instead of the native one hugging the border. */
+select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%238a8590' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; background-size: 12px 8px; }
+@media (forced-colors: active) { select { appearance: auto; background-image: none; padding-right: 12px; } }
 
 /* The gradients themselves drift on separate layers; content stays stationary. */
 body::before { content: ""; position: fixed; inset: -10%; z-index: -1; pointer-events: none; background: var(--ambient-background); opacity: .55; }
@@ -202,8 +205,8 @@ html:has(dialog[open]) .planner-hero::before { animation-play-state: paused; }
 .context-heading { display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 20px; margin-bottom: 20px; }
 .context-fields { display: grid; gap: 12px; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
 .context-card label { font-size: 14px; font-weight: 400; color: var(--muted); }
-.context-card select { font-size: 16px; border-color: var(--control); padding-inline: 12px 24px; }
-.restriction-summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-block: 12px 8px; }
+.context-card select { font-size: 16px; border-color: var(--control); padding-left: 12px; }
+.restriction-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
 
 .meal-schedule { margin-top: 24px; }
 .meal-timeline { background: var(--surface); padding: 8px; border-radius: 24px; box-shadow: var(--shadow); }
@@ -324,7 +327,7 @@ button, .plate-ring .tnum, .macro-cell .text-2xl { font-weight: 600; }
   .hero-description { margin-top: 16px; }
   .context-card { padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
   .context-fields { grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); }
-  .context-card select { padding-inline: 8px; }
+  .context-card select { padding-left: 10px; padding-right: 32px; background-position: right 12px center; }
   .context-heading { display: none; }
   .hero-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 16px; }
   .hero-actions > button, .hero-actions > .button-primary { min-height: 48px; padding-inline: 8px; font-size: 14px; line-height: 1.25; }
