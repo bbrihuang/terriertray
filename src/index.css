@@ -2,7 +2,7 @@
 
 /* Red-and-white student identity. Preserve semantic status colors and dark-mode contrast. */
 :root {
-  --page: #ffffff;
+  --page: #f6f3f3; /* warm off-white so white cards read as surfaces */
   --surface: rgb(255 255 255 / 0.96); /* frosted card */
   --surface-solid: #ffffff; /* reduced transparency / dialogs */
   --field: rgb(255 255 255 / 0.9);

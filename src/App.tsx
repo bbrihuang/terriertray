@@ -6,14 +6,15 @@ import { MenuList } from "./features/MenuList";
 import { MAX_SERVINGS, Plate } from "./features/Plate";
 import { Settings } from "./features/Settings";
 import { Suggestions } from "./features/Suggestions";
+import { MealTimeline, type PlannedSummary } from "./features/MealTimeline";
 import { Week } from "./features/Week";
 import { eligibility } from "./lib/freshness";
 import type { TrayEntry } from "./lib/nutrition";
 import { mealShare, planMeal, type PlanOption } from "./lib/planner";
 import { clearProfile, DEFAULT_PROFILE, loadProfile, saveProfile, type Profile } from "./lib/profile-storage";
 import { checkRestrictions, type Restrictions } from "./lib/restrictions";
-import type { HallEntry, MenuIndex, MenuItem } from "./lib/schema";
-import { formatDate, formatHours, formatTimestamp, nyDate, nyMinutes, parseHours, pickMealIndex } from "./lib/time";
+import type { HallEntry, Meal, MenuIndex, MenuItem } from "./lib/schema";
+import { formatDate, formatTimestamp, nyDate, nyMinutes, parseHours, pickMealIndex } from "./lib/time";
 
 type Tab = "plan" | "week" | "menu" | "settings";
 type Picked = { id: string; servings: number };
@@ -84,6 +85,30 @@ export default function App() {
     history.replaceState(null, "", `?${q}`);
   }, [hall, activeDate, date, meal, mealName, tab]);
 
+  const nowMinutes = nyMinutes();
+  const liveIndex = (() => {
+    if (activeDate !== today) return null;
+    const i = meals.findIndex((m) => {
+      const r = parseHours(m.hours);
+      return r !== null && nowMinutes >= r[0] && nowMinutes < r[1];
+    });
+    return i === -1 ? null : i;
+  })();
+  const plannedFor = (m: Meal): PlannedSummary => {
+    const picks = trays[`${hall?.id}/${activeDate}/${m.name}`] ?? [];
+    const items = new Map(m.items.map((i) => [i.id, i]));
+    let kcal = 0;
+    let complete = true;
+    let dishes = 0;
+    for (const p of picks) {
+      const item = items.get(p.id);
+      if (!item) continue;
+      dishes++;
+      if (item.caloriesKcal === null) complete = false;
+      else kcal += item.caloriesKcal * p.servings;
+    }
+    return { dishes, kcal, complete };
+  };
   const byId = useMemo(() => new Map((meal?.items ?? []).map((i) => [i.id, i])), [meal]);
   const entries: TrayEntry[] = (trays[ctx] ?? []).flatMap((p) => {
     const item = byId.get(p.id);
@@ -214,7 +239,7 @@ export default function App() {
           <Headline statement={headline[0]} feeling={headline[1]} />
 
           <div className="glass p-4">
-            <div className="grid grid-cols-1 gap-3 min-[26rem]:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 min-[22rem]:grid-cols-2">
               <div>
                 <label htmlFor="hall" className="block text-sm font-semibold">
                   Dining hall
@@ -269,31 +294,15 @@ export default function App() {
         </div>
 
         {meals.length > 0 && tab !== "settings" && (
-          <div className="mt-5" role="group" aria-label="Meal">
-            <div className="flex flex-wrap gap-2">
-              {meals.map((m, i) => {
-                const selected = m === meal;
-                const range = parseHours(m.hours);
-                const now = activeDate === today && range ? nyMinutes() : null;
-                const live = now !== null && range && now >= range[0] && now < range[1];
-                const next = activeDate === today && i === defaultMeal && !live;
-                return (
-                  <button
-                    key={m.name}
-                    type="button"
-                    aria-pressed={selected}
-                    onClick={() => setMealName(m.name)}
-                    className={`press min-h-11 min-w-[7.5rem] rounded-[18px] px-4 py-2 text-left ${selected ? "bg-action text-on-action" : "border border-rim bg-field text-ink shadow-[var(--shadow)] hover:bg-surface-solid"}`}
-                  >
-                    <span className="block font-semibold">
-                      {m.name}
-                      {live ? " · now" : next ? " · next" : ""}
-                    </span>
-                    <span className={`block text-sm tnum ${selected ? "opacity-85" : "text-muted"}`}>{formatHours(m.hours) ?? "Hours not listed"}</span>
-                  </button>
-                );
-              })}
-            </div>
+          <div className="mt-5 lg:max-w-xl">
+            <MealTimeline
+              meals={meals}
+              selected={meal}
+              liveIndex={liveIndex}
+              nextIndex={liveIndex === null && activeDate === today ? defaultMeal : null}
+              planned={plannedFor}
+              onSelect={(m) => setMealName(m.name)}
+            />
           </div>
         )}
 

@@ -2,7 +2,9 @@
 name: TerrierTray
 description: Soft glass plate planner for BU dining halls
 colors:
-  page: "#ffffff"
+  page: "#f6f3f3"
+  action: "#cc0000"
+  backdrop: "rgba(20,18,28,0.35)"
   surface-glass: "rgba(255,255,255,0.72)"
   surface-solid: "#ffffff"
   field: "rgba(255,255,255,0.9)"
@@ -63,6 +65,7 @@ typography:
     fontWeight: 400
 rounded:
   card: "22px"
+  focus: "10px"
   inner: "14px"
   chip: "18px"
   pill: "999px"
@@ -129,7 +132,7 @@ Restrained pastel world: colour comes from the light behind the glass, not from 
 - **Accent ink** (`#b00000`): links and quiet buttons. 7.14:1 on glass over the strongest blob.
 
 ### Neutral
-- **Page** (`#ffffff`), **glass** (white at 72%), **field** (white at 90%) for inputs and pills.
+- **Page** (`#f6f3f3`, a warm off-white so white cards read as surfaces), **cards** (white), **field** (white at 90%) for inputs and pills. Red `#cc0000` actions carry white text at 5.89:1; muted text on the page is 6.92:1.
 - **Muted** (`#56556a`): second headline line, meta, units. 6.45:1 on glass and 4.69:1 directly on the page over a blob. The handoff's `#9a99a6` failed and is not used.
 - **Control** (`#7e7d90`): input borders, ≥3.58:1 against glass.
 
@@ -176,7 +179,7 @@ Cards 22 px, inner tiles and inputs 14 px, meal chips 18 px, and buttons and pil
 - All buttons scale to 0.97 when pressed (motion-safe only).
 
 ### Chips
-Meal chips are two-line (name with "now/next", then compact hours) with `aria-pressed`. The selected chip is red.
+Replaced by the **meal timeline** (below).
 
 ### Cards / Containers
 One `glass` utility for every card. No nested cards: inner groupings use the sunken 4% tint (macro tiles, "Why this plan?").
@@ -194,6 +197,12 @@ A segmented glass track. The selected tab is white (light) or a 16% white wash (
 - **Don't** add an assistant orb, chat, scanning, reservations, reminders, odometer counters or invented metrics. There is no AI here.
 - **Don't** use grey text lighter than `#56556a` on the light theme.
 - **Don't** animate layout. Only opacity, transform and the ring's `stroke-dashoffset` move, and only when motion is allowed.
+
+### Meal timeline
+One white card listing the day's meals in service order. Each row is a button with `aria-pressed`: a 40 px round icon (authored line icons: sunrise, cup, sun, moon), the meal name with "Serving now" or "Next", what is **planned** for it ("3 dishes planned · 705 kcal", or "Nothing planned yet"), and the published hours right-aligned. The selected row gets a soft red wash and a red icon disc. Hours wrap below on narrow screens and at 200% text. The week view's meal headings use the same icon discs.
+
+### Calorie estimate card
+Its own Settings section ("Estimate calories with our model"), linked from the Plan tab. The model's prediction shows as a big number with a small unit, then the user's optional adjustment, labelled as their own choice, then one red "Apply … kcal" pill. Only calories are applied.
 
 ## Red-and-white update
 The user explicitly requested BU-inspired red and white. CSS tokens in src/index.css are authoritative: white cards/page, red primary actions and accents, restrained red backdrop, dark-mode equivalents. Keep the unofficial notice and existing accessible layout. Colors are a student visual identity, not an endorsement or use of BU marks.

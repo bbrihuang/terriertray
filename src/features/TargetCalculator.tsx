@@ -55,7 +55,7 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
 
       <label className="mt-4 flex min-h-11 items-start gap-3">
         <input type="checkbox" checked={scope} onChange={(e) => edit(setScope)(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-[var(--brand)]" />
-        <span>I’m not pregnant or breastfeeding, and I don’t need a medically prescribed diet.</span>
+        <span className="min-w-0 [overflow-wrap:anywhere]">I’m not pregnant or breastfeeding, and I don’t need a medically prescribed diet.</span>
       </label>
 
       <fieldset className="mt-4">

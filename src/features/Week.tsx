@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Notice } from "../components/ui";
+import { Button, Icon, Notice, type IconName } from "../components/ui";
+
+const MEAL_ICONS: Record<string, IconName> = { Breakfast: "sunrise", Brunch: "cup", Lunch: "sun", Dinner: "moon" };
 import { useDayMenus } from "../data";
 import { eligibility } from "../lib/freshness";
 import { formatAmount } from "../lib/nutrition";
@@ -137,8 +139,12 @@ export function Week({ index, hall, start, profile, now, onUse, onOpen }: Props)
                       const protein = option ? option.entries.reduce((n, e) => n + (e.item.proteinG ?? 0) * e.servings, 0) : 0;
                       return (
                         <div key={key} className="mt-3 border-t border-line pt-3 first:border-0 first:pt-0">
-                          <h5 id={`week-${key}`} tabIndex={-1} className="font-semibold">
-                            {m.name} <span className="font-normal text-muted tnum">{formatHours(m.hours) ?? ""}</span>
+                          <h5 id={`week-${key}`} tabIndex={-1} className="flex items-center gap-2.5 font-semibold">
+                            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sunken" aria-hidden="true">
+                              <Icon name={MEAL_ICONS[m.name] ?? "sun"} className="size-4" />
+                            </span>
+                            <span className="min-w-0 flex-1">{m.name}</span>
+                            <span className="text-sm font-normal text-muted tnum">{formatHours(m.hours) ?? ""}</span>
                           </h5>
                           {!current ? (
                             <p className="text-sm text-muted">Planning…</p>

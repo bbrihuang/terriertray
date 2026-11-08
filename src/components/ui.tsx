@@ -7,6 +7,11 @@ const paths = {
   info: "M12 11v6M12 7.5v.5",
   alert: "M12 8v5M12 16.5v.5",
   external: "M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5",
+  // Meal periods
+  sunrise: "M12 3v3M5.6 7.6l1.8 1.8M18.4 7.6l-1.8 1.8M3 16h18M7.5 16a4.5 4.5 0 0 1 9 0M6 20h12",
+  cup: "M5 9h11v4.5A5.5 5.5 0 0 1 10.5 19h0A5.5 5.5 0 0 1 5 13.5V9zM16 11h1.5a2.5 2.5 0 0 1 0 5H16M8.5 3.5v2.5M12.5 3.5v2.5",
+  sun: "M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4",
+  moon: "M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z",
 };
 
 /** Authored line icons, one stroke weight. Decorative unless labelled by the parent. */
@@ -15,10 +20,13 @@ export function Icon({ name, className = "size-5" }: { name: keyof typeof paths;
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
       {ring && <circle cx="12" cy="12" r="9" />}
+      {name === "sun" && <circle cx="12" cy="12" r="4" />}
       <path d={paths[name]} />
     </svg>
   );
 }
+
+export type IconName = keyof typeof paths;
 
 type Variant = "primary" | "secondary" | "quiet";
 
