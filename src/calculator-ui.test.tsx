@@ -75,6 +75,34 @@ describe("model calculator interaction", () => {
     expect(apply).not.toHaveBeenCalled();
   });
 
+  it.each([false, true])("blocks targets above the saved-profile maximum with macros included: %s", (includeMacros) => {
+    const apply = vi.fn();
+    render(<TargetCalculator currentKcal={null} onApply={apply} />);
+    fill(includeMacros);
+    fireEvent.click(screen.getByLabelText("Bulking"));
+    fireEvent.change(screen.getByLabelText(/^Your planning adjustment/), { target: { value: "20000" } });
+    expect(screen.getAllByText("2,718")).toHaveLength(2);
+    expect(screen.getByText("22,718 kcal")).toBeTruthy();
+    const button = screen.getByRole<HTMLButtonElement>("button", { name: /^Apply/ });
+    expect(button.disabled).toBe(true);
+    expect(screen.getByRole("alert").textContent).toMatch(/20,000 kcal/);
+    fireEvent.click(button);
+    expect(apply).not.toHaveBeenCalled();
+  });
+
+  it.each([false, true])("accepts the exact saved-profile maximum with macros included: %s", (includeMacros) => {
+    const apply = vi.fn();
+    render(<TargetCalculator currentKcal={null} onApply={apply} />);
+    fill(includeMacros);
+    fireEvent.click(screen.getByLabelText("Bulking"));
+    fireEvent.change(screen.getByLabelText(/^Your planning adjustment/), { target: { value: "17282" } });
+    const button = screen.getByRole<HTMLButtonElement>("button", { name: /^Apply 20,000 kcal/ });
+    expect(button.disabled).toBe(false);
+    fireEvent.click(button);
+    if (includeMacros) expect(apply).toHaveBeenCalledWith(20000, { proteinG: 1000, carbsG: 2500, fatG: 666.7 });
+    else expect(apply).toHaveBeenCalledWith(20000);
+  });
+
   it("keeps model limitations available through a native labelled disclosure", () => {
     render(<TargetCalculator currentKcal={null} onApply={() => {}} />);
     const summary = screen.getByText("About this model", { selector: "summary" });

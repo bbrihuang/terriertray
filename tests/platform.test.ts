@@ -24,6 +24,27 @@ describe("profile storage", () => {
     expect(loadProfile(s)).toEqual(profile);
   });
 
+  it("round-trips the maximum daily calories and decimal macro targets", () => {
+    const s = new MemoryStorage();
+    const profile = { ...DEFAULT_PROFILE, daily: { caloriesKcal: 20000, proteinG: 135.9, carbsG: 339.8, fatG: 90.6 } };
+    expect(saveProfile(profile, s)).toBe(true);
+    expect(loadProfile(s)).toEqual(profile);
+  });
+
+  it.each([20001, 0, -1, NaN, Infinity])("rejects an invalid daily target without replacing saved allergy settings: %s", (caloriesKcal) => {
+    const s = new MemoryStorage();
+    const profile = {
+      ...DEFAULT_PROFILE,
+      restrictions: { ...DEFAULT_PROFILE.restrictions, allergyAnswer: "some" as const, avoidAllergens: ["Milk"] },
+      daily: { caloriesKcal: 2200, proteinG: 120.5, carbsG: null, fatG: null },
+    };
+    saveProfile(profile, s);
+    const prior = s.getItem(STORAGE_KEY);
+    expect(saveProfile({ ...profile, daily: { ...profile.daily, caloriesKcal } }, s)).toBe(false);
+    expect(s.getItem(STORAGE_KEY)).toBe(prior);
+    expect(loadProfile(s)).toEqual(profile);
+  });
+
   it("discards corrupt or tampered data instead of crashing", () => {
     const s = new MemoryStorage();
     s.setItem(STORAGE_KEY, "{not json");

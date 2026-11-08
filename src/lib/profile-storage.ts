@@ -16,7 +16,8 @@ export const DEFAULT_PROFILE: Profile = {
   mealsPerDay: 3,
 };
 
-const target = z.number().finite().positive().max(20000).nullable();
+export const MAX_DAILY_TARGET = 20000;
+const target = z.number().finite().positive().max(MAX_DAILY_TARGET).nullable();
 
 const StoredProfile = z.object({
   version: z.literal(1),
@@ -70,7 +71,9 @@ export function loadProfile(store: StorageLike | null = storage()): Profile | nu
 export function saveProfile(profile: Profile, store: StorageLike | null = storage()): boolean {
   if (!store) return false;
   try {
-    store.setItem(STORAGE_KEY, JSON.stringify({ version: 1, ...profile }));
+    const parsed = StoredProfile.safeParse({ version: 1, ...profile });
+    if (!parsed.success) return false;
+    store.setItem(STORAGE_KEY, JSON.stringify(parsed.data));
     return true;
   } catch {
     return false; // quota or disabled

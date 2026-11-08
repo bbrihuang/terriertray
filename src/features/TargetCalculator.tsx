@@ -4,6 +4,7 @@ import model from "../lib/calorie-model.json";
 import { ACTIVITY_LEVELS, defaultAdjustmentKcal, feetAndInchesToCm, GENDERS, GOALS, planTarget, poundsToKg, predictCalories, RANGES, type Gender, type Goal } from "../lib/target-calculator";
 import { DEFAULT_MACRO_PREFERENCES, macroTargets, type MacroGrams, type MacroPreferences } from "../lib/macro-targets";
 import { MacroTargets } from "./MacroTargets";
+import { MAX_DAILY_TARGET } from "../lib/profile-storage";
 
 const field = "mt-1 min-h-11 w-full rounded-[var(--radius-inner)] border border-control bg-field px-3 text-ink tnum";
 type Units = "metric" | "us";
@@ -75,6 +76,7 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
   const amountText = amount ?? (prediction === null ? "" : String(defaultAdjustmentKcal(prediction)));
   const plan = prediction === null ? null : planTarget(prediction, goal, amountText);
   const amountError = plan && "error" in plan ? plan.error : null;
+  const targetTooLarge = plan !== null && "target" in plan && plan.target > MAX_DAILY_TARGET;
   const macros = scope && plan && "target" in plan && weightKg !== null ? macroTargets(plan.target, weightKg, macroPreferences) : null;
   const proposedMacros = macros?.ok ? {
     proteinG: Math.round(macros.grams.proteinG * 10) / 10,
@@ -241,14 +243,16 @@ export function TargetCalculator({ currentKcal, onApply }: { currentKcal: number
                   {includeMacros ? "Apply replaces your daily calories, protein, carbohydrate and fat targets with the proposal above." : "Only your calorie target changes; your manual macro targets stay as you set them."}
                   {includeMacros && " Macro grams are rounded to 0.1 g; calorie shares are approximate."}
                 </p>
+                {targetTooLarge && <p id={`${id}-target-limit`} role="alert" className="mt-2 text-sm font-semibold text-danger">Daily targets must be {MAX_DAILY_TARGET.toLocaleString("en-US")} kcal or less. Enter a smaller planning adjustment.</p>}
                 {includeMacros && roundingProblem && <p role="alert" className="mt-2 text-sm font-semibold text-danger">This split rounds at least one macro to 0 g. Choose a different split or apply calories only.</p>}
                 {macroBlocked && <p id={`${id}-macro-blocked`} className="mt-2 text-sm font-semibold text-danger">Uncheck “Include suggested macros” to apply calories only, or change the split above.</p>}
                 <Button
                   variant="primary"
                   className="mt-3"
-                  disabled={macroBlocked}
-                  aria-describedby={macroBlocked ? `${id}-macro-blocked` : undefined}
+                  disabled={targetTooLarge || macroBlocked}
+                  aria-describedby={targetTooLarge ? `${id}-target-limit` : macroBlocked ? `${id}-macro-blocked` : undefined}
                   onClick={() => {
+                    if (targetTooLarge) return;
                     if (includeMacros) {
                       if (!proposedMacros || macroBlocked) return;
                       onApply(plan.target, proposedMacros);
