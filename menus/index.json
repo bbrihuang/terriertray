@@ -1,0 +1,293 @@
+{
+ "schemaVersion": 1,
+ "dataVersion": "9c8e466331d07064",
+ "generatedAt": "2026-11-14T16:40:58.741Z",
+ "timezone": "America/New_York",
+ "allergyNotice": "BU Dining warns that ingredient substitutions, formulation changes and kitchen cross-contact can occur, and no menu item is guaranteed allergen-free. If you have a food allergy, talk with BU Dining staff before eating.",
+ "freshness": {
+  "basis": "refresh_run_start",
+  "basisAt": "2026-11-14T16:39:15+00:00",
+  "checkedAt": "2026-11-14T16:40:58.374878+00:00",
+  "validatorStatus": "fresh",
+  "maxAgeHours": 24,
+  "expiryHours": 48,
+  "requestedDates": [
+   "2026-11-14",
+   "2026-11-15",
+   "2026-11-16",
+   "2026-11-17",
+   "2026-11-18",
+   "2026-11-19",
+   "2026-11-20"
+  ],
+  "availableDates": [
+   "2026-11-14",
+   "2026-11-15",
+   "2026-11-16",
+   "2026-11-17",
+   "2026-11-18",
+   "2026-11-19",
+   "2026-11-20"
+  ],
+  "missingDates": [],
+  "warnings": [],
+  "errors": []
+ },
+ "halls": [
+  {
+   "id": "west",
+   "name": "West Campus",
+   "source": "bu-html",
+   "sourceUrl": "https://www.bu.edu/dining/location/west/",
+   "status": "ok",
+   "lastAttemptAt": "2026-11-14T16:40:58.741Z",
+   "lastSuccessfulFetchAt": "2026-11-14T16:39:15+00:00",
+   "note": null,
+   "dates": [
+    {
+     "date": "2026-11-14",
+     "file": "west/2026-11-14.json",
+     "itemCount": 142,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-15",
+     "file": "west/2026-11-15.json",
+     "itemCount": 103,
+     "meals": [
+      "Brunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-16",
+     "file": "west/2026-11-16.json",
+     "itemCount": 138,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-17",
+     "file": "west/2026-11-17.json",
+     "itemCount": 156,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-18",
+     "file": "west/2026-11-18.json",
+     "itemCount": 143,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-19",
+     "file": "west/2026-11-19.json",
+     "itemCount": 129,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-20",
+     "file": "west/2026-11-20.json",
+     "itemCount": 146,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "warren",
+   "name": "Warren Towers",
+   "source": "bu-html",
+   "sourceUrl": "https://www.bu.edu/dining/location/warren/",
+   "status": "ok",
+   "lastAttemptAt": "2026-11-14T16:40:58.741Z",
+   "lastSuccessfulFetchAt": "2026-11-14T16:39:15+00:00",
+   "note": null,
+   "dates": [
+    {
+     "date": "2026-11-14",
+     "file": "warren/2026-11-14.json",
+     "itemCount": 80,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-15",
+     "file": "warren/2026-11-15.json",
+     "itemCount": 75,
+     "meals": [
+      "Brunch",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-16",
+     "file": "warren/2026-11-16.json",
+     "itemCount": 103,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-17",
+     "file": "warren/2026-11-17.json",
+     "itemCount": 135,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-18",
+     "file": "warren/2026-11-18.json",
+     "itemCount": 152,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-19",
+     "file": "warren/2026-11-19.json",
+     "itemCount": 139,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-20",
+     "file": "warren/2026-11-20.json",
+     "itemCount": 110,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "marciano",
+   "name": "Marciano Commons",
+   "source": "bu-html",
+   "sourceUrl": "https://www.bu.edu/dining/location/marciano/",
+   "status": "ok",
+   "lastAttemptAt": "2026-11-14T16:40:58.741Z",
+   "lastSuccessfulFetchAt": "2026-11-14T16:39:15+00:00",
+   "note": null,
+   "dates": [
+    {
+     "date": "2026-11-14",
+     "file": "marciano/2026-11-14.json",
+     "itemCount": 102,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-15",
+     "file": "marciano/2026-11-15.json",
+     "itemCount": 67,
+     "meals": [
+      "Brunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-16",
+     "file": "marciano/2026-11-16.json",
+     "itemCount": 107,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-17",
+     "file": "marciano/2026-11-17.json",
+     "itemCount": 105,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-18",
+     "file": "marciano/2026-11-18.json",
+     "itemCount": 118,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-19",
+     "file": "marciano/2026-11-19.json",
+     "itemCount": 95,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    },
+    {
+     "date": "2026-11-20",
+     "file": "marciano/2026-11-20.json",
+     "itemCount": 119,
+     "meals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "fenway",
+   "name": "The Fenway Dining Hall",
+   "source": "sodexo-api",
+   "sourceUrl": "https://bufenway.sodexomyway.com/en-us/locations/the-fenway-dining-hall",
+   "status": "not_configured",
+   "lastAttemptAt": "2026-11-07T22:11:40.055Z",
+   "lastSuccessfulFetchAt": null,
+   "note": "The Fenway menu feed is not connected yet (no API key configured for the collector).",
+   "dates": []
+  }
+ ]
+}
